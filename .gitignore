@@ -10,10 +10,13 @@
 /storage/*.key
 /storage/pail
 /vendor
+/old
+.htaccess
 .DS_Store
 .env
 .env.backup
 .env.production
+.env.oldproduction
 .phpactor.json
 .phpunit.result.cache
 Homestead.json
