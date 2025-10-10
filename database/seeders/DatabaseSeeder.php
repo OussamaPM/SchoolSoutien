@@ -3,6 +3,7 @@
 namespace Database\Seeders;
 
 use App\Models\User;
+use App\RoleEnum;
 // use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\Hash;
@@ -14,12 +15,12 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
-        // Create a test user
         User::firstOrCreate(
-            ['email' => 'test@example.com'],
+            ['email' => 'admin@schoolsoutien.com'],
             [
-                'name' => 'Test User',
-                'password' => Hash::make('password'),
+                'name' => 'Admin User',
+                'role' => RoleEnum::ADMIN,
+                'password' => Hash::make('admin'),
                 'email_verified_at' => now(),
             ]
         );

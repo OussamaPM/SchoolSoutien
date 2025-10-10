@@ -3,11 +3,12 @@
 namespace App\Models;
 
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
-use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Database\Eloquent\Relations\HasMany;
-use Illuminate\Foundation\Auth\User as Authenticatable;
+use App\RoleEnum;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Fortify\TwoFactorAuthenticatable;
+use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Foundation\Auth\User as Authenticatable;
 
 class User extends Authenticatable
 {
@@ -23,6 +24,7 @@ class User extends Authenticatable
         'name',
         'email',
         'password',
+        'role'
     ];
 
     /**
@@ -117,5 +119,20 @@ class User extends Authenticatable
     public function childProfilesWithActiveSubscriptions(): HasMany
     {
         return $this->childProfiles()->whereHas('activePurchasedPlans');
+    }
+
+    public function isAdmin(): bool
+    {
+        return $this->role === RoleEnum::ADMIN;
+    }
+
+    public function isParent(): bool
+    {
+        return $this->role === RoleEnum::PARENT;
+    }
+
+    public function isTeacher(): bool
+    {
+        return $this->role === RoleEnum::TEACHER;
     }
 }
