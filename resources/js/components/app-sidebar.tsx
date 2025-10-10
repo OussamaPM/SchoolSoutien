@@ -11,9 +11,10 @@ import {
     SidebarMenuItem,
 } from '@/components/ui/sidebar';
 import { dashboard } from '@/routes';
+import forfaits from '@/routes/admin/forfaits';
 import { type NavItem } from '@/types';
 import { Link } from '@inertiajs/react';
-import { Globe, LayoutGrid } from 'lucide-react';
+import { Globe, HandCoins, LayoutGrid } from 'lucide-react';
 import AppLogo from './app-logo';
 
 const mainNavItems: NavItem[] = [
@@ -21,6 +22,11 @@ const mainNavItems: NavItem[] = [
         title: 'Dashboard',
         href: dashboard(),
         icon: LayoutGrid,
+    },
+    {
+        title: 'Forfaits',
+        href: forfaits.index(),
+        icon: HandCoins,
     },
 ];
 
