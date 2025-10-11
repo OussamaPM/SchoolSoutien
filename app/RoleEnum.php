@@ -2,6 +2,8 @@
 
 namespace App;
 
+use App\Http\Controllers\DashboardController;
+
 enum RoleEnum: string
 {
     case ADMIN = 'admin';
@@ -35,5 +37,14 @@ enum RoleEnum: string
     public static function default(): self
     {
         return self::PARENT;
+    }
+
+    public function getCorrespondingFunction(): callable
+    {
+        return match ($this) {
+            self::ADMIN => fn(DashboardController $controller) => $controller->getAdminData(),
+            self::PARENT => fn(DashboardController $controller) => $controller->getParentData(),
+            self::TEACHER => fn(DashboardController $controller) => $controller->getTeacherData(),
+        };
     }
 }

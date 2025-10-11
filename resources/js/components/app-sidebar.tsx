@@ -12,8 +12,8 @@ import {
 } from '@/components/ui/sidebar';
 import { dashboard } from '@/routes';
 import forfaits from '@/routes/admin/forfaits';
-import { type NavItem } from '@/types';
-import { Link } from '@inertiajs/react';
+import { SharedData, type NavItem } from '@/types';
+import { Link, usePage } from '@inertiajs/react';
 import { Globe, HandCoins, LayoutGrid } from 'lucide-react';
 import AppLogo from './app-logo';
 
@@ -23,12 +23,19 @@ const mainNavItems: NavItem[] = [
         href: dashboard(),
         icon: LayoutGrid,
     },
+];
+
+const adminMainNavItems: NavItem[] = [
     {
         title: 'Forfaits',
         href: forfaits.index(),
         icon: HandCoins,
     },
 ];
+
+const parentMainNavItems: NavItem[] = [];
+
+const teacherMainNavItems: NavItem[] = [];
 
 const footerNavItems: NavItem[] = [
     {
@@ -37,6 +44,19 @@ const footerNavItems: NavItem[] = [
         icon: Globe,
     },
 ];
+
+const getNavItemsByRole = (role: 'admin' | 'parent' | 'teacher') => {
+    switch (role) {
+        case 'admin':
+            return mainNavItems.concat(adminMainNavItems);
+        case 'parent':
+            return mainNavItems.concat(parentMainNavItems);
+        case 'teacher':
+            return mainNavItems.concat(teacherMainNavItems);
+        default:
+            return mainNavItems;
+    }
+};
 
 export function AppSidebar() {
     return (
@@ -54,7 +74,11 @@ export function AppSidebar() {
             </SidebarHeader>
 
             <SidebarContent>
-                <NavMain items={mainNavItems} />
+                <NavMain
+                    items={getNavItemsByRole(
+                        usePage<SharedData>().props.auth.user.role,
+                    )}
+                />
             </SidebarContent>
 
             <SidebarFooter>

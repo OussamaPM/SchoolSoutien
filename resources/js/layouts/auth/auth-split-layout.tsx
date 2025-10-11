@@ -34,17 +34,19 @@ export default function AuthSplitLayout({
                     <AppLogoIcon className="mr-2 h-30 fill-current text-white" />
                 </a>
                 <div className="relative z-20 mt-auto">
-                    <blockquote className="space-y-2 text-zinc-900">
-                        <p className="text-lg">
-                            &ldquo;L'éducation en ligne offre à chaque élève la
-                            possibilité de progresser à son rythme et de
-                            bénéficier d'un soutien scolaire
-                            personnalisé.&rdquo;
-                        </p>
-                        <footer className="text-sm">
-                            Soutien Scolaire en Ligne
-                        </footer>
-                    </blockquote>
+                    <div className="relative">
+                        <blockquote className="relative space-y-2 rounded-lg border border-white/10 bg-black/20 p-4 text-white backdrop-blur-sm">
+                            <p className="text-lg font-medium">
+                                &ldquo;L'éducation en ligne offre à chaque élève
+                                la possibilité de progresser à son rythme et de
+                                bénéficier d'un soutien scolaire
+                                personnalisé.&rdquo;
+                            </p>
+                            <footer className="text-sm opacity-90">
+                                Soutien Scolaire en Ligne
+                            </footer>
+                        </blockquote>
+                    </div>
                 </div>
             </div>
             <div className="w-full lg:p-8">
