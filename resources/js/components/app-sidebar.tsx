@@ -11,10 +11,11 @@ import {
     SidebarMenuItem,
 } from '@/components/ui/sidebar';
 import { dashboard } from '@/routes';
+import { levelCategories } from '@/routes/admin/educational-programs';
 import forfaits from '@/routes/admin/forfaits';
 import { SharedData, type NavItem } from '@/types';
 import { Link, usePage } from '@inertiajs/react';
-import { Globe, HandCoins, LayoutGrid } from 'lucide-react';
+import { Globe, GraduationCap, HandCoins, LayoutGrid } from 'lucide-react';
 import AppLogo from './app-logo';
 
 const mainNavItems: NavItem[] = [
@@ -30,6 +31,11 @@ const adminMainNavItems: NavItem[] = [
         title: 'Forfaits',
         href: forfaits.index(),
         icon: HandCoins,
+    },
+    {
+        title: 'Programme',
+        href: levelCategories.url(),
+        icon: GraduationCap,
     },
 ];
 

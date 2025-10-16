@@ -45,7 +45,6 @@ export default function Create() {
             <Head title="Créer un forfait" />
 
             <div className="flex h-full flex-1 flex-col gap-6 overflow-x-auto rounded-xl p-6">
-                {/* Header */}
                 <div className="flex items-center gap-4">
                     <Link href="/admin/forfaits">
                         <Button variant="ghost" size="icon">
@@ -63,7 +62,6 @@ export default function Create() {
                     </div>
                 </div>
 
-                {/* Form */}
                 <div className="max-w-2xl">
                     <Card>
                         <CardHeader>
@@ -71,7 +69,6 @@ export default function Create() {
                         </CardHeader>
                         <CardContent>
                             <form onSubmit={submit} className="space-y-6">
-                                {/* Name */}
                                 <div className="space-y-2">
                                     <Label htmlFor="name">Nom du forfait</Label>
                                     <Input
