@@ -56,7 +56,7 @@ export default function Index({ plans }: Props) {
                         </p>
                     </div>
 
-                    <Link href="/admin/forfaits/create">
+                    <Link href={forfaits.create()}>
                         <Button>
                             <Plus className="mr-2 h-4 w-4" />
                             Nouveau Forfait

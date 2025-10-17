@@ -26,6 +26,7 @@ import { Transition } from '@headlessui/react';
 import { Form, Head } from '@inertiajs/react';
 import { Edit, Plus, Trash2 } from 'lucide-react';
 import { useState } from 'react';
+import { toast } from 'sonner';
 
 export interface EducationLevel {
     id: number;
@@ -62,15 +63,11 @@ export default function Index({ levels = [], category }: Props) {
         null,
     );
 
-    const openCreate = () => {
-        setIsCreateOpen(true);
-    };
-
+    const openCreate = () => setIsCreateOpen(true);
     const openEdit = (level: EducationLevel) => {
         setEditingLevel(level);
         setIsEditOpen(true);
     };
-
     const openDelete = (level: EducationLevel) => {
         setDeletingLevel(level);
         setIsDeleteOpen(true);
@@ -172,6 +169,11 @@ export default function Index({ levels = [], category }: Props) {
                     </DialogHeader>
 
                     <Form
+                        disableWhileProcessing
+                        onSuccess={() => {
+                            toast('Nouveau niveau créé');
+                            setIsCreateOpen(false);
+                        }}
                         {...EducationalProgramController.storeLevel.form(
                             category.id,
                         )}
@@ -244,6 +246,153 @@ export default function Index({ levels = [], category }: Props) {
                             </>
                         )}
                     </Form>
+                </DialogContent>
+            </Dialog>
+
+            {/* Edit Dialog */}
+            <Dialog open={isEditOpen} onOpenChange={setIsEditOpen}>
+                <DialogContent className="sm:max-w-[450px]">
+                    <DialogHeader>
+                        <DialogTitle>Modifier le niveau</DialogTitle>
+                    </DialogHeader>
+
+                    {editingLevel && (
+                        <Form
+                            disableWhileProcessing
+                            {...EducationalProgramController.updateLevel.form([
+                                category.id,
+                                editingLevel.id,
+                            ])}
+                            options={{ preserveScroll: true }}
+                            className="space-y-6"
+                            onSuccess={() => {
+                                toast('Niveau modifié');
+                                setIsEditOpen(false);
+                            }}
+                        >
+                            {({ processing, recentlySuccessful, errors }) => (
+                                <>
+                                    <div className="grid gap-4 py-4">
+                                        <div className="grid grid-cols-4 items-center gap-4">
+                                            <Label
+                                                htmlFor="name-edit"
+                                                className="text-right"
+                                            >
+                                                Nom
+                                            </Label>
+                                            <Input
+                                                id="name-edit"
+                                                name="name"
+                                                defaultValue={editingLevel.name}
+                                                className="col-span-3"
+                                            />
+                                            <InputError
+                                                message={errors.name}
+                                                className="col-span-3"
+                                            />
+                                        </div>
+                                        <div className="grid grid-cols-4 items-center gap-4">
+                                            <Label
+                                                htmlFor="desc-edit"
+                                                className="text-right"
+                                            >
+                                                Description
+                                            </Label>
+                                            <Input
+                                                id="desc-edit"
+                                                name="description"
+                                                defaultValue={
+                                                    editingLevel.description ||
+                                                    ''
+                                                }
+                                                className="col-span-3"
+                                            />
+                                            <InputError
+                                                message={errors.description}
+                                                className="col-span-3"
+                                            />
+                                        </div>
+                                    </div>
+
+                                    <DialogFooter>
+                                        <div className="flex items-center gap-4">
+                                            <Button
+                                                variant="outline"
+                                                onClick={() =>
+                                                    setIsEditOpen(false)
+                                                }
+                                            >
+                                                Annuler
+                                            </Button>
+                                            <Button disabled={processing}>
+                                                Enregistrer
+                                            </Button>
+                                        </div>
+                                    </DialogFooter>
+                                </>
+                            )}
+                        </Form>
+                    )}
+                </DialogContent>
+            </Dialog>
+
+            {/* Delete Dialog */}
+            <Dialog open={isDeleteOpen} onOpenChange={setIsDeleteOpen}>
+                <DialogContent className="sm:max-w-[420px]">
+                    <DialogHeader>
+                        <DialogTitle>Supprimer le niveau</DialogTitle>
+                    </DialogHeader>
+
+                    {deletingLevel && (
+                        <Form
+                            disableWhileProcessing
+                            {...EducationalProgramController.deleteLevel.form([
+                                category.id,
+                                deletingLevel.id,
+                            ])}
+                            options={{
+                                preserveScroll: true,
+                            }}
+                            className="space-y-6"
+                            onSuccess={() => {
+                                toast('Niveau supprimé');
+                                setIsDeleteOpen(false);
+                            }}
+                        >
+                            {({ processing }) => (
+                                <>
+                                    <div className="py-4">
+                                        <p>
+                                            Voulez-vous vraiment supprimer le
+                                            niveau{' '}
+                                            <strong>
+                                                {deletingLevel.name}
+                                            </strong>{' '}
+                                            ? Cette action est irréversible.
+                                        </p>
+                                    </div>
+                                    <DialogFooter>
+                                        <div className="flex items-center gap-4">
+                                            <Button
+                                                variant="outline"
+                                                onClick={() =>
+                                                    setIsDeleteOpen(false)
+                                                }
+                                            >
+                                                Annuler
+                                            </Button>
+                                            <Button
+                                                variant={'destructive'}
+                                                disabled={processing}
+                                            >
+                                                Supprimer
+                                            </Button>
+                                        </div>
+                                    </DialogFooter>
+                                </>
+                            )}
+                        </Form>
+                    )}
                 </DialogContent>
             </Dialog>
         </AppLayout>

@@ -11,11 +11,19 @@ import {
     SidebarMenuItem,
 } from '@/components/ui/sidebar';
 import { dashboard } from '@/routes';
+import { orders } from '@/routes/admin';
 import { levelCategories } from '@/routes/admin/educational-programs';
 import forfaits from '@/routes/admin/forfaits';
+import forfaitStore from '@/routes/parent/forfait-store';
 import { SharedData, type NavItem } from '@/types';
 import { Link, usePage } from '@inertiajs/react';
-import { Globe, GraduationCap, HandCoins, LayoutGrid } from 'lucide-react';
+import {
+    Globe,
+    GraduationCap,
+    HandCoins,
+    LayoutGrid,
+    ShoppingCart,
+} from 'lucide-react';
 import AppLogo from './app-logo';
 
 const mainNavItems: NavItem[] = [
@@ -28,6 +36,11 @@ const mainNavItems: NavItem[] = [
 
 const adminMainNavItems: NavItem[] = [
     {
+        title: 'Commandes',
+        href: orders(),
+        icon: ShoppingCart,
+    },
+    {
         title: 'Forfaits',
         href: forfaits.index(),
         icon: HandCoins,
@@ -39,7 +52,13 @@ const adminMainNavItems: NavItem[] = [
     },
 ];
 
-const parentMainNavItems: NavItem[] = [];
+const parentMainNavItems: NavItem[] = [
+    {
+        title: 'Boutique',
+        href: forfaitStore.index(),
+        icon: HandCoins,
+    },
+];
 
 const teacherMainNavItems: NavItem[] = [];
 

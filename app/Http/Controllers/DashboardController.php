@@ -24,7 +24,10 @@ class DashboardController extends Controller implements DashboardInterface
 
     public function getParentData(): array
     {
-        return [];
+        return [
+            'activeUnassignedPlans' => Auth::user()->activePurchasedPlans()->unassigned()->with(['childProfile', 'plan'])->get(),
+            'childProfiles' => Auth::user()->childProfiles()->with('currentPlan.plan')->get(),
+        ];
     }
 
     public function getTeacherData(): array

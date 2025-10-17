@@ -5,6 +5,8 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\Admin\ForfaitController;
 use App\Http\Controllers\EducationalProgramController;
+use App\Http\Controllers\OrdersController;
+use App\Http\Controllers\Parent\ForfaitStoreController;
 
 Route::get('/', function () {
     return view('welcome');
@@ -14,8 +16,16 @@ Route::get('/', function () {
 Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('dashboard', DashboardController::class)->name('dashboard');
 
+    Route::prefix('parent')->name('parent.')->group(function () {
+        Route::post('forfait-store/assign-child-profile', [ForfaitStoreController::class, 'storeChildProfilePlan'])
+            ->name('forfait-store.assign-child-profile');
+        Route::resource('forfait-store', ForfaitStoreController::class);
+    });
+
     Route::prefix('admin')->name('admin.')->group(function () {
         Route::resource('forfaits', ForfaitController::class);
+
+        Route::get('orders', OrdersController::class)->name('orders');
 
         Route::controller(EducationalProgramController::class)
             ->prefix('educational-programs')

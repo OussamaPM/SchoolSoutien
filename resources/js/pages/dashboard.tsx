@@ -13,14 +13,14 @@ const breadcrumbs: BreadcrumbItem[] = [
     },
 ];
 
-export default function Dashboard() {
+export default function Dashboard({ data }: { data?: any }) {
     const role = usePage<SharedData>().props.auth.user.role;
     return (
         <AppLayout breadcrumbs={breadcrumbs}>
             <Head title="Dashboard" />
             {role === 'admin' && <AdminDashboard />}
-            {role === 'parent' && <ParentDashboard />}
-            {role === 'teacher' && <TeacherDashboard />}
+            {role === 'parent' && <ParentDashboard data={data} />}
+            {role === 'teacher' && <TeacherDashboard data={data} />}
         </AppLayout>
     );
 }

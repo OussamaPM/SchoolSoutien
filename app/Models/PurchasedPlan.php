@@ -27,6 +27,11 @@ class PurchasedPlan extends Model
         'is_active' => 'boolean',
     ];
 
+    protected $appends = [
+        'still_going',
+        'remaining_days',
+    ];
+
     /**
      * Get the plan template this purchase is based on.
      */
@@ -65,6 +70,11 @@ class PurchasedPlan extends Model
     public function isExpired(): bool
     {
         return $this->expires_at <= now();
+    }
+
+    public function getStillGoingAttribute(): bool
+    {
+        return !$this->isExpired();
     }
 
     /**

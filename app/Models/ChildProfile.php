@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 
@@ -42,6 +43,20 @@ class ChildProfile extends Model
     public function purchasedPlans(): HasMany
     {
         return $this->hasMany(PurchasedPlan::class);
+    }
+
+    /**
+     * Relationship for the child's current (active, non-expired) purchased plan.
+     *
+     * This returns a HasOne relationship so you can eager load it with
+     * ->with('currentPlan') and access it as $child->currentPlan.
+     */
+    public function currentPlan(): HasOne
+    {
+        return $this->hasOne(PurchasedPlan::class)
+            ->where('is_active', true)
+            ->where('expires_at', '>', now())
+            ->orderBy('expires_at', 'desc');
     }
 
     /**
