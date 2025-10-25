@@ -24,4 +24,12 @@ class EducationLevel extends Model
     {
         return $this->belongsTo(EducationLevelCategory::class, 'category_id');
     }
+
+    /**
+     * Get the educational subjects for this level.
+     */
+    public function educationSubjects()
+    {
+        return $this->hasMany(EducationalSubject::class, 'education_level_id');
+    }
 }

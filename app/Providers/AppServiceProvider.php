@@ -27,7 +27,7 @@ class AppServiceProvider extends ServiceProvider
     {
         Vite::useAggressivePrefetching();
         Model::automaticallyEagerLoadRelationships();
-        URL::forceHttps();
+        // URL::forceHttps();
         Date::use(CarbonImmutable::class);
         DB::prohibitDestructiveCommands(
             app()->isProduction(),

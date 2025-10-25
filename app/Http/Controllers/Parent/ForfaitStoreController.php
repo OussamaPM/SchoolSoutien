@@ -42,9 +42,9 @@ class ForfaitStoreController extends Controller
     public function storeChildProfilePlan(Request $request)
     {
         $validated = $request->validate([
-            'name' => 'nullable|string|max:255',
-            'level_id' => 'nullable|exists:education_levels,id',
-            'class' => 'nullable|string|max:255',
+            'name' => 'required|string|max:255',
+            'level_id' => 'required|exists:education_levels,id',
+            'programme_id' => 'required|exists:education_level_categories,id',
             'purchased_plan_id' => 'required|exists:purchased_plans,id',
         ]);
 
@@ -54,6 +54,7 @@ class ForfaitStoreController extends Controller
                 'name' => $validated['name'] ?? 'Profil Enfant',
                 'education_level_id' => $validated['level_id'] ?? null,
                 'class' => $validated['class'] ?? null,
+                'education_level_category_id' => $validated['programme_id'] ?? null,
             ]);
 
             $plan = PurchasedPlan::findOrFail($validated['purchased_plan_id']);

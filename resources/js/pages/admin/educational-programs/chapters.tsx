@@ -1,6 +1,5 @@
 import EducationalProgramController from '@/actions/App/Http/Controllers/EducationalProgramController';
 import InputError from '@/components/input-error';
-import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import {
     Dialog,
@@ -21,80 +20,104 @@ import {
     TableRow,
 } from '@/components/ui/table';
 import AppLayout from '@/layouts/app-layout';
-import programs, { subjects } from '@/routes/admin/educational-programs';
+import programs from '@/routes/admin/educational-programs';
 import { type BreadcrumbItem } from '@/types';
 import { Transition } from '@headlessui/react';
-import { Form, Head, Link, router } from '@inertiajs/react';
-import { ChevronRight, Edit, Plus, Trash2 } from 'lucide-react';
+import { Form, Head } from '@inertiajs/react';
+import { Edit, Plus, Trash2 } from 'lucide-react';
 import { useState } from 'react';
 import { toast } from 'sonner';
+import { Category } from '.';
+import { EducationLevel } from './levels';
+import { Subject } from './subjects';
 
-export interface EducationLevel {
+export interface Chapters {
     id: number;
-    name: string;
-    slug?: string;
-    education_subjects_count: number;
-    description?: string;
-    category_id?: number;
+    title: string;
+    content: string;
+    created_at: string;
+    updated_at: string;
 }
 
 interface Props {
-    levels: EducationLevel[];
-    category: { id: number; name?: string };
+    chapters: Chapters[];
+    subject: Subject;
+    level: EducationLevel;
+    category: Category;
 }
 
 const breadcrumbs = (
+    levelId?: number,
+    levelName?: string,
     categoryId?: number,
     categoryName?: string,
+    subjectId?: number,
+    subjectName?: string,
 ): BreadcrumbItem[] => [
     { title: 'Programmes', href: programs.levelCategories.url() },
     {
         title: categoryName || 'Niveaux',
-        href: programs.levels.url(categoryId || 0),
+        href: programs.levels.url(categoryId),
+    },
+    {
+        title: levelName || 'Matières',
+        href: programs.subjects.url([levelId, categoryId]),
+    },
+    {
+        title: subjectName || 'Chapitres',
+        href: programs.chapters.url([levelId, categoryId, subjectId]),
     },
 ];
 
-export default function Index({ levels = [], category }: Props) {
+export default function Index({
+    chapters = [],
+    level,
+    category,
+    subject,
+}: Props) {
     const [isCreateOpen, setIsCreateOpen] = useState(false);
     const [isEditOpen, setIsEditOpen] = useState(false);
     const [isDeleteOpen, setIsDeleteOpen] = useState(false);
-    const [editingLevel, setEditingLevel] = useState<EducationLevel | null>(
-        null,
-    );
-    const [deletingLevel, setDeletingLevel] = useState<EducationLevel | null>(
+    const [editingSubject, setEditingSubject] = useState<Subject | null>(null);
+    const [deletingSubject, setDeletingSubject] = useState<Subject | null>(
         null,
     );
 
     const openCreate = () => setIsCreateOpen(true);
-    const openEdit = (level: EducationLevel) => {
-        setEditingLevel(level);
+    const openEdit = (subject: Subject) => {
+        setEditingSubject(subject);
         setIsEditOpen(true);
     };
-    const openDelete = (level: EducationLevel) => {
-        setDeletingLevel(level);
+    const openDelete = (subject: Subject) => {
+        setDeletingSubject(subject);
         setIsDeleteOpen(true);
     };
 
-    console.log(levels);
-
     return (
-        <AppLayout breadcrumbs={breadcrumbs(category?.id, category?.name)}>
-            <Head title={`Niveaux — ${category?.name || ''}`} />
+        <AppLayout
+            breadcrumbs={breadcrumbs(
+                level?.id,
+                level?.name,
+                category?.id,
+                category?.name,
+            )}
+        >
+            <Head title={`Matières — ${level?.name || ''}`} />
 
             <div className="flex h-full flex-1 flex-col gap-6 overflow-x-auto rounded-xl p-6">
                 <div className="flex items-center justify-between">
                     <div>
                         <h1 className="text-3xl font-bold tracking-tight">
-                            Niveaux éducatifs
+                            Matières
                         </h1>
                         <p className="text-muted-foreground">
-                            Catégorie: {category?.name || category?.id}
+                            Niveau: {level?.name || level?.id}
                         </p>
                     </div>
                     <div className="flex items-center gap-2">
                         <Button onClick={openCreate}>
                             <Plus className="mr-2 h-4 w-4" />
-                            Nouveau niveau
+                            Nouvelle matière
                         </Button>
                     </div>
                 </div>
@@ -102,18 +125,17 @@ export default function Index({ levels = [], category }: Props) {
                 <div className="rounded-md border">
                     <Table>
                         <TableCaption>
-                            Liste des niveaux pour cette catégorie
+                            Liste des matières pour cette catégorie
                         </TableCaption>
                         <TableHeader>
                             <TableRow>
                                 <TableHead>Nom</TableHead>
-                                <TableHead>Description</TableHead>
-                                <TableHead>Nombre de matières</TableHead>
+                                <TableHead>Statut</TableHead>
                                 <TableHead>Actions</TableHead>
                             </TableRow>
                         </TableHeader>
                         <TableBody>
-                            {levels.length === 0 ? (
+                            {subjects.length === 0 ? (
                                 <TableRow>
                                     <TableCell
                                         colSpan={3}
@@ -121,50 +143,22 @@ export default function Index({ levels = [], category }: Props) {
                                     >
                                         <div className="flex flex-col items-center gap-2">
                                             <p className="text-muted-foreground">
-                                                Aucun niveau trouvé pour cette
-                                                catégorie
+                                                Aucun sujet trouvé pour ce
+                                                niveau
                                             </p>
                                         </div>
                                     </TableCell>
                                 </TableRow>
                             ) : (
-                                levels.map((level) => (
-                                    <TableRow
-                                        key={level.id}
-                                        className="cursor-pointer hover:bg-muted/50"
-                                        role="button"
-                                        tabIndex={0}
-                                        onClick={() =>
-                                            router.visit(
-                                                subjects.url([
-                                                    level.id,
-                                                    category.id,
-                                                ]),
-                                            )
-                                        }
-                                    >
+                                subjects.map((subject) => (
+                                    <TableRow key={subject.id}>
                                         <TableCell className="flex items-center gap-2 font-medium">
-                                            {level.name}
-                                            <Link
-                                                href={subjects.url([
-                                                    level.id,
-                                                    category.id,
-                                                ])}
-                                                className="text-muted-foreground hover:text-foreground"
-                                            >
-                                                <ChevronRight className="h-4 w-4" />
-                                            </Link>
+                                            {subject.name}
                                         </TableCell>
                                         <TableCell className="max-w-xs truncate">
-                                            {level.description || '—'}
-                                        </TableCell>
-                                        <TableCell>
-                                            <Badge
-                                                variant="secondary"
-                                                className="text-xs"
-                                            >
-                                                {level.education_subjects_count}
-                                            </Badge>
+                                            {subject.is_active
+                                                ? 'Actif'
+                                                : 'Inactif'}
                                         </TableCell>
                                         <TableCell className="text-right">
                                             <div className="flex justify-end gap-2">
@@ -172,7 +166,7 @@ export default function Index({ levels = [], category }: Props) {
                                                     variant="ghost"
                                                     size="icon"
                                                     onClick={() =>
-                                                        openEdit(level)
+                                                        openEdit(subject)
                                                     }
                                                 >
                                                     <Edit className="h-4 w-4" />
@@ -182,7 +176,7 @@ export default function Index({ levels = [], category }: Props) {
                                                     size="icon"
                                                     className="text-destructive"
                                                     onClick={() =>
-                                                        openDelete(level)
+                                                        openDelete(subject)
                                                     }
                                                 >
                                                     <Trash2 className="h-4 w-4" />
@@ -200,18 +194,19 @@ export default function Index({ levels = [], category }: Props) {
             <Dialog open={isCreateOpen} onOpenChange={setIsCreateOpen}>
                 <DialogContent className="sm:max-w-[450px]">
                     <DialogHeader>
-                        <DialogTitle>Créer un niveau</DialogTitle>
+                        <DialogTitle>Créer une matière</DialogTitle>
                     </DialogHeader>
 
                     <Form
                         disableWhileProcessing
                         onSuccess={() => {
-                            toast('Nouveau niveau créé');
+                            toast('Nouvelle matière créée');
                             setIsCreateOpen(false);
                         }}
-                        {...EducationalProgramController.storeLevel.form(
+                        {...EducationalProgramController.storeSubject.form([
                             category.id,
-                        )}
+                            level.id,
+                        ])}
                         options={{
                             preserveScroll: true,
                         }}
@@ -234,23 +229,6 @@ export default function Index({ levels = [], category }: Props) {
                                         />
                                         <InputError
                                             message={errors.name}
-                                            className="col-span-3"
-                                        />
-                                    </div>
-                                    <div className="grid grid-cols-4 items-center gap-4">
-                                        <Label
-                                            htmlFor="desc"
-                                            className="text-right"
-                                        >
-                                            Description
-                                        </Label>
-                                        <Input
-                                            id="desc"
-                                            name="description"
-                                            className="col-span-3"
-                                        />
-                                        <InputError
-                                            message={errors.description}
                                             className="col-span-3"
                                         />
                                     </div>
@@ -287,20 +265,19 @@ export default function Index({ levels = [], category }: Props) {
             <Dialog open={isEditOpen} onOpenChange={setIsEditOpen}>
                 <DialogContent className="sm:max-w-[450px]">
                     <DialogHeader>
-                        <DialogTitle>Modifier le niveau</DialogTitle>
+                        <DialogTitle>Modifier la matière</DialogTitle>
                     </DialogHeader>
 
-                    {editingLevel && (
+                    {editingSubject && (
                         <Form
                             disableWhileProcessing
-                            {...EducationalProgramController.updateLevel.form([
-                                category.id,
-                                editingLevel.id,
-                            ])}
+                            {...EducationalProgramController.updateSubject.form(
+                                [category.id, editingSubject.id, level.id],
+                            )}
                             options={{ preserveScroll: true }}
                             className="space-y-6"
                             onSuccess={() => {
-                                toast('Niveau modifié');
+                                toast('Matière modifiée');
                                 setIsEditOpen(false);
                             }}
                         >
@@ -317,32 +294,13 @@ export default function Index({ levels = [], category }: Props) {
                                             <Input
                                                 id="name-edit"
                                                 name="name"
-                                                defaultValue={editingLevel.name}
-                                                className="col-span-3"
-                                            />
-                                            <InputError
-                                                message={errors.name}
-                                                className="col-span-3"
-                                            />
-                                        </div>
-                                        <div className="grid grid-cols-4 items-center gap-4">
-                                            <Label
-                                                htmlFor="desc-edit"
-                                                className="text-right"
-                                            >
-                                                Description
-                                            </Label>
-                                            <Input
-                                                id="desc-edit"
-                                                name="description"
                                                 defaultValue={
-                                                    editingLevel.description ||
-                                                    ''
+                                                    editingSubject.name
                                                 }
                                                 className="col-span-3"
                                             />
                                             <InputError
-                                                message={errors.description}
+                                                message={errors.name}
                                                 className="col-span-3"
                                             />
                                         </div>
@@ -373,22 +331,22 @@ export default function Index({ levels = [], category }: Props) {
             <Dialog open={isDeleteOpen} onOpenChange={setIsDeleteOpen}>
                 <DialogContent className="sm:max-w-[420px]">
                     <DialogHeader>
-                        <DialogTitle>Supprimer le niveau</DialogTitle>
+                        <DialogTitle>Supprimer la matière</DialogTitle>
                     </DialogHeader>
 
-                    {deletingLevel && (
+                    {deletingSubject && (
                         <Form
                             disableWhileProcessing
                             {...EducationalProgramController.deleteLevel.form([
-                                category.id,
-                                deletingLevel.id,
+                                level.id,
+                                deletingSubject.id,
                             ])}
                             options={{
                                 preserveScroll: true,
                             }}
                             className="space-y-6"
                             onSuccess={() => {
-                                toast('Niveau supprimé');
+                                toast('Matière supprimée');
                                 setIsDeleteOpen(false);
                             }}
                         >
@@ -396,10 +354,10 @@ export default function Index({ levels = [], category }: Props) {
                                 <>
                                     <div className="py-4">
                                         <p>
-                                            Voulez-vous vraiment supprimer le
-                                            niveau{' '}
+                                            Voulez-vous vraiment supprimer la
+                                            matière{' '}
                                             <strong>
-                                                {deletingLevel.name}
+                                                {deletingSubject.name}
                                             </strong>{' '}
                                             ? Cette action est irréversible.
                                         </p>

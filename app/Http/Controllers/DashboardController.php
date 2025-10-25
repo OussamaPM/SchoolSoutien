@@ -3,6 +3,8 @@
 namespace App\Http\Controllers;
 
 use App\DashboardInterface;
+use App\Models\EducationLevel;
+use App\Models\EducationLevelCategory;
 use App\RoleEnum;
 use Inertia\Inertia;
 use Illuminate\Http\Request;
@@ -26,7 +28,8 @@ class DashboardController extends Controller implements DashboardInterface
     {
         return [
             'activeUnassignedPlans' => Auth::user()->activePurchasedPlans()->unassigned()->with(['childProfile', 'plan'])->get(),
-            'childProfiles' => Auth::user()->childProfiles()->with('currentPlan.plan')->get(),
+            'childProfiles' => Auth::user()->childProfiles()->with(['currentPlan.plan', 'educationLevelCategory:id,name', 'educationLevel:id,name'])->get(),
+            'programmes' => EducationLevelCategory::with(['educationLevels'])->get(),
         ];
     }
 

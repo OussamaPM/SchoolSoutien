@@ -21,6 +21,8 @@ class ChildProfile extends Model
         'notes',
         'is_active',
         'last_accessed_at',
+        'education_level_category_id',
+        'education_level_id',
     ];
 
     protected $casts = [
@@ -99,5 +101,15 @@ class ChildProfile extends Model
     public function scopeActive($query)
     {
         return $query->where('is_active', true);
+    }
+
+    public function educationLevelCategory(): BelongsTo
+    {
+        return $this->belongsTo(EducationLevelCategory::class);
+    }
+
+    public function educationLevel(): BelongsTo
+    {
+        return $this->belongsTo(EducationLevel::class);
     }
 }

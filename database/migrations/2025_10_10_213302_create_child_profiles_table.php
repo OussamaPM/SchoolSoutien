@@ -1,5 +1,8 @@
 <?php
 
+use App\Models\EducationalSubject;
+use App\Models\EducationLevel;
+use App\Models\EducationLevelCategory;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
@@ -21,6 +24,8 @@ return new class extends Migration
             $table->text('notes')->nullable();
             $table->boolean('is_active')->default(true);
             $table->timestamp('last_accessed_at')->nullable();
+            $table->foreignIdFor(EducationLevelCategory::class);
+            $table->foreignIdFor(EducationLevel::class);
             $table->timestamps();
         });
     }

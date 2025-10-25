@@ -29,26 +29,15 @@ interface Props {
     data?: any[];
 }
 
-const educationLevels = [
-    'CP',
-    'CE1',
-    'CE2',
-    'CM1',
-    'CM2', // Primaire
-    '6ème',
-    '5ème',
-    '4ème',
-    '3ème', // Collège
-    '2nde',
-    '1ère',
-    'Terminale', // Lycée
-];
-
 export default function ParentDashboard({ data = [] }: Props) {
     const [childProfiles, setChildProfiles] = useState(
         data.childProfiles ?? [],
     );
     const [isDialogOpen, setIsDialogOpen] = useState(false);
+
+    const [selectedProgrammeId, setSelectedProgrammeId] = useState<
+        string | null
+    >(null);
 
     const emptySlots = Math.max(1, childProfiles.length === 0 ? 3 : 1);
 
@@ -280,6 +269,7 @@ export default function ParentDashboard({ data = [] }: Props) {
                             </div>
                             <div className="flex gap-3">
                                 <Link
+                                    as={Button}
                                     href={forfaitStore.index()}
                                     className="flex-1"
                                 >
@@ -299,129 +289,202 @@ export default function ParentDashboard({ data = [] }: Props) {
                                 setIsDialogOpen(false);
                             }}
                             onError={(err: any) =>
-                                toast(err.message || 'Une Erreur est survenu.')
+                                toast.error(
+                                    err.message || 'Une Erreur est survenu.',
+                                )
                             }
                             options={{
                                 preserveScroll: true,
                             }}
                         >
-                            {({ processing, recentlySuccessful, errors }) => (
-                                <>
-                                    <div className="grid gap-4 py-4">
-                                        <div className="grid grid-cols-4 items-center gap-4">
-                                            <Label
-                                                htmlFor="name"
-                                                className="text-right"
-                                            >
-                                                Nom complet
-                                            </Label>
-                                            <Input
-                                                id="name"
-                                                name="name"
-                                                placeholder="Ex: Emma Dubois"
-                                                className="col-span-3"
-                                            />
-                                            <InputError message={errors.name} />
+                            {({ processing, recentlySuccessful, errors }) => {
+                                const selectedProgramme = data.programmes.find(
+                                    (p: any) =>
+                                        String(p.id) === selectedProgrammeId,
+                                );
+                                const availableClasses =
+                                    selectedProgramme?.education_levels ?? [];
+                                return (
+                                    <>
+                                        <div className="grid gap-4 py-4">
+                                            <div className="grid grid-cols-4 items-center gap-4">
+                                                <Label
+                                                    htmlFor="name"
+                                                    className="text-right"
+                                                >
+                                                    Nom complet
+                                                </Label>
+                                                <Input
+                                                    id="name"
+                                                    name="name"
+                                                    placeholder="Ex: Emma Dubois"
+                                                    className="col-span-3"
+                                                />
+                                                <InputError
+                                                    message={errors.name}
+                                                />
+                                            </div>
+
+                                            <div className="grid grid-cols-4 items-center gap-4">
+                                                <Label
+                                                    htmlFor="level"
+                                                    className="text-right"
+                                                >
+                                                    Niveau
+                                                </Label>
+                                                <Select
+                                                    name="programme_id"
+                                                    onValueChange={(value) => {
+                                                        setSelectedProgrammeId(
+                                                            value,
+                                                        );
+                                                    }}
+                                                >
+                                                    <SelectTrigger className="col-span-3">
+                                                        <SelectValue placeholder="Choisir un plan" />
+                                                    </SelectTrigger>
+                                                    <SelectContent>
+                                                        {data.programmes.map(
+                                                            (
+                                                                programme: any,
+                                                            ) => (
+                                                                <SelectItem
+                                                                    key={
+                                                                        programme.id
+                                                                    }
+                                                                    value={String(
+                                                                        programme.id,
+                                                                    )}
+                                                                >
+                                                                    {
+                                                                        programme.name
+                                                                    }
+                                                                </SelectItem>
+                                                            ),
+                                                        )}
+                                                    </SelectContent>
+                                                </Select>
+                                                <InputError
+                                                    message={
+                                                        errors.programme_id
+                                                    }
+                                                />
+                                            </div>
+
+                                            <div className="grid grid-cols-4 items-center gap-4">
+                                                <Label
+                                                    htmlFor="class"
+                                                    className="text-right"
+                                                >
+                                                    Classe
+                                                </Label>
+                                                <Select
+                                                    name="level_id"
+                                                    disabled={
+                                                        availableClasses.length ===
+                                                        0
+                                                    }
+                                                >
+                                                    <SelectTrigger className="col-span-3">
+                                                        <SelectValue
+                                                            placeholder={
+                                                                selectedProgrammeId
+                                                                    ? 'Choisir une classe'
+                                                                    : "D'abord choisir un niveau"
+                                                            }
+                                                        />
+                                                    </SelectTrigger>
+                                                    <SelectContent>
+                                                        {availableClasses.map(
+                                                            (classe: any) => (
+                                                                <SelectItem
+                                                                    key={
+                                                                        classe.id
+                                                                    }
+                                                                    value={String(
+                                                                        classe.id,
+                                                                    )}
+                                                                >
+                                                                    {
+                                                                        classe.name
+                                                                    }
+                                                                </SelectItem>
+                                                            ),
+                                                        )}
+                                                    </SelectContent>
+                                                </Select>
+                                                <InputError
+                                                    message={errors.level_id}
+                                                />
+                                            </div>
+
+                                            <div className="grid grid-cols-4 items-center gap-4">
+                                                <Label
+                                                    htmlFor="plan"
+                                                    className="text-right"
+                                                >
+                                                    Plan à assigner
+                                                </Label>
+                                                <Select name="purchased_plan_id">
+                                                    <SelectTrigger className="col-span-3">
+                                                        <SelectValue placeholder="Choisir un plan" />
+                                                    </SelectTrigger>
+                                                    <SelectContent>
+                                                        {data.activeUnassignedPlans.map(
+                                                            (plan: any) => (
+                                                                <SelectItem
+                                                                    key={
+                                                                        plan.id
+                                                                    }
+                                                                    value={String(
+                                                                        plan.id,
+                                                                    )}
+                                                                >
+                                                                    <div className="flex flex-col items-start">
+                                                                        <span className="font-medium">
+                                                                            {plan
+                                                                                .plan
+                                                                                ?.name ??
+                                                                                plan.name}
+                                                                        </span>
+                                                                        <span className="text-xs text-muted-foreground">
+                                                                            {plan
+                                                                                .plan
+                                                                                ?.duration_months ??
+                                                                                plan.duration_months ??
+                                                                                ''}{' '}
+                                                                            mois
+                                                                            -{' '}
+                                                                            {plan
+                                                                                .plan
+                                                                                ?.formatted_price ??
+                                                                                plan.formatted_price ??
+                                                                                plan.price ??
+                                                                                ''}
+                                                                        </span>
+                                                                    </div>
+                                                                </SelectItem>
+                                                            ),
+                                                        )}
+                                                    </SelectContent>
+                                                </Select>
+
+                                                <InputError
+                                                    message={
+                                                        errors.purchased_plan_id
+                                                    }
+                                                />
+                                            </div>
                                         </div>
 
-                                        <div className="grid grid-cols-4 items-center gap-4">
-                                            <Label
-                                                htmlFor="level"
-                                                className="text-right"
-                                            >
-                                                Niveau
-                                            </Label>
-                                            <Select name="level">
-                                                <SelectTrigger className="col-span-3">
-                                                    <SelectValue placeholder="Sélectionner le niveau" />
-                                                </SelectTrigger>
-                                                <SelectContent>
-                                                    {educationLevels.map(
-                                                        (level) => (
-                                                            <SelectItem
-                                                                key={level}
-                                                                value={level}
-                                                            >
-                                                                {level}
-                                                            </SelectItem>
-                                                        ),
-                                                    )}
-                                                </SelectContent>
-                                            </Select>
-                                        </div>
-
-                                        <div className="grid grid-cols-4 items-center gap-4">
-                                            <Label
-                                                htmlFor="class"
-                                                className="text-right"
-                                            >
-                                                Classe
-                                            </Label>
-                                            <Input
-                                                id="class"
-                                                name="class"
-                                                placeholder="Ex: CE2 A, CM1 B"
-                                                className="col-span-3"
-                                            />
-                                        </div>
-
-                                        <div className="grid grid-cols-4 items-center gap-4">
-                                            <Label
-                                                htmlFor="plan"
-                                                className="text-right"
-                                            >
-                                                Plan à assigner
-                                            </Label>
-                                            <Select name="purchased_plan_id">
-                                                <SelectTrigger className="col-span-3">
-                                                    <SelectValue placeholder="Choisir un plan" />
-                                                </SelectTrigger>
-                                                <SelectContent>
-                                                    {data.activeUnassignedPlans.map(
-                                                        (plan: any) => (
-                                                            <SelectItem
-                                                                key={plan.id}
-                                                                value={String(
-                                                                    plan.id,
-                                                                )}
-                                                            >
-                                                                <div className="flex flex-col items-start">
-                                                                    <span className="font-medium">
-                                                                        {plan
-                                                                            .plan
-                                                                            ?.name ??
-                                                                            plan.name}
-                                                                    </span>
-                                                                    <span className="text-xs text-muted-foreground">
-                                                                        {plan
-                                                                            .plan
-                                                                            ?.duration_months ??
-                                                                            plan.duration_months ??
-                                                                            ''}{' '}
-                                                                        mois -{' '}
-                                                                        {plan
-                                                                            .plan
-                                                                            ?.formatted_price ??
-                                                                            plan.formatted_price ??
-                                                                            plan.price ??
-                                                                            ''}
-                                                                    </span>
-                                                                </div>
-                                                            </SelectItem>
-                                                        ),
-                                                    )}
-                                                </SelectContent>
-                                            </Select>
-                                        </div>
-                                    </div>
-
-                                    <DialogFooter>
-                                        <Button type="submit">
-                                            Créer le profil
-                                        </Button>
-                                    </DialogFooter>
-                                </>
-                            )}
+                                        <DialogFooter>
+                                            <Button type="submit">
+                                                Créer le profil
+                                            </Button>
+                                        </DialogFooter>
+                                    </>
+                                );
+                            }}
                         </Form>
                     )}
                 </DialogContent>

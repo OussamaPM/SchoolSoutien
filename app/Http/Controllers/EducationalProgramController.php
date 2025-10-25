@@ -2,9 +2,11 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Chapter;
 use Inertia\Inertia;
 use Illuminate\Http\Request;
 use App\Models\EducationLevel;
+use App\Models\EducationalSubject;
 use App\Models\EducationLevelCategory;
 
 class EducationalProgramController extends Controller
@@ -23,12 +25,9 @@ class EducationalProgramController extends Controller
         ]);
     }
 
-    /**
-     * Retrieve education levels by category.
-     */
     public function getEducationLevelsByCategory(EducationLevelCategory $category)
     {
-        $levels = $category->educationLevels()->get();
+        $levels = $category->educationLevels()->withCount('educationSubjects')->get();
 
         return Inertia::render('admin/educational-programs/levels', [
             'levels' => $levels,
@@ -75,5 +74,93 @@ class EducationalProgramController extends Controller
 
         return redirect()->route('admin.educational-programs.levels', $category)
             ->with('success', 'Niveau éducatif supprimé avec succès.');
+    }
+
+
+
+    public function getEducationSubjectsByLevel(EducationLevelCategory $category, EducationLevel $level)
+    {
+        $subjects = $level->educationSubjects()->get();
+
+        return Inertia::render('admin/educational-programs/subjects', [
+            'subjects' => $subjects,
+            'level' => $level,
+            'category' => $category,
+        ]);
+    }
+
+    public function storeSubject(Request $request, EducationLevelCategory $category, EducationLevel $level)
+    {
+        $validated = $request->validate([
+            'name' => 'required|string|max:255',
+        ]);
+
+        $level->educationSubjects()->create($validated);
+
+        return redirect()->route('admin.educational-programs.subjects', [$category, $level])
+            ->with('success', 'Sujet éducatif créé avec succès.');
+    }
+
+    public function updateSubject(Request $request, EducationLevelCategory $category, EducationLevel $level, EducationalSubject $subject)
+    {
+        $validated = $request->validate([
+            'name' => 'required|string|max:255',
+        ]);
+
+        if ($subject) {
+            $subject->update([
+                'name' => $validated['name'],
+            ]);
+        }
+
+        return redirect()->route('admin.educational-programs.subjects', [$category, $level])
+            ->with('success', 'Sujet éducatif mis à jour avec succès.');
+    }
+
+    public function deleteSubject(EducationLevelCategory $category, EducationLevel $level, EducationalSubject $subject)
+    {
+        if ($subject) {
+            $subject->delete();
+        }
+
+        return redirect()->route('admin.educational-programs.subjects', [$category, $level])
+            ->with('success', 'Sujet éducatif supprimé avec succès.');
+    }
+
+    public function getChaptersBySubject(EducationLevelCategory $category, EducationLevel $level, EducationalSubject $subject)
+    {
+        $chapters = $subject->chapters()->get();
+
+        return Inertia::render('admin/educational-programs/chapters', [
+            'chapters' => $chapters,
+            'subject' => $subject,
+            'level' => $level,
+            'category' => $category,
+        ]);
+    }
+
+    public function updateChapter(Request $request, EducationLevelCategory $category, EducationLevel $level, EducationalSubject $subject, Chapter $chapter)
+    {
+        $validated = $request->validate([
+            'title' => 'required|string|max:255',
+            'content' => 'nullable|string',
+        ]);
+
+        if ($chapter) {
+            $chapter->update($validated);
+        }
+
+        return redirect()->route('admin.educational-programs.chapters', [$category, $level, $subject])
+            ->with('success', 'Chapitre mis à jour avec succès.');
+    }
+
+    public function deleteChapter(EducationLevelCategory $category, EducationLevel $level, EducationalSubject $subject, Chapter $chapter)
+    {
+        if ($chapter) {
+            $chapter->delete();
+        }
+
+        return redirect()->route('admin.educational-programs.chapters', [$category, $level, $subject])
+            ->with('success', 'Chapitre supprimé avec succès.');
     }
 }

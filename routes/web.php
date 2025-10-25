@@ -32,10 +32,20 @@ Route::middleware(['auth', 'verified'])->group(function () {
             ->name('educational-programs.')
             ->group(function () {
                 Route::get('education-level-categories', 'getAllEducationLevelCategories')->name('level-categories');
+                ######################################## Levels Routes ########################################
                 Route::get('education-level-categories/{category}/levels', 'getEducationLevelsByCategory')->name('levels');
                 Route::post('education-level-categories/{category}/level', 'storeLevel')->name('store-level');
                 Route::patch('education-level-categories/{category}/level/{level}', 'updateLevel')->name('update-level');
                 Route::delete('education-level-categories/{category}/level/{level}', 'deleteLevel')->name('delete-level');
+                ######################################## Subject Routes ########################################
+                Route::get('education-level-categories/{category}/{level}/subjects', 'getEducationSubjectsByLevel')->name('subjects');
+                Route::post('education-level-categories/{category}/{level}/subject', 'storeSubject')->name('store-subject');
+                Route::patch('education-level-categories/{category}/{level}/subject/{subject}', 'updateSubject')->name('update-subject');
+                Route::delete('education-level-categories/{category}/{level}/subject/{subject}', 'deleteSubject')->name('delete-subject');
+                ######################################## Chapters Routes ########################################
+                Route::get('education-level-categories/{category}/{level}/subjects/{subject}/chapters', 'getChaptersBySubject')->name('chapters');
+                Route::patch('education-level-categories/{category}/{level}/subjects/{subject}/chapter/{chapter}', 'updateChapter')->name('update-chapter');
+                Route::delete('education-level-categories/{category}/{level}/subjects/{subject}/chapter/{chapter}', 'deleteChapter')->name('delete-chapter');
             });
     });
 });
