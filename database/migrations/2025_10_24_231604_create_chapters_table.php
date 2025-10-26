@@ -1,5 +1,6 @@
 <?php
 
+use App\Models\EducationalSubject;
 use App\Models\User;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
@@ -17,6 +18,8 @@ return new class extends Migration
             $table->string('title')->nullable();
             $table->json('content')->nullable();
             $table->foreignIdFor(User::class, 'created_by')->nullable();
+            $table->foreignIdFor(EducationalSubject::class);
+            $table->foreignIdFor(User::class, 'last_updated_by')->nullable();
             $table->timestamps();
         });
     }

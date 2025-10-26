@@ -44,6 +44,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
                 Route::delete('education-level-categories/{category}/{level}/subject/{subject}', 'deleteSubject')->name('delete-subject');
                 ######################################## Chapters Routes ########################################
                 Route::get('education-level-categories/{category}/{level}/subjects/{subject}/chapters', 'getChaptersBySubject')->name('chapters');
+                Route::get('education-level-categories/{category}/{level}/subjects/{subject}/chapter/create', 'createChapter')->name('create-chapter');
                 Route::patch('education-level-categories/{category}/{level}/subjects/{subject}/chapter/{chapter}', 'updateChapter')->name('update-chapter');
                 Route::delete('education-level-categories/{category}/{level}/subjects/{subject}/chapter/{chapter}', 'deleteChapter')->name('delete-chapter');
             });

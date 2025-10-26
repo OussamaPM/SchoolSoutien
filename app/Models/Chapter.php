@@ -10,10 +10,22 @@ class Chapter extends Model
         'title',
         'content',
         'created_by',
+        'educational_subject_id',
+        'last_updated_by',
     ];
 
     public function creator()
     {
         return $this->belongsTo(User::class, 'created_by');
+    }
+
+    public function educationalSubject()
+    {
+        return $this->belongsTo(EducationalSubject::class, 'educational_subject_id');
+    }
+
+    public function lastUpdater()
+    {
+        return $this->belongsTo(User::class, 'last_updated_by');
     }
 }

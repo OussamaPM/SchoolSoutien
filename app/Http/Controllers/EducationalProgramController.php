@@ -129,10 +129,19 @@ class EducationalProgramController extends Controller
 
     public function getChaptersBySubject(EducationLevelCategory $category, EducationLevel $level, EducationalSubject $subject)
     {
-        $chapters = $subject->chapters()->get();
+        $chapters = $subject->chapters()->with(['creator:id,name,email', 'lastUpdater:id,name,email'])->get();
 
         return Inertia::render('admin/educational-programs/chapters', [
             'chapters' => $chapters,
+            'subject' => $subject,
+            'level' => $level,
+            'category' => $category,
+        ]);
+    }
+
+    public function createChapter(EducationLevelCategory $category, EducationLevel $level, EducationalSubject $subject)
+    {
+        return Inertia::render('admin/educational-programs/create-chapter', [
             'subject' => $subject,
             'level' => $level,
             'category' => $category,

@@ -10,6 +10,7 @@ class EducationalSubject extends Model
         'name',
         'education_level_id',
         'is_active',
+        'last_updated_by'
     ];
 
     protected $casts = [
@@ -19,5 +20,10 @@ class EducationalSubject extends Model
     public function educationLevel()
     {
         return $this->belongsTo(EducationLevel::class, 'education_level_id');
+    }
+
+    public function chapters()
+    {
+        return $this->hasMany(Chapter::class);
     }
 }

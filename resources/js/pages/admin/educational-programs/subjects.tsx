@@ -20,10 +20,10 @@ import {
     TableRow,
 } from '@/components/ui/table';
 import AppLayout from '@/layouts/app-layout';
-import programs from '@/routes/admin/educational-programs';
+import programs, { chapters } from '@/routes/admin/educational-programs';
 import { type BreadcrumbItem } from '@/types';
 import { Transition } from '@headlessui/react';
-import { Form, Head } from '@inertiajs/react';
+import { Form, Head, router } from '@inertiajs/react';
 import { Edit, Plus, Trash2 } from 'lucide-react';
 import { useState } from 'react';
 import { toast } from 'sonner';
@@ -137,7 +137,21 @@ export default function Index({ subjects = [], level, category }: Props) {
                                 </TableRow>
                             ) : (
                                 subjects.map((subject) => (
-                                    <TableRow key={subject.id}>
+                                    <TableRow
+                                        key={subject.id}
+                                        className="cursor-pointer hover:bg-muted/50"
+                                        role="button"
+                                        tabIndex={0}
+                                        onClick={() =>
+                                            router.visit(
+                                                chapters.url([
+                                                    category.id,
+                                                    level.id,
+                                                    subject.id,
+                                                ]),
+                                            )
+                                        }
+                                    >
                                         <TableCell className="flex items-center gap-2 font-medium">
                                             {subject.name}
                                         </TableCell>
@@ -323,10 +337,9 @@ export default function Index({ subjects = [], level, category }: Props) {
                     {deletingSubject && (
                         <Form
                             disableWhileProcessing
-                            {...EducationalProgramController.deleteLevel.form([
-                                level.id,
-                                deletingSubject.id,
-                            ])}
+                            {...EducationalProgramController.deleteSubject.form(
+                                [category.id, level.id, deletingSubject.id],
+                            )}
                             options={{
                                 preserveScroll: true,
                             }}

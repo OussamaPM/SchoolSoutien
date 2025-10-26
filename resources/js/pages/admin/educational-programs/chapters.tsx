@@ -1,5 +1,4 @@
 import EducationalProgramController from '@/actions/App/Http/Controllers/EducationalProgramController';
-import InputError from '@/components/input-error';
 import { Button } from '@/components/ui/button';
 import {
     Dialog,
@@ -8,8 +7,6 @@ import {
     DialogHeader,
     DialogTitle,
 } from '@/components/ui/dialog';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
 import {
     Table,
     TableBody,
@@ -21,26 +18,26 @@ import {
 } from '@/components/ui/table';
 import AppLayout from '@/layouts/app-layout';
 import programs from '@/routes/admin/educational-programs';
-import { type BreadcrumbItem } from '@/types';
-import { Transition } from '@headlessui/react';
-import { Form, Head } from '@inertiajs/react';
-import { Edit, Plus, Trash2 } from 'lucide-react';
+import { User, type BreadcrumbItem } from '@/types';
+import { Form, Head, Link } from '@inertiajs/react';
+import { Plus, Trash2 } from 'lucide-react';
 import { useState } from 'react';
 import { toast } from 'sonner';
 import { Category } from '.';
 import { EducationLevel } from './levels';
 import { Subject } from './subjects';
 
-export interface Chapters {
+export interface Chapter {
     id: number;
     title: string;
     content: string;
+    creator: User | null;
     created_at: string;
     updated_at: string;
 }
 
 interface Props {
-    chapters: Chapters[];
+    chapters: Chapter[];
     subject: Subject;
     level: EducationLevel;
     category: Category;
@@ -75,21 +72,12 @@ export default function Index({
     category,
     subject,
 }: Props) {
-    const [isCreateOpen, setIsCreateOpen] = useState(false);
-    const [isEditOpen, setIsEditOpen] = useState(false);
     const [isDeleteOpen, setIsDeleteOpen] = useState(false);
-    const [editingSubject, setEditingSubject] = useState<Subject | null>(null);
-    const [deletingSubject, setDeletingSubject] = useState<Subject | null>(
+    const [deletingChapter, setDeletingChapter] = useState<Chapter | null>(
         null,
     );
-
-    const openCreate = () => setIsCreateOpen(true);
-    const openEdit = (subject: Subject) => {
-        setEditingSubject(subject);
-        setIsEditOpen(true);
-    };
-    const openDelete = (subject: Subject) => {
-        setDeletingSubject(subject);
+    const openDelete = (chapter: Chapter) => {
+        setDeletingChapter(chapter);
         setIsDeleteOpen(true);
     };
 
@@ -100,6 +88,8 @@ export default function Index({
                 level?.name,
                 category?.id,
                 category?.name,
+                subject?.id,
+                subject?.name,
             )}
         >
             <Head title={`Matières — ${level?.name || ''}`} />
@@ -115,17 +105,24 @@ export default function Index({
                         </p>
                     </div>
                     <div className="flex items-center gap-2">
-                        <Button onClick={openCreate}>
+                        <Link
+                            as={Button}
+                            href={programs.createChapter.url([
+                                category?.id,
+                                level?.id,
+                                subject?.id,
+                            ])}
+                        >
                             <Plus className="mr-2 h-4 w-4" />
-                            Nouvelle matière
-                        </Button>
+                            Chapitre
+                        </Link>
                     </div>
                 </div>
 
                 <div className="rounded-md border">
                     <Table>
                         <TableCaption>
-                            Liste des matières pour cette catégorie
+                            Liste des chapitres pour cette catégorie
                         </TableCaption>
                         <TableHeader>
                             <TableRow>
@@ -135,7 +132,7 @@ export default function Index({
                             </TableRow>
                         </TableHeader>
                         <TableBody>
-                            {subjects.length === 0 ? (
+                            {chapters.length === 0 ? (
                                 <TableRow>
                                     <TableCell
                                         colSpan={3}
@@ -143,40 +140,29 @@ export default function Index({
                                     >
                                         <div className="flex flex-col items-center gap-2">
                                             <p className="text-muted-foreground">
-                                                Aucun sujet trouvé pour ce
-                                                niveau
+                                                Aucun chapitre trouvé pour cette
+                                                matiére
                                             </p>
                                         </div>
                                     </TableCell>
                                 </TableRow>
                             ) : (
-                                subjects.map((subject) => (
-                                    <TableRow key={subject.id}>
+                                chapters.map((chapter) => (
+                                    <TableRow key={chapter.id}>
                                         <TableCell className="flex items-center gap-2 font-medium">
-                                            {subject.name}
+                                            {chapter.title}
                                         </TableCell>
                                         <TableCell className="max-w-xs truncate">
-                                            {subject.is_active
-                                                ? 'Actif'
-                                                : 'Inactif'}
+                                            {chapter.creator?.name ?? '-'}
                                         </TableCell>
                                         <TableCell className="text-right">
                                             <div className="flex justify-end gap-2">
                                                 <Button
                                                     variant="ghost"
                                                     size="icon"
-                                                    onClick={() =>
-                                                        openEdit(subject)
-                                                    }
-                                                >
-                                                    <Edit className="h-4 w-4" />
-                                                </Button>
-                                                <Button
-                                                    variant="ghost"
-                                                    size="icon"
                                                     className="text-destructive"
                                                     onClick={() =>
-                                                        openDelete(subject)
+                                                        openDelete(chapter)
                                                     }
                                                 >
                                                     <Trash2 className="h-4 w-4" />
@@ -191,162 +177,29 @@ export default function Index({
                 </div>
             </div>
 
-            <Dialog open={isCreateOpen} onOpenChange={setIsCreateOpen}>
-                <DialogContent className="sm:max-w-[450px]">
-                    <DialogHeader>
-                        <DialogTitle>Créer une matière</DialogTitle>
-                    </DialogHeader>
-
-                    <Form
-                        disableWhileProcessing
-                        onSuccess={() => {
-                            toast('Nouvelle matière créée');
-                            setIsCreateOpen(false);
-                        }}
-                        {...EducationalProgramController.storeSubject.form([
-                            category.id,
-                            level.id,
-                        ])}
-                        options={{
-                            preserveScroll: true,
-                        }}
-                        className="space-y-6"
-                    >
-                        {({ processing, recentlySuccessful, errors }) => (
-                            <>
-                                <div className="grid gap-4 py-4">
-                                    <div className="grid grid-cols-4 items-center gap-4">
-                                        <Label
-                                            htmlFor="name"
-                                            className="text-right"
-                                        >
-                                            Nom
-                                        </Label>
-                                        <Input
-                                            id="name"
-                                            name="name"
-                                            className="col-span-3"
-                                        />
-                                        <InputError
-                                            message={errors.name}
-                                            className="col-span-3"
-                                        />
-                                    </div>
-                                </div>
-
-                                <DialogFooter>
-                                    <div className="flex items-center gap-4">
-                                        <Button
-                                            disabled={processing}
-                                            data-test="update-profile-button"
-                                        >
-                                            Créer
-                                        </Button>
-
-                                        <Transition
-                                            show={recentlySuccessful}
-                                            enter="transition ease-in-out"
-                                            enterFrom="opacity-0"
-                                            leave="transition ease-in-out"
-                                            leaveTo="opacity-0"
-                                        >
-                                            <p className="text-sm text-neutral-600">
-                                                Enregistré
-                                            </p>
-                                        </Transition>
-                                    </div>
-                                </DialogFooter>
-                            </>
-                        )}
-                    </Form>
-                </DialogContent>
-            </Dialog>
-
-            <Dialog open={isEditOpen} onOpenChange={setIsEditOpen}>
-                <DialogContent className="sm:max-w-[450px]">
-                    <DialogHeader>
-                        <DialogTitle>Modifier la matière</DialogTitle>
-                    </DialogHeader>
-
-                    {editingSubject && (
-                        <Form
-                            disableWhileProcessing
-                            {...EducationalProgramController.updateSubject.form(
-                                [category.id, editingSubject.id, level.id],
-                            )}
-                            options={{ preserveScroll: true }}
-                            className="space-y-6"
-                            onSuccess={() => {
-                                toast('Matière modifiée');
-                                setIsEditOpen(false);
-                            }}
-                        >
-                            {({ processing, recentlySuccessful, errors }) => (
-                                <>
-                                    <div className="grid gap-4 py-4">
-                                        <div className="grid grid-cols-4 items-center gap-4">
-                                            <Label
-                                                htmlFor="name-edit"
-                                                className="text-right"
-                                            >
-                                                Nom
-                                            </Label>
-                                            <Input
-                                                id="name-edit"
-                                                name="name"
-                                                defaultValue={
-                                                    editingSubject.name
-                                                }
-                                                className="col-span-3"
-                                            />
-                                            <InputError
-                                                message={errors.name}
-                                                className="col-span-3"
-                                            />
-                                        </div>
-                                    </div>
-
-                                    <DialogFooter>
-                                        <div className="flex items-center gap-4">
-                                            <Button
-                                                variant="outline"
-                                                onClick={() =>
-                                                    setIsEditOpen(false)
-                                                }
-                                            >
-                                                Annuler
-                                            </Button>
-                                            <Button disabled={processing}>
-                                                Enregistrer
-                                            </Button>
-                                        </div>
-                                    </DialogFooter>
-                                </>
-                            )}
-                        </Form>
-                    )}
-                </DialogContent>
-            </Dialog>
-
             <Dialog open={isDeleteOpen} onOpenChange={setIsDeleteOpen}>
                 <DialogContent className="sm:max-w-[420px]">
                     <DialogHeader>
-                        <DialogTitle>Supprimer la matière</DialogTitle>
+                        <DialogTitle>Supprimer le chapitre</DialogTitle>
                     </DialogHeader>
 
-                    {deletingSubject && (
+                    {deletingChapter && (
                         <Form
                             disableWhileProcessing
-                            {...EducationalProgramController.deleteLevel.form([
-                                level.id,
-                                deletingSubject.id,
-                            ])}
+                            {...EducationalProgramController.deleteChapter.form(
+                                [
+                                    category.id,
+                                    level.id,
+                                    subject.id,
+                                    deletingChapter.id,
+                                ],
+                            )}
                             options={{
                                 preserveScroll: true,
                             }}
                             className="space-y-6"
                             onSuccess={() => {
-                                toast('Matière supprimée');
+                                toast('Chapitre supprimé');
                                 setIsDeleteOpen(false);
                             }}
                         >
@@ -354,10 +207,10 @@ export default function Index({
                                 <>
                                     <div className="py-4">
                                         <p>
-                                            Voulez-vous vraiment supprimer la
-                                            matière{' '}
+                                            Voulez-vous vraiment supprimer le
+                                            chapitre{' '}
                                             <strong>
-                                                {deletingSubject.name}
+                                                {deletingChapter.name}
                                             </strong>{' '}
                                             ? Cette action est irréversible.
                                         </p>
