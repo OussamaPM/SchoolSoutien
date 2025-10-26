@@ -1,0 +1,35 @@
+{
+    "type": "doc",
+    "content": [
+        {
+            "type": "heading",
+            "attrs": {
+                "textAlign": "left",
+                "level": 1
+            },
+            "content": [
+                {
+                    "type": "text",
+                    "marks": [
+                        {
+                            "type": "bold"
+                        }
+                    ],
+                    "text": "Exemple titre de section"
+                }
+            ]
+        },
+        {
+            "type": "paragraph",
+            "attrs": {
+                "textAlign": "left"
+            },
+            "content": [
+                {
+                    "type": "text",
+                    "text": "Ceci est un exemple de paragraphe dans l'éditeur par défaut. Vous pouvez modifier ce texte pour voir comment l'éditeur fonctionne."
+                }
+            ]
+        }
+    ]
+}
