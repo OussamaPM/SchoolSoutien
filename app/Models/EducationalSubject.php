@@ -19,7 +19,7 @@ class EducationalSubject extends Model
 
     public function educationLevel()
     {
-        return $this->belongsTo(EducationLevel::class, 'education_level_id');
+        return $this->belongsTo(EducationLevel::class);
     }
 
     public function chapters()

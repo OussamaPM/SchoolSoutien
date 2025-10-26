@@ -137,8 +137,8 @@ export default function Index({ levels = [], category }: Props) {
                                         onClick={() =>
                                             router.visit(
                                                 subjects.url([
-                                                    level.id,
                                                     category.id,
+                                                    level.id,
                                                 ]),
                                             )
                                         }
@@ -147,8 +147,8 @@ export default function Index({ levels = [], category }: Props) {
                                             {level.name}
                                             <Link
                                                 href={subjects.url([
-                                                    level.id,
                                                     category.id,
+                                                    level.id,
                                                 ])}
                                                 className="text-muted-foreground hover:text-foreground"
                                             >
