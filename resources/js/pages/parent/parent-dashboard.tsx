@@ -30,9 +30,7 @@ interface Props {
 }
 
 export default function ParentDashboard({ data = [] }: Props) {
-    const [childProfiles, setChildProfiles] = useState(
-        data.childProfiles ?? [],
-    );
+    const { childProfiles, programmes, activeUnassignedPlans } = data;
     const [isDialogOpen, setIsDialogOpen] = useState(false);
 
     const [selectedProgrammeId, setSelectedProgrammeId] = useState<
@@ -41,7 +39,7 @@ export default function ParentDashboard({ data = [] }: Props) {
 
     const emptySlots = Math.max(1, childProfiles.length === 0 ? 3 : 1);
 
-    const hasAvailablePlans = (data?.activeUnassignedPlans ?? []).length > 0;
+    const hasAvailablePlans = (activeUnassignedPlans ?? []).length > 0;
 
     const handleAddChild = () => {
         setIsDialogOpen(true);
@@ -108,7 +106,12 @@ export default function ParentDashboard({ data = [] }: Props) {
                                             }
                                             className="text-xs"
                                         >
-                                            {child.education_level}
+                                            {
+                                                child.education_level_category
+                                                    ?.name
+                                            }
+                                            {': '}
+                                            {child.education_level?.name}
                                         </Badge>
                                         <div className="text-xs text-muted-foreground">
                                             {child.class_name}
@@ -298,7 +301,7 @@ export default function ParentDashboard({ data = [] }: Props) {
                             }}
                         >
                             {({ processing, recentlySuccessful, errors }) => {
-                                const selectedProgramme = data.programmes.find(
+                                const selectedProgramme = programmes.find(
                                     (p: any) =>
                                         String(p.id) === selectedProgrammeId,
                                 );
@@ -344,7 +347,7 @@ export default function ParentDashboard({ data = [] }: Props) {
                                                         <SelectValue placeholder="Choisir un plan" />
                                                     </SelectTrigger>
                                                     <SelectContent>
-                                                        {data.programmes.map(
+                                                        {programmes.map(
                                                             (
                                                                 programme: any,
                                                             ) => (
@@ -430,7 +433,7 @@ export default function ParentDashboard({ data = [] }: Props) {
                                                         <SelectValue placeholder="Choisir un plan" />
                                                     </SelectTrigger>
                                                     <SelectContent>
-                                                        {data.activeUnassignedPlans.map(
+                                                        {activeUnassignedPlans.map(
                                                             (plan: any) => (
                                                                 <SelectItem
                                                                     key={
