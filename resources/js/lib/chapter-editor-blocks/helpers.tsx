@@ -23,6 +23,4 @@ const image: BlockItem = {
     },
 };
 
-export const helperBlockGroup: BlockItem[] = [
-    /*image, divider*/
-];
+export const helperBlockGroup: BlockItem[] = [image, divider];

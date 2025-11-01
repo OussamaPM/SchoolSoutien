@@ -23,6 +23,4 @@ const orderedList: BlockItem = {
     },
 };
 
-export const listBlockGroup: BlockItem[] = [
-    /*bulletList, orderedList*/
-];
+export const listBlockGroup: BlockItem[] = [bulletList, orderedList];

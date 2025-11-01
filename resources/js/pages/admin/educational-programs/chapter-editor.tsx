@@ -4,7 +4,7 @@ import { typographyBlockGroup } from '@/lib/chapter-editor-blocks/typography';
 import { cn } from '@/lib/utils';
 import type { FocusPosition, Editor as TiptapEditor } from '@tiptap/core';
 import { Loader2Icon } from 'lucide-react';
-import { lazy, Suspense, useState } from 'react';
+import { lazy, Suspense, useRef, useState } from 'react';
 
 const Editor = lazy(() =>
     import('@maily-to/core').then((module) => ({
@@ -15,13 +15,22 @@ const Editor = lazy(() =>
 type EditorProps = {
     defaultContent: any;
     setEditor: (editor: TiptapEditor) => void;
+    setChapterData: (field: string, value: string) => void;
+    onEditorUpdate?: (editor: TiptapEditor) => void;
     autofocus?: FocusPosition;
 };
 
 export function ChapterEditor(props: EditorProps) {
-    const { defaultContent, setEditor, autofocus } = props;
+    const {
+        defaultContent,
+        setEditor,
+        setChapterData,
+        onEditorUpdate,
+        autofocus,
+    } = props;
 
     const [isLoading, setIsLoading] = useState(true);
+    const debounceTimerRef = useRef<NodeJS.Timeout | null>(null);
 
     return (
         <>
@@ -59,9 +68,23 @@ export function ChapterEditor(props: EditorProps) {
                     onCreate={(editor: any) => {
                         setIsLoading(false);
                         setEditor(editor);
+                        onEditorUpdate?.(editor);
                     }}
                     onUpdate={(editor: any) => {
                         setEditor(editor);
+
+                        if (debounceTimerRef.current) {
+                            clearTimeout(debounceTimerRef.current);
+                        }
+
+                        debounceTimerRef.current = setTimeout(() => {
+                            const nextContent = JSON.stringify(
+                                editor?.getJSON() ?? {},
+                            );
+                            setChapterData('content', nextContent);
+                        }, 500); // 500ms debounce delay
+
+                        onEditorUpdate?.(editor);
                     }}
                 />
             </Suspense>

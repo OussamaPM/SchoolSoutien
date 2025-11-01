@@ -17,9 +17,9 @@ import {
     TableRow,
 } from '@/components/ui/table';
 import AppLayout from '@/layouts/app-layout';
-import programs from '@/routes/admin/educational-programs';
+import programs, { chapterWriter } from '@/routes/admin/educational-programs';
 import { User, type BreadcrumbItem } from '@/types';
-import { Form, Head, Link } from '@inertiajs/react';
+import { Form, Head, Link, router } from '@inertiajs/react';
 import { Plus, Trash2 } from 'lucide-react';
 import { useState } from 'react';
 import { toast } from 'sonner';
@@ -32,6 +32,8 @@ export interface Chapter {
     title: string;
     content: string;
     creator: User | null;
+    last_updater: User | null;
+    is_active: boolean;
     created_at: string;
     updated_at: string;
 }
@@ -92,22 +94,22 @@ export default function Index({
                 subject?.name,
             )}
         >
-            <Head title={`Matières — ${level?.name || ''}`} />
+            <Head title={`Cours — ${subject?.name || ''}`} />
 
             <div className="flex h-full flex-1 flex-col gap-6 overflow-x-auto rounded-xl p-6">
                 <div className="flex items-center justify-between">
                     <div>
                         <h1 className="text-3xl font-bold tracking-tight">
-                            Matières
+                            Cours
                         </h1>
                         <p className="text-muted-foreground">
-                            Niveau: {level?.name || level?.id}
+                            Matiére: {subject?.name || subject?.id}
                         </p>
                     </div>
                     <div className="flex items-center gap-2">
                         <Link
                             as={Button}
-                            href={programs.createChapter.url([
+                            href={programs.chapterWriter.url([
                                 category?.id,
                                 level?.id,
                                 subject?.id,
@@ -127,8 +129,10 @@ export default function Index({
                         <TableHeader>
                             <TableRow>
                                 <TableHead>Nom</TableHead>
+                                <TableHead>Crée Par</TableHead>
+                                <TableHead>Dernière Mise à Jour Par</TableHead>
                                 <TableHead>Statut</TableHead>
-                                <TableHead>Actions</TableHead>
+                                <TableHead></TableHead>
                             </TableRow>
                         </TableHeader>
                         <TableBody>
@@ -148,12 +152,42 @@ export default function Index({
                                 </TableRow>
                             ) : (
                                 chapters.map((chapter) => (
-                                    <TableRow key={chapter.id}>
+                                    <TableRow
+                                        key={chapter.id}
+                                        className="cursor-pointer hover:bg-muted/50"
+                                        role="button"
+                                        tabIndex={0}
+                                        onClick={() =>
+                                            router.visit(
+                                                chapterWriter.url([
+                                                    category.id,
+                                                    level.id,
+                                                    subject.id,
+                                                    chapter.id,
+                                                ]),
+                                            )
+                                        }
+                                    >
                                         <TableCell className="flex items-center gap-2 font-medium">
                                             {chapter.title}
                                         </TableCell>
                                         <TableCell className="max-w-xs truncate">
-                                            {chapter.creator?.name ?? '-'}
+                                            {chapter.creator?.name}
+                                            <p className="text-xs text-gray-400">
+                                                {chapter.creator?.email}
+                                            </p>
+                                        </TableCell>
+                                        <TableCell className="max-w-xs truncate">
+                                            {chapter.last_updater?.name ?? '-'}
+                                            <p className="text-xs text-gray-400">
+                                                {chapter.last_updater?.email ??
+                                                    '-'}
+                                            </p>
+                                        </TableCell>
+                                        <TableCell className="max-w-xs truncate">
+                                            {chapter.is_active
+                                                ? 'Actif'
+                                                : 'Inactif'}
                                         </TableCell>
                                         <TableCell className="text-right">
                                             <div className="flex justify-end gap-2">

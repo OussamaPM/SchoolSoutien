@@ -8,6 +8,7 @@ use Illuminate\Http\Request;
 use App\Models\EducationLevel;
 use App\Models\EducationalSubject;
 use App\Models\EducationLevelCategory;
+use Illuminate\Support\Facades\Auth;
 
 class EducationalProgramController extends Controller
 {
@@ -139,28 +140,32 @@ class EducationalProgramController extends Controller
         ]);
     }
 
-    public function createChapter(EducationLevelCategory $category, EducationLevel $level, EducationalSubject $subject)
+    public function chapterWriter(EducationLevelCategory $category, EducationLevel $level, EducationalSubject $subject, ?Chapter $chapter = null)
     {
-        return Inertia::render('admin/educational-programs/create-chapter', [
+        return Inertia::render('admin/educational-programs/chapter-writer', [
             'subject' => $subject,
             'level' => $level,
             'category' => $category,
+            'chapter' => $chapter,
         ]);
     }
 
-    public function updateChapter(Request $request, EducationLevelCategory $category, EducationLevel $level, EducationalSubject $subject, Chapter $chapter)
+    public function updateChapter(Request $request, EducationLevelCategory $category, EducationLevel $level, EducationalSubject $subject, ?Chapter $chapter = null)
     {
         $validated = $request->validate([
             'title' => 'required|string|max:255',
             'content' => 'nullable|string',
         ]);
+        $validated['last_updated_by'] = Auth::id();
 
         if ($chapter) {
             $chapter->update($validated);
+        } else {
+            $validated['created_by'] = Auth::id();
+            $subject->chapters()->create($validated);
         }
 
-        return redirect()->route('admin.educational-programs.chapters', [$category, $level, $subject])
-            ->with('success', 'Chapitre mis à jour avec succès.');
+        return back();
     }
 
     public function deleteChapter(EducationLevelCategory $category, EducationLevel $level, EducationalSubject $subject, Chapter $chapter)

@@ -15,12 +15,11 @@ import { ChapterPreviewIFrame } from './chapter-preview-iframe';
 
 type PreviewChapterDialogProps = {
     title?: string;
-    previewText?: string;
     editor: Editor | null;
 };
 
 export function PreviewChapterDialog(props: PreviewChapterDialogProps) {
-    const { title = '', previewText = '', editor } = props;
+    const { title = '', editor } = props;
 
     const [open, setOpen] = useState(false);
     const [html, setHtml] = useState('');

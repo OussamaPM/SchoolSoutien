@@ -12,6 +12,7 @@ class Chapter extends Model
         'created_by',
         'educational_subject_id',
         'last_updated_by',
+        'is_active',
     ];
 
     public function creator()
@@ -27,5 +28,10 @@ class Chapter extends Model
     public function lastUpdater()
     {
         return $this->belongsTo(User::class, 'last_updated_by');
+    }
+
+    public function scopeActive($query)
+    {
+        return $query->where('is_active', true);
     }
 }

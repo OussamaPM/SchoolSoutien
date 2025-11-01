@@ -98,7 +98,7 @@ export const typographyBlockGroup: BlockItem[] = [
     heading1,
     heading3,
     text,
-    // hardBreak,
-    // blockquote,
-    // clearLine,
+    hardBreak,
+    blockquote,
+    clearLine,
 ];

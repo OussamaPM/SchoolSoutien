@@ -20,6 +20,7 @@ return new class extends Migration
             $table->foreignIdFor(User::class, 'created_by')->nullable();
             $table->foreignIdFor(EducationalSubject::class);
             $table->foreignIdFor(User::class, 'last_updated_by')->nullable();
+            $table->boolean('is_active')->default(false);
             $table->timestamps();
         });
     }
