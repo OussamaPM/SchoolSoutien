@@ -14,7 +14,7 @@ class OrdersController extends Controller
     public function __invoke(Request $request)
     {
         return Inertia::render('admin/orders/index', [
-            'purchasedPlans' => fn() => PurchasedPlan::with(['plan', 'user', 'childProfile'])
+            'purchasedPlans' => fn () => PurchasedPlan::with(['plan', 'user', 'childProfile'])
                 ->latest()
                 ->get(),
         ]);

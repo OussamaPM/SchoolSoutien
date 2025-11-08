@@ -40,7 +40,20 @@ export interface User {
     created_at: string;
     updated_at: string;
     role: "admin" | "parent" | "teacher";
+    is_active: boolean;
     city?: string;
     phone?: string;
+    teacher_subjects?: Array<{
+        id: number;
+        name: string;
+        education_level?: {
+            id: number;
+            name: string;
+            category?: {
+                id: number;
+                name: string;
+            };
+        };
+    }>;
     [key: string]: unknown; // This allows for additional properties...
 }

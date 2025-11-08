@@ -1,15 +1,17 @@
 <?php
 
-use Inertia\Inertia;
-use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\Admin\ForfaitController;
+use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\EducationalProgramController;
 use App\Http\Controllers\OrdersController;
 use App\Http\Controllers\Parent\ForfaitStoreController;
+use App\Http\Controllers\UserController;
+use Illuminate\Support\Facades\Route;
+use Inertia\Inertia;
 
 Route::get('/', function () {
     return view('welcome');
+
     return Inertia::render('welcome');
 })->name('home');
 
@@ -25,6 +27,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::prefix('admin')->name('admin.')->group(function () {
         Route::resource('forfaits', ForfaitController::class);
 
+        Route::resource('users', UserController::class);
+
         Route::get('orders', OrdersController::class)->name('orders');
 
         Route::controller(EducationalProgramController::class)
@@ -32,24 +36,25 @@ Route::middleware(['auth', 'verified'])->group(function () {
             ->name('educational-programs.')
             ->group(function () {
                 Route::get('education-level-categories', 'getAllEducationLevelCategories')->name('level-categories');
-                ######################################## Levels Routes ########################################
+                // ####################################### Levels Routes ########################################
                 Route::get('education-level-categories/{category}/levels', 'getEducationLevelsByCategory')->name('levels');
                 Route::post('education-level-categories/{category}/level', 'storeLevel')->name('store-level');
                 Route::patch('education-level-categories/{category}/level/{level}', 'updateLevel')->name('update-level');
                 Route::delete('education-level-categories/{category}/level/{level}', 'deleteLevel')->name('delete-level');
-                ######################################## Subject Routes ########################################
+                // ####################################### Subject Routes ########################################
                 Route::get('education-level-categories/{category}/{level}/subjects', 'getEducationSubjectsByLevel')->name('subjects');
                 Route::post('education-level-categories/{category}/{level}/subject', 'storeSubject')->name('store-subject');
                 Route::patch('education-level-categories/{category}/{level}/subject/{subject}', 'updateSubject')->name('update-subject');
                 Route::delete('education-level-categories/{category}/{level}/subject/{subject}', 'deleteSubject')->name('delete-subject');
-                ######################################## Chapters Routes ########################################
+                // ####################################### Chapters Routes ########################################
                 Route::get('education-level-categories/{category}/{level}/subjects/{subject}/chapters', 'getChaptersBySubject')->name('chapters');
                 Route::get('education-level-categories/{category}/{level}/subjects/{subject}/chapter-write/{chapter?}', 'chapterWriter')->name('chapter-writer');
                 Route::patch('education-level-categories/{category}/{level}/subjects/{subject}/chapter/{chapter?}', 'updateChapter')->name('update-chapter');
+                Route::patch('education-level-categories/{category}/{level}/subjects/{subject}/chapter/{chapter}/status', 'updateChapterStatus')->name('update-chapter-status');
                 Route::delete('education-level-categories/{category}/{level}/subjects/{subject}/chapter/{chapter}', 'deleteChapter')->name('delete-chapter');
             });
     });
 });
 
-require __DIR__ . '/settings.php';
-require __DIR__ . '/auth.php';
+require __DIR__.'/settings.php';
+require __DIR__.'/auth.php';

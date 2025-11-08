@@ -1,8 +1,8 @@
 <?php
 
+use App\Models\ChildProfile;
 use App\Models\Plan;
 use App\Models\User;
-use App\Models\ChildProfile;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 
 uses(RefreshDatabase::class);

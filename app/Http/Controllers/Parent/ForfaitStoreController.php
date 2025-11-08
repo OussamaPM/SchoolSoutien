@@ -2,13 +2,12 @@
 
 namespace App\Http\Controllers\Parent;
 
-use App\Models\Plan;
-use Inertia\Inertia;
-use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
-use App\Models\ChildProfile;
+use App\Models\Plan;
 use App\Models\PurchasedPlan;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Inertia\Inertia;
 
 class ForfaitStoreController extends Controller
 {
@@ -21,7 +20,6 @@ class ForfaitStoreController extends Controller
             'activePurchasedPlans' => Auth::user()->activePurchasedPlans()->with(['childProfile', 'plan'])->get(),
         ]);
     }
-
 
     public function store(Request $request)
     {
@@ -47,7 +45,6 @@ class ForfaitStoreController extends Controller
             'programme_id' => 'required|exists:education_level_categories,id',
             'purchased_plan_id' => 'required|exists:purchased_plans,id',
         ]);
-
 
         try {
             $child = Auth::user()->childProfiles()->create([

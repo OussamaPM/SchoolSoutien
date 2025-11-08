@@ -13,12 +13,14 @@ import programs, { levels } from '@/routes/admin/educational-programs';
 import { type BreadcrumbItem } from '@/types';
 import { Head, Link, router } from '@inertiajs/react';
 import { ChevronRight } from 'lucide-react';
+import { EducationLevel } from './levels';
 
 export interface Category {
     id: number;
     name: string;
     description?: string;
-    education_levels_count: number;
+    education_levels_count?: number;
+    education_levels?: EducationLevel[];
     created_at: string;
     updated_at: string;
 }

@@ -9,7 +9,7 @@ class EducationLevel extends Model
     protected $fillable = [
         'name',
         'description',
-        'category_id',
+        'education_level_category_id',
         'is_active',
     ];
 
@@ -22,7 +22,7 @@ class EducationLevel extends Model
      */
     public function category()
     {
-        return $this->belongsTo(EducationLevelCategory::class, 'category_id');
+        return $this->belongsTo(EducationLevelCategory::class, 'education_level_category_id');
     }
 
     /**

@@ -1,4 +1,5 @@
 import EducationalProgramController from '@/actions/App/Http/Controllers/EducationalProgramController';
+import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import {
     Dialog,
@@ -7,6 +8,15 @@ import {
     DialogHeader,
     DialogTitle,
 } from '@/components/ui/dialog';
+import {
+    DropdownMenu,
+    DropdownMenuContent,
+    DropdownMenuLabel,
+    DropdownMenuRadioGroup,
+    DropdownMenuRadioItem,
+    DropdownMenuSeparator,
+    DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
 import {
     Table,
     TableBody,
@@ -17,7 +27,10 @@ import {
     TableRow,
 } from '@/components/ui/table';
 import AppLayout from '@/layouts/app-layout';
-import programs, { chapterWriter } from '@/routes/admin/educational-programs';
+import programs, {
+    chapterWriter,
+    updateChapterStatus,
+} from '@/routes/admin/educational-programs';
 import { User, type BreadcrumbItem } from '@/types';
 import { Form, Head, Link, router } from '@inertiajs/react';
 import { Plus, Trash2 } from 'lucide-react';
@@ -81,6 +94,30 @@ export default function Index({
     const openDelete = (chapter: Chapter) => {
         setDeletingChapter(chapter);
         setIsDeleteOpen(true);
+    };
+
+    const handleStatusChange = (chapter: Chapter, newStatus: string) => {
+        const isActive = newStatus === 'published';
+
+        router.patch(
+            updateChapterStatus.url([
+                category!.id,
+                level!.id,
+                subject!.id,
+                chapter.id,
+            ]),
+            { is_active: isActive },
+            {
+                preserveScroll: true,
+                onSuccess: () => {
+                    toast.success(
+                        isActive
+                            ? 'Chapitre publié avec succès'
+                            : 'Chapitre mis en brouillon',
+                    );
+                },
+            },
+        );
     };
 
     return (
@@ -184,12 +221,64 @@ export default function Index({
                                                     '-'}
                                             </p>
                                         </TableCell>
-                                        <TableCell className="max-w-xs truncate">
-                                            {chapter.is_active
-                                                ? 'Actif'
-                                                : 'Inactif'}
+                                        <TableCell
+                                            className="max-w-xs truncate"
+                                            onClick={(e) => e.stopPropagation()}
+                                        >
+                                            <DropdownMenu>
+                                                <DropdownMenuTrigger asChild>
+                                                    <Button
+                                                        variant="ghost"
+                                                        className="h-auto p-0 hover:bg-transparent"
+                                                    >
+                                                        <Badge
+                                                            variant={
+                                                                chapter.is_active
+                                                                    ? 'default'
+                                                                    : 'secondary'
+                                                            }
+                                                            className="cursor-pointer"
+                                                        >
+                                                            {chapter.is_active
+                                                                ? 'Publié'
+                                                                : 'Brouillon'}
+                                                        </Badge>
+                                                    </Button>
+                                                </DropdownMenuTrigger>
+                                                <DropdownMenuContent>
+                                                    <DropdownMenuLabel>
+                                                        Statut du chapitre
+                                                    </DropdownMenuLabel>
+                                                    <DropdownMenuSeparator />
+                                                    <DropdownMenuRadioGroup
+                                                        value={
+                                                            chapter.is_active
+                                                                ? 'published'
+                                                                : 'draft'
+                                                        }
+                                                        onValueChange={(
+                                                            value,
+                                                        ) =>
+                                                            handleStatusChange(
+                                                                chapter,
+                                                                value,
+                                                            )
+                                                        }
+                                                    >
+                                                        <DropdownMenuRadioItem value="published">
+                                                            Publié
+                                                        </DropdownMenuRadioItem>
+                                                        <DropdownMenuRadioItem value="draft">
+                                                            Brouillon
+                                                        </DropdownMenuRadioItem>
+                                                    </DropdownMenuRadioGroup>
+                                                </DropdownMenuContent>
+                                            </DropdownMenu>
                                         </TableCell>
-                                        <TableCell className="text-right">
+                                        <TableCell
+                                            className="text-right"
+                                            onClick={(e) => e.stopPropagation()}
+                                        >
                                             <div className="flex justify-end gap-2">
                                                 <Button
                                                     variant="ghost"
@@ -244,7 +333,7 @@ export default function Index({
                                             Voulez-vous vraiment supprimer le
                                             chapitre{' '}
                                             <strong>
-                                                {deletingChapter.name}
+                                                {deletingChapter.title}
                                             </strong>{' '}
                                             ? Cette action est irréversible.
                                         </p>

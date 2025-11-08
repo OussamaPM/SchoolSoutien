@@ -14,6 +14,7 @@ import { dashboard } from '@/routes';
 import { orders } from '@/routes/admin';
 import { levelCategories } from '@/routes/admin/educational-programs';
 import forfaits from '@/routes/admin/forfaits';
+import users from '@/routes/admin/users';
 import forfaitStore from '@/routes/parent/forfait-store';
 import { SharedData, type NavItem } from '@/types';
 import { Link, usePage } from '@inertiajs/react';
@@ -23,6 +24,7 @@ import {
     HandCoins,
     LayoutGrid,
     ShoppingCart,
+    UserCog,
 } from 'lucide-react';
 import AppLogo from './app-logo';
 
@@ -44,6 +46,11 @@ const adminMainNavItems: NavItem[] = [
         title: 'Forfaits',
         href: forfaits.index(),
         icon: HandCoins,
+    },
+    {
+        title: 'Utilisateurs',
+        href: users.index(),
+        icon: UserCog,
     },
     {
         title: 'Programme',

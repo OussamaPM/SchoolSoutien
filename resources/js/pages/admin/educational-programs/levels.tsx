@@ -28,12 +28,14 @@ import { Form, Head, Link, router } from '@inertiajs/react';
 import { ChevronRight, Edit, Plus, Trash2 } from 'lucide-react';
 import { useState } from 'react';
 import { toast } from 'sonner';
+import { Subject } from './subjects';
 
 export interface EducationLevel {
     id: number;
     name: string;
     slug?: string;
-    education_subjects_count: number;
+    education_subjects_count?: number;
+    education_subjects?: Subject[];
     description?: string;
     category_id?: number;
 }

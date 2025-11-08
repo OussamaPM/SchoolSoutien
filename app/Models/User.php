@@ -4,11 +4,12 @@ namespace App\Models;
 
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
 use App\RoleEnum;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Fortify\TwoFactorAuthenticatable;
-use Illuminate\Database\Eloquent\Relations\HasMany;
-use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Foundation\Auth\User as Authenticatable;
 
 class User extends Authenticatable
 {
@@ -27,6 +28,7 @@ class User extends Authenticatable
         'role',
         'city',
         'phone',
+        'is_active',
     ];
 
     /**
@@ -49,6 +51,7 @@ class User extends Authenticatable
         return [
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
+            'is_active' => 'boolean',
         ];
     }
 
@@ -136,5 +139,38 @@ class User extends Authenticatable
     public function isTeacher(): bool
     {
         return $this->role === RoleEnum::TEACHER;
+    }
+
+    /**
+     * Get the subjects this teacher teaches.
+     */
+    public function teacherSubjects(): BelongsToMany
+    {
+        return $this->belongsToMany(EducationalSubject::class, 'teacher_subject', 'user_id', 'educational_subject_id')
+            ->withTimestamps();
+    }
+
+    /**
+     * Get the unique education levels this teacher teaches (through subjects).
+     */
+    public function teacherLevels()
+    {
+        return $this->teacherSubjects()
+            ->with('educationLevel')
+            ->get()
+            ->pluck('educationLevel')
+            ->unique('id');
+    }
+
+    /**
+     * Get the unique education level categories this teacher teaches (through subjects -> levels).
+     */
+    public function teacherCategories()
+    {
+        return $this->teacherSubjects()
+            ->with('educationLevel.category')
+            ->get()
+            ->pluck('educationLevel.category')
+            ->unique('id');
     }
 }

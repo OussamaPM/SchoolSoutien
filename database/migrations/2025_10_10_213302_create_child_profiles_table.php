@@ -1,6 +1,5 @@
 <?php
 
-use App\Models\EducationalSubject;
 use App\Models\EducationLevel;
 use App\Models\EducationLevelCategory;
 use Illuminate\Database\Migrations\Migration;

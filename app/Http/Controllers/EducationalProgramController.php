@@ -3,12 +3,12 @@
 namespace App\Http\Controllers;
 
 use App\Models\Chapter;
-use Inertia\Inertia;
-use Illuminate\Http\Request;
-use App\Models\EducationLevel;
 use App\Models\EducationalSubject;
+use App\Models\EducationLevel;
 use App\Models\EducationLevelCategory;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Inertia\Inertia;
 
 class EducationalProgramController extends Controller
 {
@@ -76,8 +76,6 @@ class EducationalProgramController extends Controller
         return redirect()->route('admin.educational-programs.levels', $category)
             ->with('success', 'Niveau éducatif supprimé avec succès.');
     }
-
-
 
     public function getEducationSubjectsByLevel(EducationLevelCategory $category, EducationLevel $level)
     {
@@ -176,5 +174,18 @@ class EducationalProgramController extends Controller
 
         return redirect()->route('admin.educational-programs.chapters', [$category, $level, $subject])
             ->with('success', 'Chapitre supprimé avec succès.');
+    }
+
+    public function updateChapterStatus(Request $request, EducationLevelCategory $category, EducationLevel $level, EducationalSubject $subject, Chapter $chapter)
+    {
+        $validated = $request->validate([
+            'is_active' => 'required|boolean',
+        ]);
+
+        $chapter->update([
+            'is_active' => $validated['is_active'],
+        ]);
+
+        return back();
     }
 }

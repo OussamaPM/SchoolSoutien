@@ -10,7 +10,7 @@ class EducationalSubject extends Model
         'name',
         'education_level_id',
         'is_active',
-        'last_updated_by'
+        'last_updated_by',
     ];
 
     protected $casts = [

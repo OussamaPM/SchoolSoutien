@@ -2,9 +2,9 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
-use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 class Plan extends Model
 {
@@ -41,7 +41,7 @@ class Plan extends Model
      */
     public function getFormattedPriceAttribute(): string
     {
-        return number_format($this->price, 2) . ' €';
+        return number_format($this->price, 2).' €';
     }
 
     /**
@@ -61,7 +61,7 @@ class Plan extends Model
             return '1 an';
         }
 
-        return $this->duration_days . ' jours';
+        return $this->duration_days.' jours';
     }
 
     /**

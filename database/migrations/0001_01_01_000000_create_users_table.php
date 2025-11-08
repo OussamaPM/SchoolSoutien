@@ -19,6 +19,7 @@ return new class extends Migration
             $table->timestamp('email_verified_at')->nullable();
             $table->string('password');
             $table->enum('role', RoleEnum::cases())->default(RoleEnum::PARENT);
+            $table->boolean('is_active')->default(true);
             $table->string('city')->nullable();
             $table->string('phone')->nullable();
             $table->rememberToken();
