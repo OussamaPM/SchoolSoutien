@@ -34,7 +34,20 @@ class DashboardController extends Controller implements DashboardInterface
 
     public function getTeacherData(): array
     {
-        return [];
+        return [
+            'subjects' => Auth::user()->teacherSubjects()
+                ->with(['educationLevel.category'])
+                ->withCount([
+                    'chapters',
+                    'chapters as published_chapters_count' => function ($query) {
+                        $query->where('is_active', true);
+                    },
+                    'chapters as draft_chapters_count' => function ($query) {
+                        $query->where('is_active', false);
+                    }
+                ])
+                ->get(),
+        ];
     }
 
     public function getAdminData(): array
