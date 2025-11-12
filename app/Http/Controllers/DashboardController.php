@@ -38,12 +38,14 @@ class DashboardController extends Controller implements DashboardInterface
             'subjects' => Auth::user()->teacherSubjects()
                 ->with(['educationLevel.category'])
                 ->withCount([
-                    'chapters',
+                    'chapters' => function ($query) {
+                        $query->where('created_by', Auth::id());
+                    },
                     'chapters as published_chapters_count' => function ($query) {
-                        $query->where('is_active', true);
+                        $query->where('is_active', true)->where('created_by', Auth::id());
                     },
                     'chapters as draft_chapters_count' => function ($query) {
-                        $query->where('is_active', false);
+                        $query->where('is_active', false)->where('created_by', Auth::id());
                     }
                 ])
                 ->get(),

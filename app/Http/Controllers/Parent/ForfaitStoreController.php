@@ -44,6 +44,8 @@ class ForfaitStoreController extends Controller
             'level_id' => 'required|exists:education_levels,id',
             'programme_id' => 'required|exists:education_level_categories,id',
             'purchased_plan_id' => 'required|exists:purchased_plans,id',
+            'avatar_icon' => 'nullable|integer|min:0|max:9',
+            'avatar_color' => 'nullable|integer|min:0|max:9',
         ]);
 
         try {
@@ -52,6 +54,8 @@ class ForfaitStoreController extends Controller
                 'education_level_id' => $validated['level_id'] ?? null,
                 'class' => $validated['class'] ?? null,
                 'education_level_category_id' => $validated['programme_id'] ?? null,
+                'avatar_icon' => $validated['avatar_icon'] ?? 0,
+                'avatar_color' => $validated['avatar_color'] ?? 0,
             ]);
 
             $plan = PurchasedPlan::findOrFail($validated['purchased_plan_id']);

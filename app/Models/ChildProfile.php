@@ -18,6 +18,8 @@ class ChildProfile extends Model
         'birth_date',
         'gender',
         'avatar',
+        'avatar_icon',
+        'avatar_color',
         'notes',
         'is_active',
         'last_accessed_at',
