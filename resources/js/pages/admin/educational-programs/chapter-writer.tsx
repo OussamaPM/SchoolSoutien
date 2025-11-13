@@ -4,7 +4,7 @@ import AppLayout from '@/layouts/app-layout';
 import defaultEmailJSON from '@/lib/default-editor-json.json';
 import { cn } from '@/lib/utils';
 import programs, { updateChapter } from '@/routes/admin/educational-programs';
-import { User, type BreadcrumbItem } from '@/types';
+import { type BreadcrumbItem } from '@/types';
 import { Head, useForm } from '@inertiajs/react';
 import '@maily-to/core/style.css';
 import { Editor } from '@tiptap/core';
@@ -13,19 +13,10 @@ import { useState } from 'react';
 import { toast } from 'sonner';
 import { Category } from '.';
 import { ChapterEditor } from './chapter-editor';
+import { Chapter } from './chapters';
 import { EducationLevel } from './levels';
 import { PreviewChapterDialog } from './preview-chapter-dialog';
 import { Subject } from './subjects';
-
-export interface Chapter {
-    id: number;
-    title: string;
-    content: string;
-    creator: User | null;
-    created_at: string;
-    updated_at: string;
-    preview_text: string;
-}
 
 const breadcrumbs = (
     levelId?: number,
@@ -135,7 +126,7 @@ export default function Index({ category, level, subject, chapter }: Props) {
                     className={cn(
                         'flex min-h-7 cursor-pointer items-center justify-center rounded-md bg-black px-2 py-1 text-sm text-white disabled:cursor-not-allowed max-lg:w-7',
                     )}
-                    disabled={isSaveChapterLoading}
+                    disabled={isSaveChapterLoading || chapter?.is_active}
                     onClick={() => {
                         if (!chapterData.title) {
                             toast.error('Titre est obligatoire');
@@ -204,6 +195,7 @@ export default function Index({ category, level, subject, chapter }: Props) {
             </div>
 
             <ChapterEditor
+                editable={!chapter.is_active}
                 defaultContent={
                     chapter?.content || JSON.stringify(defaultEmailJSON)
                 }

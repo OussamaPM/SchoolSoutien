@@ -31,8 +31,8 @@ import programs, {
     chapterWriter,
     updateChapterStatus,
 } from '@/routes/admin/educational-programs';
-import { User, type BreadcrumbItem } from '@/types';
-import { Form, Head, Link, router } from '@inertiajs/react';
+import { SharedData, User, type BreadcrumbItem } from '@/types';
+import { Form, Head, Link, router, usePage } from '@inertiajs/react';
 import { Plus, Trash2 } from 'lucide-react';
 import { useState } from 'react';
 import { toast } from 'sonner';
@@ -49,6 +49,7 @@ export interface Chapter {
     is_active: boolean;
     created_at: string;
     updated_at: string;
+    preview_text: string;
 }
 
 interface Props {
@@ -120,16 +121,21 @@ export default function Index({
         );
     };
 
+    const role = usePage<SharedData>().props.auth.user.role;
+
     return (
         <AppLayout
-            breadcrumbs={breadcrumbs(
-                level?.id,
-                level?.name,
-                category?.id,
-                category?.name,
-                subject?.id,
-                subject?.name,
-            )}
+            breadcrumbs={
+                role !== 'teacher' &&
+                breadcrumbs(
+                    level?.id,
+                    level?.name,
+                    category?.id,
+                    category?.name,
+                    subject?.id,
+                    subject?.name,
+                )
+            }
         >
             <Head title={`Cours — ${subject?.name || ''}`} />
 
@@ -213,12 +219,32 @@ export default function Index({
                                             <p className="text-xs text-gray-400">
                                                 {chapter.creator?.email}
                                             </p>
+                                            <p className="text-xs text-gray-400">
+                                                {new Date(
+                                                    chapter.created_at,
+                                                ).toLocaleTimeString([], {
+                                                    year: 'numeric',
+                                                    month: 'short',
+                                                    day: 'numeric',
+                                                    hour: 'numeric',
+                                                })}
+                                            </p>
                                         </TableCell>
                                         <TableCell className="max-w-xs truncate">
                                             {chapter.last_updater?.name ?? '-'}
                                             <p className="text-xs text-gray-400">
                                                 {chapter.last_updater?.email ??
                                                     '-'}
+                                            </p>
+                                            <p className="text-xs text-gray-400">
+                                                {new Date(
+                                                    chapter.updated_at,
+                                                ).toLocaleTimeString([], {
+                                                    year: 'numeric',
+                                                    month: 'short',
+                                                    day: 'numeric',
+                                                    hour: 'numeric',
+                                                })}
                                             </p>
                                         </TableCell>
                                         <TableCell

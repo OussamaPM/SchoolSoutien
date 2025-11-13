@@ -21,6 +21,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::prefix('parent')->name('parent.')->group(function () {
         Route::post('forfait-store/assign-child-profile', [ForfaitStoreController::class, 'storeChildProfilePlan'])
             ->name('forfait-store.assign-child-profile');
+        Route::post('forfait-store/update-child-profile/{childProfile}', [ForfaitStoreController::class, 'updateChildProfile'])
+            ->name('forfait-store.update-child-profile');
         Route::resource('forfait-store', ForfaitStoreController::class);
     });
 
@@ -56,5 +58,5 @@ Route::middleware(['auth', 'verified'])->group(function () {
     });
 });
 
-require __DIR__.'/settings.php';
-require __DIR__.'/auth.php';
+require __DIR__ . '/settings.php';
+require __DIR__ . '/auth.php';

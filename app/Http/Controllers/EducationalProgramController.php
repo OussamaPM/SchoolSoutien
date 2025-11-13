@@ -6,6 +6,7 @@ use App\Models\Chapter;
 use App\Models\EducationalSubject;
 use App\Models\EducationLevel;
 use App\Models\EducationLevelCategory;
+use App\RoleEnum;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Inertia\Inertia;
@@ -128,7 +129,12 @@ class EducationalProgramController extends Controller
 
     public function getChaptersBySubject(EducationLevelCategory $category, EducationLevel $level, EducationalSubject $subject)
     {
-        $chapters = $subject->chapters()->with(['creator:id,name,email', 'lastUpdater:id,name,email'])->get();
+        $chapters = $subject->chapters()
+            ->when(auth()->user()->role == RoleEnum::TEACHER->value, function ($query) {
+                $query->where('created_by', auth()->id());
+            })
+            ->with(['creator:id,name,email', 'lastUpdater:id,name,email'])
+            ->get();
 
         return Inertia::render('admin/educational-programs/chapters', [
             'chapters' => $chapters,

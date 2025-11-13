@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Parent;
 
 use App\Http\Controllers\Controller;
+use App\Models\ChildProfile;
 use App\Models\Plan;
 use App\Models\PurchasedPlan;
 use Illuminate\Http\Request;
@@ -64,6 +65,25 @@ class ForfaitStoreController extends Controller
         } catch (\Throwable $e) {
             return back()->withErrors(['message' => 'Le Plan sélectionné est invalide.']);
         }
+
+        return back();
+    }
+    /**
+     * Update child profile (name, avatar_icon, avatar_color only)
+     */
+    public function updateChildProfile(Request $request, ChildProfile $childProfile)
+    {
+        $validated = $request->validate([
+            'name' => 'required|string|max:255',
+            'avatar_icon' => 'nullable|integer|min:0|max:9',
+            'avatar_color' => 'nullable|integer|min:0|max:9',
+        ]);
+
+        $childProfile->update([
+            'name' => $validated['name'],
+            'avatar_icon' => $validated['avatar_icon'] ?? $childProfile->avatar_icon,
+            'avatar_color' => $validated['avatar_color'] ?? $childProfile->avatar_color,
+        ]);
 
         return back();
     }

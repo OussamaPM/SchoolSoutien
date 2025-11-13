@@ -102,27 +102,32 @@ export default function ParentDashboard({ data = [] }: Props) {
     const [isDialogOpen, setIsDialogOpen] = useState(false);
     const [selectedAvatar, setSelectedAvatar] = useState(0);
     const [selectedColor, setSelectedColor] = useState(0);
-
     const [selectedProgrammeId, setSelectedProgrammeId] = useState<
         string | null
     >(null);
+    const [editChild, setEditChild] = useState<any | null>(null);
+    const [editName, setEditName] = useState('');
 
     const emptySlots = Math.max(1, childProfiles.length === 0 ? 3 : 1);
-
     const hasAvailablePlans = (activeUnassignedPlans ?? []).length > 0;
 
     const handleAddChild = () => {
+        setEditChild(null);
+        setEditName('');
         setIsDialogOpen(true);
-        // Reset selections
         setSelectedAvatar(Math.floor(Math.random() * AVATAR_ICONS.length));
         setSelectedColor(Math.floor(Math.random() * AVATAR_COLORS.length));
+        setSelectedProgrammeId(null);
     };
 
     const handleSelectChild = (child: any) => {
-        console.log('Selected child:', child.name);
+        setEditChild(child);
+        setEditName(child.name);
+        setSelectedAvatar(child.avatar_icon ?? 0);
+        setSelectedColor(child.avatar_color ?? 0);
+        setIsDialogOpen(true);
     };
 
-    // Get avatar for child (fallback to index-based if not set)
     const getChildAvatar = (child: any, index: number) => {
         const avatarIndex = child.avatar_icon ?? index % AVATAR_ICONS.length;
         const colorIndex = child.avatar_color ?? index % AVATAR_COLORS.length;
@@ -135,7 +140,6 @@ export default function ParentDashboard({ data = [] }: Props) {
     return (
         <>
             <div className="flex min-h-screen flex-1 flex-col bg-linear-to-br from-slate-50 via-blue-50/30 to-purple-50/20 dark:from-slate-950 dark:via-slate-900 dark:to-slate-950">
-                {/* Stats Bar - Compact at the top */}
                 {childProfiles.length > 0 && (
                     <div className="border-b border-slate-200/50 bg-white/50 px-6 py-4 backdrop-blur-sm dark:border-slate-800/50 dark:bg-slate-900/50">
                         <div className="mx-auto flex max-w-6xl items-center justify-center gap-8">
@@ -180,10 +184,8 @@ export default function ParentDashboard({ data = [] }: Props) {
                     </div>
                 )}
 
-                {/* Main Content - Centered */}
                 <div className="flex flex-1 items-center justify-center px-6 py-12">
                     <div className="w-full max-w-6xl space-y-12">
-                        {/* Header */}
                         <div className="space-y-3 text-center">
                             <h1 className="text-4xl font-bold tracking-tight text-slate-900 dark:text-slate-100">
                                 {childProfiles.length === 0
@@ -197,7 +199,6 @@ export default function ParentDashboard({ data = [] }: Props) {
                             </p>
                         </div>
 
-                        {/* Profile Grid */}
                         <div className="flex flex-wrap items-center justify-center gap-6">
                             {childProfiles.map((child: any, index: number) => {
                                 const { Icon, color } = getChildAvatar(
@@ -210,19 +211,16 @@ export default function ParentDashboard({ data = [] }: Props) {
                                         className="group relative flex cursor-pointer flex-col items-center transition-all duration-300 hover:scale-110"
                                         onClick={() => handleSelectChild(child)}
                                     >
-                                        {/* Avatar Circle */}
                                         <div className="relative">
                                             <div
                                                 className={`flex h-32 w-32 items-center justify-center rounded-full ${color.bg} text-white shadow-lg ring-4 ring-transparent transition-all duration-300 group-hover:shadow-2xl group-hover:${color.ring} group-hover:ring-8`}
                                             >
                                                 <Icon className="h-16 w-16" />
 
-                                                {/* Active indicator */}
                                                 {child.current_plan && (
                                                     <div className="absolute -top-1 -right-1 h-6 w-6 rounded-full border-4 border-white bg-emerald-500 dark:border-slate-900" />
                                                 )}
 
-                                                {/* Inactive overlay */}
                                                 {!child.current_plan && (
                                                     <div className="absolute inset-0 flex items-center justify-center rounded-full bg-slate-900/60 backdrop-blur-[2px]">
                                                         <Badge
@@ -236,7 +234,6 @@ export default function ParentDashboard({ data = [] }: Props) {
                                             </div>
                                         </div>
 
-                                        {/* Name and details */}
                                         <div className="mt-4 space-y-1 text-center">
                                             <h3 className="text-lg font-semibold text-slate-900 dark:text-slate-100">
                                                 {child.name}
@@ -257,7 +254,6 @@ export default function ParentDashboard({ data = [] }: Props) {
                                 );
                             })}
 
-                            {/* Add Child Slots */}
                             {Array.from({ length: emptySlots }).map(
                                 (_, index) => (
                                     <div
@@ -281,7 +277,6 @@ export default function ParentDashboard({ data = [] }: Props) {
                             )}
                         </div>
 
-                        {/* Action Buttons */}
                         <div className="flex justify-center gap-4">
                             <Button
                                 onClick={handleAddChild}
@@ -308,15 +303,21 @@ export default function ParentDashboard({ data = [] }: Props) {
             <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
                 <DialogContent className="sm:max-w-[650px]">
                     <DialogHeader>
-                        <DialogTitle>Ajouter un profil enfant</DialogTitle>
+                        <DialogTitle>
+                            {editChild
+                                ? 'Modifier le profil enfant'
+                                : 'Ajouter un profil enfant'}
+                        </DialogTitle>
                         <DialogDescription>
-                            {hasAvailablePlans
-                                ? 'Remplissez les informations de votre enfant et personnalisez son profil.'
-                                : "Vous devez d'abord acheter un plan pour pouvoir créer un profil enfant."}
+                            {editChild
+                                ? "Vous pouvez modifier le nom, l'icône et la couleur du profil. Les autres champs ne sont pas modifiables."
+                                : hasAvailablePlans
+                                  ? 'Remplissez les informations de votre enfant et personnalisez son profil.'
+                                  : "Vous devez d'abord acheter un plan pour pouvoir créer un profil enfant."}
                         </DialogDescription>
                     </DialogHeader>
 
-                    {!hasAvailablePlans ? (
+                    {!hasAvailablePlans && !editChild ? (
                         <div className="space-y-4 py-6 text-center">
                             <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-yellow-100 dark:bg-yellow-900/30">
                                 <Plus className="h-8 w-8 text-yellow-600 dark:text-yellow-500" />
@@ -350,9 +351,17 @@ export default function ParentDashboard({ data = [] }: Props) {
                     ) : (
                         <Form
                             disableWhileProcessing
-                            {...forfaitStore.assignChildProfile.form()}
+                            {...(editChild
+                                ? forfaitStore.updateChildProfile.form({
+                                      id: editChild.id,
+                                  })
+                                : forfaitStore.assignChildProfile.form())}
                             onSuccess={() => {
-                                toast('Enfant ajouté avec succès !');
+                                toast(
+                                    editChild
+                                        ? 'Profil modifié avec succès !'
+                                        : 'Enfant ajouté avec succès !',
+                                );
                                 setIsDialogOpen(false);
                             }}
                             onError={(err: any) =>
@@ -385,7 +394,6 @@ export default function ParentDashboard({ data = [] }: Props) {
                                                     Personnaliser l'avatar
                                                 </Label>
                                                 <div className="flex items-center gap-6">
-                                                    {/* Preview */}
                                                     <div
                                                         className={`flex h-24 w-24 shrink-0 items-center justify-center rounded-full ${selectedColorClass.bg} text-white shadow-lg`}
                                                     >
@@ -493,12 +501,38 @@ export default function ParentDashboard({ data = [] }: Props) {
                                                         id="name"
                                                         name="name"
                                                         placeholder="Ex: Emma Dubois"
+                                                        value={
+                                                            editChild
+                                                                ? editName
+                                                                : undefined
+                                                        }
+                                                        onChange={
+                                                            editChild
+                                                                ? (e) =>
+                                                                      setEditName(
+                                                                          e
+                                                                              .target
+                                                                              .value,
+                                                                      )
+                                                                : undefined
+                                                        }
+                                                        disabled={processing}
                                                     />
                                                     <InputError
                                                         message={errors.name}
                                                     />
                                                 </div>
                                             </div>
+
+                                            {/* Disabled fields in edit mode */}
+                                            {editChild && (
+                                                <div className="space-y-2 rounded-lg bg-slate-100 px-4 py-3 text-xs text-slate-500 dark:bg-slate-800 dark:text-slate-400">
+                                                    Les champs "Niveau",
+                                                    "Classe" et "Plan" ne
+                                                    peuvent pas être modifiés
+                                                    après la création du profil.
+                                                </div>
+                                            )}
 
                                             {/* Programme */}
                                             <div className="grid grid-cols-4 items-center gap-4">
@@ -518,6 +552,7 @@ export default function ParentDashboard({ data = [] }: Props) {
                                                                 value,
                                                             );
                                                         }}
+                                                        disabled={!!editChild}
                                                     >
                                                         <SelectTrigger>
                                                             <SelectValue placeholder="Choisir un niveau" />
@@ -563,8 +598,9 @@ export default function ParentDashboard({ data = [] }: Props) {
                                                     <Select
                                                         name="level_id"
                                                         disabled={
+                                                            !!editChild ||
                                                             availableClasses.length ===
-                                                            0
+                                                                0
                                                         }
                                                     >
                                                         <SelectTrigger>
@@ -614,7 +650,10 @@ export default function ParentDashboard({ data = [] }: Props) {
                                                     Plan à assigner
                                                 </Label>
                                                 <div className="col-span-3 space-y-1">
-                                                    <Select name="purchased_plan_id">
+                                                    <Select
+                                                        name="purchased_plan_id"
+                                                        disabled={!!editChild}
+                                                    >
                                                         <SelectTrigger>
                                                             <SelectValue placeholder="Choisir un plan" />
                                                         </SelectTrigger>
@@ -681,8 +720,12 @@ export default function ParentDashboard({ data = [] }: Props) {
                                                 disabled={processing}
                                             >
                                                 {processing
-                                                    ? 'Création...'
-                                                    : 'Créer le profil'}
+                                                    ? editChild
+                                                        ? 'Modification...'
+                                                        : 'Création...'
+                                                    : editChild
+                                                      ? 'Enregistrer'
+                                                      : 'Créer le profil'}
                                             </Button>
                                         </DialogFooter>
                                     </>

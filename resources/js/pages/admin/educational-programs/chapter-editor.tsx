@@ -18,6 +18,7 @@ type EditorProps = {
     setChapterData: (field: string, value: string) => void;
     onEditorUpdate?: (editor: TiptapEditor) => void;
     autofocus?: FocusPosition;
+    editable?: boolean;
 };
 
 export function ChapterEditor(props: EditorProps) {
@@ -27,6 +28,7 @@ export function ChapterEditor(props: EditorProps) {
         setChapterData,
         onEditorUpdate,
         autofocus,
+        editable,
     } = props;
 
     const [isLoading, setIsLoading] = useState(true);
@@ -41,6 +43,7 @@ export function ChapterEditor(props: EditorProps) {
             )}
             <Suspense>
                 <Editor
+                    editable={editable ?? true}
                     config={{
                         hasMenuBar: false,
                         wrapClassName: cn('editor-wrap', isLoading && 'hidden'),

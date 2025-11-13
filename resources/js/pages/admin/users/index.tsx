@@ -70,55 +70,77 @@ export default function Index({
 
     // State for teacher education selection
     const [selectedRole, setSelectedRole] = useState<string>('parent');
-    const [selectedCategoryId, setSelectedCategoryId] = useState<number | null>(
-        null,
+    const [selectedCategoryIds, setSelectedCategoryIds] = useState<number[]>(
+        [],
     );
-    const [selectedLevelId, setSelectedLevelId] = useState<number | null>(null);
+    const [selectedLevelIds, setSelectedLevelIds] = useState<number[]>([]);
     const [selectedSubjectIds, setSelectedSubjectIds] = useState<number[]>([]);
 
     // State for edit form teacher education
     const [editSelectedRole, setEditSelectedRole] = useState<string>('parent');
-    const [editSelectedCategoryId, setEditSelectedCategoryId] = useState<
-        number | null
-    >(null);
-    const [editSelectedLevelId, setEditSelectedLevelId] = useState<
-        number | null
-    >(null);
+    const [editSelectedCategoryIds, setEditSelectedCategoryIds] = useState<
+        number[]
+    >([]);
+    const [editSelectedLevelIds, setEditSelectedLevelIds] = useState<number[]>(
+        [],
+    );
     const [editSelectedSubjectIds, setEditSelectedSubjectIds] = useState<
         number[]
     >([]);
 
     // Computed values for create form
     const availableLevels = useMemo(() => {
-        if (!selectedCategoryId) return [];
-        const category = educationCategories.find(
-            (c) => c.id === selectedCategoryId,
-        );
-        return category?.education_levels || [];
-    }, [selectedCategoryId, educationCategories]);
+        if (!selectedCategoryIds.length) return [];
+        return educationCategories
+            .filter((c) => selectedCategoryIds.includes(c.id))
+            .flatMap((c) => c.education_levels || []);
+    }, [selectedCategoryIds, educationCategories]);
 
     const availableSubjects = useMemo(() => {
-        if (!selectedLevelId) return [];
-        const level = availableLevels.find((l) => l.id === selectedLevelId);
-        return level?.education_subjects || [];
-    }, [selectedLevelId, availableLevels]);
+        if (!selectedLevelIds.length) return [];
+        return availableLevels
+            .filter((l) => selectedLevelIds.includes(l.id))
+            .flatMap((level) => {
+                // Find the parent category for this level
+                const category = educationCategories.find((c) =>
+                    c.education_levels?.some((el) => el.id === level.id),
+                );
+                return (level.education_subjects || []).map((subject) => ({
+                    ...subject,
+                    education_level: {
+                        ...level,
+                        category: category,
+                    },
+                }));
+            });
+    }, [selectedLevelIds, availableLevels, educationCategories]);
 
     // Computed values for edit form
     const editAvailableLevels = useMemo(() => {
-        if (!editSelectedCategoryId) return [];
-        const category = educationCategories.find(
-            (c) => c.id === editSelectedCategoryId,
-        );
-        return category?.education_levels || [];
-    }, [editSelectedCategoryId, educationCategories]);
+        if (!editSelectedCategoryIds.length) return [];
+        return educationCategories
+            .filter((c) => editSelectedCategoryIds.includes(c.id))
+            .flatMap((c) => c.education_levels || []);
+    }, [editSelectedCategoryIds, educationCategories]);
 
     const editAvailableSubjects = useMemo(() => {
-        if (!editSelectedLevelId) return [];
-        const level = editAvailableLevels.find(
-            (l) => l.id === editSelectedLevelId,
-        );
-        return level?.education_subjects || [];
-    }, [editSelectedLevelId, editAvailableLevels]);
+        if (!editSelectedLevelIds.length) return [];
+        return editAvailableLevels
+            .filter((l) => editSelectedLevelIds.includes(l.id))
+            .flatMap((level) => {
+                // Find the parent category for this level
+                const category = educationCategories.find((c) =>
+                    c.education_levels?.some((el) => el.id === level.id),
+                );
+                return (level.education_subjects || []).map((subject) => ({
+                    ...subject,
+                    education_level: {
+                        ...level,
+                        category: category,
+                    },
+                }));
+            });
+    }, [editSelectedLevelIds, editAvailableLevels, educationCategories]);
 
     // Get selected subjects details for display
     const getSelectedSubjectNames = (subjectIds: number[]) => {
@@ -141,16 +163,30 @@ export default function Index({
             user.teacher_subjects &&
             user.teacher_subjects.length > 0
         ) {
-            const firstSubject = user.teacher_subjects[0];
-            const categoryId = firstSubject.education_level?.category?.id;
-            const levelId = firstSubject.education_level?.id;
+            // Get all unique category IDs from teacher subjects
+            const categoryIds = Array.from(
+                new Set(
+                    user.teacher_subjects
+                        .map((s) => s.education_level?.category?.id)
+                        .filter((id): id is number => id !== undefined),
+                ),
+            );
 
-            if (categoryId) setEditSelectedCategoryId(categoryId);
-            if (levelId) setEditSelectedLevelId(levelId);
+            // Get all unique level IDs from teacher subjects
+            const levelIds = Array.from(
+                new Set(
+                    user.teacher_subjects
+                        .map((s) => s.education_level?.id)
+                        .filter((id): id is number => id !== undefined),
+                ),
+            );
+
+            if (categoryIds.length) setEditSelectedCategoryIds(categoryIds);
+            if (levelIds.length) setEditSelectedLevelIds(levelIds);
             setEditSelectedSubjectIds(user.teacher_subjects.map((s) => s.id));
         } else {
-            setEditSelectedCategoryId(null);
-            setEditSelectedLevelId(null);
+            setEditSelectedCategoryIds([]);
+            setEditSelectedLevelIds([]);
             setEditSelectedSubjectIds([]);
         }
 
@@ -165,23 +201,43 @@ export default function Index({
     const handleRoleChange = (role: string) => {
         setSelectedRole(role);
         if (role !== 'teacher') {
-            setSelectedCategoryId(null);
-            setSelectedLevelId(null);
+            setSelectedCategoryIds([]);
+            setSelectedLevelIds([]);
             setSelectedSubjectIds([]);
         }
     };
 
-    const handleCategoryChange = (categoryId: string) => {
-        const id = parseInt(categoryId);
-        setSelectedCategoryId(id);
-        setSelectedLevelId(null);
+    const handleCategoryToggle = (categoryId: number) => {
+        setSelectedCategoryIds((prev) =>
+            prev.includes(categoryId)
+                ? prev.filter((id) => id !== categoryId)
+                : [...prev, categoryId],
+        );
+        setSelectedLevelIds([]);
         setSelectedSubjectIds([]);
     };
 
-    const handleLevelChange = (levelId: string) => {
-        const id = parseInt(levelId);
-        setSelectedLevelId(id);
-        setSelectedSubjectIds([]);
+    const handleLevelToggle = (levelId: number) => {
+        setSelectedLevelIds((prev) => {
+            const isRemoving = prev.includes(levelId);
+
+            if (isRemoving) {
+                // When removing a level, also remove its subjects
+                const level = availableLevels.find((l) => l.id === levelId);
+                const subjectIdsToRemove =
+                    level?.education_subjects?.map((s) => s.id) || [];
+
+                setSelectedSubjectIds((prevSubjects) =>
+                    prevSubjects.filter(
+                        (id) => !subjectIdsToRemove.includes(id),
+                    ),
+                );
+
+                return prev.filter((id) => id !== levelId);
+            }
+
+            return [...prev, levelId];
+        });
     };
 
     const handleSubjectToggle = (subjectId: number) => {
@@ -196,17 +252,37 @@ export default function Index({
         setSelectedSubjectIds((prev) => prev.filter((id) => id !== subjectId));
     };
 
-    const handleEditCategoryChange = (categoryId: string) => {
-        const id = parseInt(categoryId);
-        setEditSelectedCategoryId(id);
-        setEditSelectedLevelId(null);
+    const handleEditCategoryToggle = (categoryId: number) => {
+        setEditSelectedCategoryIds((prev) =>
+            prev.includes(categoryId)
+                ? prev.filter((id) => id !== categoryId)
+                : [...prev, categoryId],
+        );
+        setEditSelectedLevelIds([]);
         setEditSelectedSubjectIds([]);
     };
 
-    const handleEditLevelChange = (levelId: string) => {
-        const id = parseInt(levelId);
-        setEditSelectedLevelId(id);
-        setEditSelectedSubjectIds([]);
+    const handleEditLevelToggle = (levelId: number) => {
+        setEditSelectedLevelIds((prev) => {
+            const isRemoving = prev.includes(levelId);
+
+            if (isRemoving) {
+                // When removing a level, also remove its subjects
+                const level = editAvailableLevels.find((l) => l.id === levelId);
+                const subjectIdsToRemove =
+                    level?.education_subjects?.map((s) => s.id) || [];
+
+                setEditSelectedSubjectIds((prevSubjects) =>
+                    prevSubjects.filter(
+                        (id) => !subjectIdsToRemove.includes(id),
+                    ),
+                );
+
+                return prev.filter((id) => id !== levelId);
+            }
+
+            return [...prev, levelId];
+        });
     };
 
     const handleEditSubjectToggle = (subjectId: number) => {
@@ -227,8 +303,8 @@ export default function Index({
         setEditSelectedRole(role);
         // Reset teacher education selections when role changes
         if (role !== 'teacher') {
-            setEditSelectedCategoryId(null);
-            setEditSelectedLevelId(null);
+            setEditSelectedCategoryIds([]);
+            setEditSelectedLevelIds([]);
             setEditSelectedSubjectIds([]);
         }
     };
@@ -236,8 +312,8 @@ export default function Index({
     const handleCreateSuccess = () => {
         setIsCreateOpen(false);
         setSelectedRole('parent');
-        setSelectedCategoryId(null);
-        setSelectedLevelId(null);
+        setSelectedCategoryIds([]);
+        setSelectedLevelIds([]);
         setSelectedSubjectIds([]);
         toast.success('Utilisateur créé avec succès');
     };
@@ -245,8 +321,8 @@ export default function Index({
     const handleUpdateSuccess = () => {
         setIsEditOpen(false);
         setEditSelectedRole('parent');
-        setEditSelectedCategoryId(null);
-        setEditSelectedLevelId(null);
+        setEditSelectedCategoryIds([]);
+        setEditSelectedLevelIds([]);
         setEditSelectedSubjectIds([]);
         toast.success('Utilisateur mis à jour avec succès');
     };
@@ -415,87 +491,96 @@ export default function Index({
                                                     <div className="grid gap-3">
                                                         {/* Category Selection */}
                                                         <div className="grid gap-2">
-                                                            <Label
-                                                                htmlFor="create-category"
-                                                                className="text-sm font-medium"
-                                                            >
-                                                                1. Catégorie
+                                                            <Label className="text-sm font-medium">
+                                                                1. Catégories
                                                             </Label>
-                                                            <Select
-                                                                value={selectedCategoryId?.toString()}
-                                                                onValueChange={
-                                                                    handleCategoryChange
-                                                                }
-                                                            >
-                                                                <SelectTrigger id="create-category">
-                                                                    <SelectValue placeholder="Sélectionner une catégorie" />
-                                                                </SelectTrigger>
-                                                                <SelectContent>
+                                                            <div className="rounded-md border bg-white p-3 dark:bg-gray-950">
+                                                                <div className="space-y-2">
                                                                     {educationCategories.map(
                                                                         (
                                                                             category,
                                                                         ) => (
-                                                                            <SelectItem
+                                                                            <div
                                                                                 key={
                                                                                     category.id
                                                                                 }
-                                                                                value={category.id.toString()}
+                                                                                className="flex items-center space-x-2"
                                                                             >
-                                                                                {
-                                                                                    category.name
-                                                                                }
-                                                                            </SelectItem>
+                                                                                <Checkbox
+                                                                                    id={`category-${category.id}`}
+                                                                                    checked={selectedCategoryIds.includes(
+                                                                                        category.id,
+                                                                                    )}
+                                                                                    onCheckedChange={() =>
+                                                                                        handleCategoryToggle(
+                                                                                            category.id,
+                                                                                        )
+                                                                                    }
+                                                                                />
+                                                                                <Label
+                                                                                    htmlFor={`category-${category.id}`}
+                                                                                    className="cursor-pointer text-sm font-normal"
+                                                                                >
+                                                                                    {
+                                                                                        category.name
+                                                                                    }
+                                                                                </Label>
+                                                                            </div>
                                                                         ),
                                                                     )}
-                                                                </SelectContent>
-                                                            </Select>
+                                                                </div>
+                                                            </div>
                                                         </div>
 
-                                                        {/* Level Selection */}
-                                                        {selectedCategoryId && (
+                                                        {/* Level Multi-Select */}
+                                                        {selectedCategoryIds.length >
+                                                            0 && (
                                                             <div className="grid gap-2">
-                                                                <Label
-                                                                    htmlFor="create-level"
-                                                                    className="text-sm font-medium"
-                                                                >
-                                                                    2. Niveau
+                                                                <Label className="text-sm font-medium">
+                                                                    2. Niveaux
                                                                 </Label>
-                                                                <Select
-                                                                    value={selectedLevelId?.toString()}
-                                                                    onValueChange={
-                                                                        handleLevelChange
-                                                                    }
-                                                                    disabled={
-                                                                        !availableLevels.length
-                                                                    }
-                                                                >
-                                                                    <SelectTrigger id="create-level">
-                                                                        <SelectValue placeholder="Sélectionner un niveau" />
-                                                                    </SelectTrigger>
-                                                                    <SelectContent>
+                                                                <div className="rounded-md border bg-white p-3 dark:bg-gray-950">
+                                                                    <div className="space-y-2">
                                                                         {availableLevels.map(
                                                                             (
                                                                                 level,
                                                                             ) => (
-                                                                                <SelectItem
+                                                                                <div
                                                                                     key={
                                                                                         level.id
                                                                                     }
-                                                                                    value={level.id.toString()}
+                                                                                    className="flex items-center space-x-2"
                                                                                 >
-                                                                                    {
-                                                                                        level.name
-                                                                                    }
-                                                                                </SelectItem>
+                                                                                    <Checkbox
+                                                                                        id={`level-${level.id}`}
+                                                                                        checked={selectedLevelIds.includes(
+                                                                                            level.id,
+                                                                                        )}
+                                                                                        onCheckedChange={() =>
+                                                                                            handleLevelToggle(
+                                                                                                level.id,
+                                                                                            )
+                                                                                        }
+                                                                                    />
+                                                                                    <Label
+                                                                                        htmlFor={`level-${level.id}`}
+                                                                                        className="cursor-pointer text-sm font-normal"
+                                                                                    >
+                                                                                        {
+                                                                                            level.name
+                                                                                        }
+                                                                                    </Label>
+                                                                                </div>
                                                                             ),
                                                                         )}
-                                                                    </SelectContent>
-                                                                </Select>
+                                                                    </div>
+                                                                </div>
                                                             </div>
                                                         )}
 
-                                                        {/* Subject Selection */}
-                                                        {selectedLevelId &&
+                                                        {/* Subject Multi-Select */}
+                                                        {selectedLevelIds.length >
+                                                            0 &&
                                                             availableSubjects.length >
                                                                 0 && (
                                                                 <div className="grid gap-2">
@@ -533,6 +618,22 @@ export default function Index({
                                                                                             {
                                                                                                 subject.name
                                                                                             }
+                                                                                            <span className="ml-2 text-xs text-muted-foreground">
+                                                                                                (
+                                                                                                {
+                                                                                                    subject
+                                                                                                        .education_level
+                                                                                                        ?.name
+                                                                                                }{' '}
+                                                                                                -{' '}
+                                                                                                {
+                                                                                                    subject
+                                                                                                        .education_level
+                                                                                                        ?.category
+                                                                                                        ?.name
+                                                                                                }
+                                                                                                )
+                                                                                            </span>
                                                                                         </Label>
                                                                                     </div>
                                                                                 ),
@@ -986,87 +1087,96 @@ export default function Index({
                                                     <div className="grid gap-3">
                                                         {/* Category Selection */}
                                                         <div className="grid gap-2">
-                                                            <Label
-                                                                htmlFor="edit-category"
-                                                                className="text-sm font-medium"
-                                                            >
-                                                                1. Catégorie
+                                                            <Label className="text-sm font-medium">
+                                                                1. Catégories
                                                             </Label>
-                                                            <Select
-                                                                value={editSelectedCategoryId?.toString()}
-                                                                onValueChange={
-                                                                    handleEditCategoryChange
-                                                                }
-                                                            >
-                                                                <SelectTrigger id="edit-category">
-                                                                    <SelectValue placeholder="Sélectionner une catégorie" />
-                                                                </SelectTrigger>
-                                                                <SelectContent>
+                                                            <div className="rounded-md border bg-white p-3 dark:bg-gray-950">
+                                                                <div className="space-y-2">
                                                                     {educationCategories.map(
                                                                         (
                                                                             category,
                                                                         ) => (
-                                                                            <SelectItem
+                                                                            <div
                                                                                 key={
                                                                                     category.id
                                                                                 }
-                                                                                value={category.id.toString()}
+                                                                                className="flex items-center space-x-2"
                                                                             >
-                                                                                {
-                                                                                    category.name
-                                                                                }
-                                                                            </SelectItem>
+                                                                                <Checkbox
+                                                                                    id={`edit-category-${category.id}`}
+                                                                                    checked={editSelectedCategoryIds.includes(
+                                                                                        category.id,
+                                                                                    )}
+                                                                                    onCheckedChange={() =>
+                                                                                        handleEditCategoryToggle(
+                                                                                            category.id,
+                                                                                        )
+                                                                                    }
+                                                                                />
+                                                                                <Label
+                                                                                    htmlFor={`edit-category-${category.id}`}
+                                                                                    className="cursor-pointer text-sm font-normal"
+                                                                                >
+                                                                                    {
+                                                                                        category.name
+                                                                                    }
+                                                                                </Label>
+                                                                            </div>
                                                                         ),
                                                                     )}
-                                                                </SelectContent>
-                                                            </Select>
+                                                                </div>
+                                                            </div>
                                                         </div>
 
-                                                        {/* Level Selection */}
-                                                        {editSelectedCategoryId && (
+                                                        {/* Level Multi-Select */}
+                                                        {editSelectedCategoryIds.length >
+                                                            0 && (
                                                             <div className="grid gap-2">
-                                                                <Label
-                                                                    htmlFor="edit-level"
-                                                                    className="text-sm font-medium"
-                                                                >
-                                                                    2. Niveau
+                                                                <Label className="text-sm font-medium">
+                                                                    2. Niveaux
                                                                 </Label>
-                                                                <Select
-                                                                    value={editSelectedLevelId?.toString()}
-                                                                    onValueChange={
-                                                                        handleEditLevelChange
-                                                                    }
-                                                                    disabled={
-                                                                        !editAvailableLevels.length
-                                                                    }
-                                                                >
-                                                                    <SelectTrigger id="edit-level">
-                                                                        <SelectValue placeholder="Sélectionner un niveau" />
-                                                                    </SelectTrigger>
-                                                                    <SelectContent>
+                                                                <div className="rounded-md border bg-white p-3 dark:bg-gray-950">
+                                                                    <div className="space-y-2">
                                                                         {editAvailableLevels.map(
                                                                             (
                                                                                 level,
                                                                             ) => (
-                                                                                <SelectItem
+                                                                                <div
                                                                                     key={
                                                                                         level.id
                                                                                     }
-                                                                                    value={level.id.toString()}
+                                                                                    className="flex items-center space-x-2"
                                                                                 >
-                                                                                    {
-                                                                                        level.name
-                                                                                    }
-                                                                                </SelectItem>
+                                                                                    <Checkbox
+                                                                                        id={`edit-level-${level.id}`}
+                                                                                        checked={editSelectedLevelIds.includes(
+                                                                                            level.id,
+                                                                                        )}
+                                                                                        onCheckedChange={() =>
+                                                                                            handleEditLevelToggle(
+                                                                                                level.id,
+                                                                                            )
+                                                                                        }
+                                                                                    />
+                                                                                    <Label
+                                                                                        htmlFor={`edit-level-${level.id}`}
+                                                                                        className="cursor-pointer text-sm font-normal"
+                                                                                    >
+                                                                                        {
+                                                                                            level.name
+                                                                                        }
+                                                                                    </Label>
+                                                                                </div>
                                                                             ),
                                                                         )}
-                                                                    </SelectContent>
-                                                                </Select>
+                                                                    </div>
+                                                                </div>
                                                             </div>
                                                         )}
 
-                                                        {/* Subject Selection */}
-                                                        {editSelectedLevelId &&
+                                                        {/* Subject Multi-Select */}
+                                                        {editSelectedLevelIds.length >
+                                                            0 &&
                                                             editAvailableSubjects.length >
                                                                 0 && (
                                                                 <div className="grid gap-2">
@@ -1104,6 +1214,22 @@ export default function Index({
                                                                                             {
                                                                                                 subject.name
                                                                                             }
+                                                                                            <span className="ml-2 text-xs text-muted-foreground">
+                                                                                                (
+                                                                                                {
+                                                                                                    subject
+                                                                                                        .education_level
+                                                                                                        ?.name
+                                                                                                }{' '}
+                                                                                                -{' '}
+                                                                                                {
+                                                                                                    subject
+                                                                                                        .education_level
+                                                                                                        ?.category
+                                                                                                        ?.name
+                                                                                                }
+                                                                                                )
+                                                                                            </span>
                                                                                         </Label>
                                                                                     </div>
                                                                                 ),
