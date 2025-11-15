@@ -19,10 +19,11 @@ import {
     SelectValue,
 } from '@/components/ui/select';
 import forfaitStore from '@/routes/parent/forfait-store';
-import { Form, Link } from '@inertiajs/react';
+import { Form, Link, router } from '@inertiajs/react';
 import {
     BookOpen,
     Crown,
+    Edit,
     Flame,
     Heart,
     Music,
@@ -37,10 +38,13 @@ import { useState } from 'react';
 import { toast } from 'sonner';
 
 interface Props {
-    data?: any[];
+    data?: {
+        childProfiles: any[];
+        programmes: any[];
+        activeUnassignedPlans: any[];
+    };
 }
 
-// Profile avatar options
 const AVATAR_ICONS = [
     { Icon: Rocket, name: 'rocket' },
     { Icon: Star, name: 'star' },
@@ -97,8 +101,12 @@ const AVATAR_COLORS = [
     },
 ];
 
-export default function ParentDashboard({ data = [] }: Props) {
-    const { childProfiles, programmes, activeUnassignedPlans } = data;
+export default function ParentDashboard({ data }: Props) {
+    const {
+        childProfiles = [],
+        programmes = [],
+        activeUnassignedPlans = [],
+    } = data || {};
     const [isDialogOpen, setIsDialogOpen] = useState(false);
     const [selectedAvatar, setSelectedAvatar] = useState(0);
     const [selectedColor, setSelectedColor] = useState(0);
@@ -121,6 +129,12 @@ export default function ParentDashboard({ data = [] }: Props) {
     };
 
     const handleSelectChild = (child: any) => {
+        // Redirect to child's learning session
+        router.visit(`/parent/child-sessions/${child.id}`);
+    };
+
+    const handleEditChild = (child: any, e: React.MouseEvent) => {
+        e.stopPropagation(); // Prevent triggering the profile click
         setEditChild(child);
         setEditName(child.name);
         setSelectedAvatar(child.avatar_icon ?? 0);
@@ -208,14 +222,30 @@ export default function ParentDashboard({ data = [] }: Props) {
                                 return (
                                     <div
                                         key={child.id}
-                                        className="group relative flex cursor-pointer flex-col items-center transition-all duration-300 hover:scale-110"
-                                        onClick={() => handleSelectChild(child)}
+                                        className="group relative flex flex-col items-center transition-all duration-300"
                                     >
-                                        <div className="relative">
-                                            <div
-                                                className={`flex h-32 w-32 items-center justify-center rounded-full ${color.bg} text-white shadow-lg ring-4 ring-transparent transition-all duration-300 group-hover:shadow-2xl group-hover:${color.ring} group-hover:ring-8`}
-                                            >
-                                                <Icon className="h-16 w-16" />
+                                        {/* Edit Icon */}
+                                        <button
+                                            onClick={(e) =>
+                                                handleEditChild(child, e)
+                                            }
+                                            className="absolute top-0 right-0 z-10 flex h-8 w-8 items-center justify-center rounded-full bg-slate-200/80 text-slate-600 opacity-0 shadow-sm backdrop-blur-sm transition-all duration-200 group-hover:opacity-100 hover:bg-slate-300 hover:text-slate-900 dark:bg-slate-700/80 dark:text-slate-300 dark:hover:bg-slate-600 dark:hover:text-slate-100"
+                                        >
+                                            <Edit className="h-4 w-4" />
+                                        </button>
+
+                                        <div
+                                            className="cursor-pointer"
+                                            onClick={() =>
+                                                handleSelectChild(child)
+                                            }
+                                        >
+                                            <div className="relative">
+                                                <div
+                                                    className={`flex h-32 w-32 items-center justify-center rounded-full ${color.bg} text-white shadow-lg ring-4 ring-transparent transition-all duration-300 hover:scale-110 hover:shadow-2xl hover:${color.ring} hover:ring-8`}
+                                                >
+                                                    <Icon className="h-16 w-16" />
+                                                </div>
 
                                                 {child.current_plan && (
                                                     <div className="absolute -top-1 -right-1 h-6 w-6 rounded-full border-4 border-white bg-emerald-500 dark:border-slate-900" />
@@ -234,20 +264,23 @@ export default function ParentDashboard({ data = [] }: Props) {
                                             </div>
                                         </div>
 
-                                        <div className="mt-4 space-y-1 text-center">
-                                            <h3 className="text-lg font-semibold text-slate-900 dark:text-slate-100">
+                                        <div className="mt-4 space-y-2 text-center">
+                                            <h3 className="text-base font-semibold text-slate-900 dark:text-slate-100">
                                                 {child.name}
                                             </h3>
                                             <p className="text-xs text-slate-500 dark:text-slate-400">
                                                 {child.education_level?.name}
                                             </p>
                                             {child.current_plan && (
-                                                <p className="text-xs font-medium text-emerald-600 dark:text-emerald-400">
+                                                <Badge
+                                                    variant="outline"
+                                                    className="text-xs"
+                                                >
                                                     {
                                                         child.current_plan.plan
                                                             .name
                                                     }
-                                                </p>
+                                                </Badge>
                                             )}
                                         </div>
                                     </div>
