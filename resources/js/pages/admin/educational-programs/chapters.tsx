@@ -26,6 +26,12 @@ import {
     TableHeader,
     TableRow,
 } from '@/components/ui/table';
+import {
+    Tooltip,
+    TooltipContent,
+    TooltipProvider,
+    TooltipTrigger,
+} from '@/components/ui/tooltip';
 import AppLayout from '@/layouts/app-layout';
 import programs, {
     chapterWriter,
@@ -33,7 +39,7 @@ import programs, {
 } from '@/routes/admin/educational-programs';
 import { SharedData, User, type BreadcrumbItem } from '@/types';
 import { Form, Head, Link, router, usePage } from '@inertiajs/react';
-import { Plus, Trash2 } from 'lucide-react';
+import { Paperclip, Plus, Trash2, Video } from 'lucide-react';
 import { useState } from 'react';
 import { toast } from 'sonner';
 import { Category } from '.';
@@ -47,6 +53,8 @@ export interface Chapter {
     creator: User | null;
     last_updater: User | null;
     is_active: boolean;
+    video_url?: string | null;
+    attachment_url?: string | null;
     created_at: string;
     updated_at: string;
     preview_text: string;
@@ -174,6 +182,7 @@ export default function Index({
                                 <TableHead>Nom</TableHead>
                                 <TableHead>Crée Par</TableHead>
                                 <TableHead>Dernière Mise à Jour Par</TableHead>
+                                <TableHead># Exercices</TableHead>
                                 <TableHead>Statut</TableHead>
                                 <TableHead></TableHead>
                             </TableRow>
@@ -251,6 +260,12 @@ export default function Index({
                                             className="max-w-xs truncate"
                                             onClick={(e) => e.stopPropagation()}
                                         >
+                                            -
+                                        </TableCell>
+                                        <TableCell
+                                            className="max-w-xs truncate"
+                                            onClick={(e) => e.stopPropagation()}
+                                        >
                                             <DropdownMenu>
                                                 <DropdownMenuTrigger asChild>
                                                     <Button
@@ -306,6 +321,48 @@ export default function Index({
                                             onClick={(e) => e.stopPropagation()}
                                         >
                                             <div className="flex justify-end gap-2">
+                                                <TooltipProvider>
+                                                    {chapter.video_url && (
+                                                        <Tooltip>
+                                                            <TooltipTrigger
+                                                                asChild
+                                                            >
+                                                                <Button
+                                                                    variant="ghost"
+                                                                    size="icon"
+                                                                >
+                                                                    <Video className="h-4 w-4 text-blue-500" />
+                                                                </Button>
+                                                            </TooltipTrigger>
+                                                            <TooltipContent>
+                                                                <p>
+                                                                    Contient une
+                                                                    vidéo
+                                                                </p>
+                                                            </TooltipContent>
+                                                        </Tooltip>
+                                                    )}
+                                                    {chapter.attachment_url && (
+                                                        <Tooltip>
+                                                            <TooltipTrigger
+                                                                asChild
+                                                            >
+                                                                <Button
+                                                                    variant="ghost"
+                                                                    size="icon"
+                                                                >
+                                                                    <Paperclip className="h-4 w-4 text-slate-500" />
+                                                                </Button>
+                                                            </TooltipTrigger>
+                                                            <TooltipContent>
+                                                                <p>
+                                                                    Contient une
+                                                                    pièce jointe
+                                                                </p>
+                                                            </TooltipContent>
+                                                        </Tooltip>
+                                                    )}
+                                                </TooltipProvider>
                                                 <Button
                                                     variant="ghost"
                                                     size="icon"

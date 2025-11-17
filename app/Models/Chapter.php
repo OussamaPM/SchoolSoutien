@@ -12,6 +12,8 @@ class Chapter extends Model
         'created_by',
         'educational_subject_id',
         'last_updated_by',
+        'video_url',
+        'attachment_url',
         'is_active',
     ];
 

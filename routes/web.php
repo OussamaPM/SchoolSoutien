@@ -56,6 +56,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
                 Route::get('education-level-categories/{category}/{level}/subjects/{subject}/chapter-write/{chapter?}', 'chapterWriter')->name('chapter-writer');
                 Route::patch('education-level-categories/{category}/{level}/subjects/{subject}/chapter/{chapter?}', 'updateChapter')->name('update-chapter');
                 Route::patch('education-level-categories/{category}/{level}/subjects/{subject}/chapter/{chapter}/status', 'updateChapterStatus')->name('update-chapter-status');
+                Route::patch('education-level-categories/{category}/{level}/subjects/{subject}/chapter/{chapter}/video', 'updateChapterVideo')->name('update-chapter-video');
+                Route::post('education-level-categories/{category}/{level}/subjects/{subject}/chapter/{chapter}/attachment', 'updateChapterAttachment')->name('update-chapter-attachment');
                 Route::delete('education-level-categories/{category}/{level}/subjects/{subject}/chapter/{chapter}', 'deleteChapter')->name('delete-chapter');
             });
     });

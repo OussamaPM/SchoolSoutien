@@ -9,6 +9,7 @@ use App\Models\EducationLevelCategory;
 use App\RoleEnum;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Storage;
 use Inertia\Inertia;
 
 class EducationalProgramController extends Controller
@@ -191,6 +192,40 @@ class EducationalProgramController extends Controller
 
         $chapter->update([
             'is_active' => $validated['is_active'],
+        ]);
+
+        return back();
+    }
+
+    public function updateChapterVideo(Request $request, EducationLevelCategory $category, EducationLevel $level, EducationalSubject $subject, Chapter $chapter)
+    {
+        $validated = $request->validate([
+            'video_url' => 'nullable|url|max:500',
+        ]);
+
+        $chapter->update([
+            'video_url' => $validated['video_url'] ?? null,
+            'last_updated_by' => Auth::id(),
+        ]);
+
+        return back();
+    }
+
+    public function updateChapterAttachment(Request $request, EducationLevelCategory $category, EducationLevel $level, EducationalSubject $subject, Chapter $chapter)
+    {
+        $validated = $request->validate([
+            'attachment' => 'required|file|mimes:pdf,doc,docx,xls,xlsx,ppt,pptx,zip|max:10240', // 10MB max
+        ]);
+
+        if ($chapter->attachment_url) {
+            Storage::disk('public')->delete($chapter->attachment_url);
+        }
+
+        $path = $request->file('attachment')->store('chapter-attachments', 'public');
+
+        $chapter->update([
+            'attachment_url' => $path,
+            'last_updated_by' => Auth::id(),
         ]);
 
         return back();
