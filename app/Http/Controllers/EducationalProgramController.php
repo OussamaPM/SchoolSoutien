@@ -134,6 +134,7 @@ class EducationalProgramController extends Controller
                 $query->where('created_by', auth()->id());
             })
             ->with(['creator:id,name,email', 'lastUpdater:id,name,email'])
+            ->latest()
             ->get();
 
         return Inertia::render('admin/educational-programs/chapters', [

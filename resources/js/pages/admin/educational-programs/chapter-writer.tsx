@@ -126,7 +126,7 @@ export default function Index({ category, level, subject, chapter }: Props) {
                     className={cn(
                         'flex min-h-7 cursor-pointer items-center justify-center rounded-md bg-black px-2 py-1 text-sm text-white disabled:cursor-not-allowed max-lg:w-7',
                     )}
-                    disabled={isSaveChapterLoading || chapter?.is_active}
+                    disabled={isSaveChapterLoading}
                     onClick={() => {
                         if (!chapterData.title) {
                             toast.error('Titre est obligatoire');
@@ -145,27 +145,29 @@ export default function Index({ category, level, subject, chapter }: Props) {
                             return;
                         }
 
-                        saveChapter(
-                            updateChapter.url([
-                                category.id,
-                                level.id,
-                                subject.id,
-                                chapter?.id,
-                            ]),
-                            {
-                                onSuccess: () => {
-                                    toast.success(
-                                        'Chapitre enregistré avec succès',
-                                    );
-                                },
-                                onError: (err) => {
-                                    toast.error(
-                                        err?.message ||
-                                            "Échec de l'enregistrement du chapitre",
-                                    );
-                                },
+                        const routeParameters = [
+                            category.id,
+                            level.id,
+                            subject.id,
+                        ];
+
+                        if (chapter) {
+                            routeParameters.push(chapter.id);
+                        }
+
+                        saveChapter(updateChapter.url(routeParameters), {
+                            onSuccess: () => {
+                                toast.success(
+                                    'Chapitre enregistré avec succès',
+                                );
                             },
-                        );
+                            onError: (err) => {
+                                toast.error(
+                                    err?.message ||
+                                        "Échec de l'enregistrement du chapitre",
+                                );
+                            },
+                        });
                     }}
                 >
                     {isSaveChapterLoading ? (
@@ -195,7 +197,7 @@ export default function Index({ category, level, subject, chapter }: Props) {
             </div>
 
             <ChapterEditor
-                editable={!chapter.is_active}
+                editable={chapter ? !chapter.is_active : true}
                 defaultContent={
                     chapter?.content || JSON.stringify(defaultEmailJSON)
                 }
