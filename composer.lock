@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "5b848c6d48bdb51e23103cdc474859d7",
+    "content-hash": "addef465ba657b4f07fd326282d1bb18",
     "packages": [
         {
             "name": "bacon/bacon-qr-code",
@@ -2669,6 +2669,62 @@
                 "source": "https://github.com/nette/utils/tree/v4.0.8"
             },
             "time": "2025-08-06T21:43:34+00:00"
+        },
+        {
+            "name": "nevadskiy/laravel-position",
+            "version": "0.10.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/xalaida/laravel-position.git",
+                "reference": "6d6e178481a6b78bee9d77b5ae208b3a78a43281"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/xalaida/laravel-position/zipball/6d6e178481a6b78bee9d77b5ae208b3a78a43281",
+                "reference": "6d6e178481a6b78bee9d77b5ae208b3a78a43281",
+                "shasum": ""
+            },
+            "require": {
+                "laravel/framework": ">=7.0",
+                "php": "^7.2|^8.0"
+            },
+            "require-dev": {
+                "friendsofphp/php-cs-fixer": "^3.0",
+                "orchestra/testbench": ">=5.0",
+                "phpunit/phpunit": "^8.0|^9.0|^10.5|^11.5"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "Nevadskiy\\Position\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Nevadskiy",
+                    "email": "nevadskiy@gmail.com"
+                }
+            ],
+            "description": "Arrange Laravel models in a given order.",
+            "homepage": "https://github.com/nevadskiy/laravel-position",
+            "keywords": [
+                "arrange",
+                "eloquent",
+                "laravel",
+                "model",
+                "order",
+                "position",
+                "sort"
+            ],
+            "support": {
+                "issues": "https://github.com/xalaida/laravel-position/issues",
+                "source": "https://github.com/xalaida/laravel-position/tree/0.10.0"
+            },
+            "time": "2025-04-23T20:04:44+00:00"
         },
         {
             "name": "nikic/php-parser",

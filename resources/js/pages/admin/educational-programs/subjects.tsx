@@ -28,12 +28,14 @@ import { Edit, Plus, Trash2 } from 'lucide-react';
 import { useState } from 'react';
 import { toast } from 'sonner';
 import { Category } from '.';
+import { Chapter } from './chapters';
 import { EducationLevel } from './levels';
 
 export interface Subject {
     id: number;
     name: string;
     is_active: boolean;
+    chapters?: Chapter[];
     created_at: string;
     updated_at: string;
 }

@@ -26,6 +26,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
             ->name('forfait-store.update-child-profile');
         Route::resource('forfait-store', ForfaitStoreController::class);
         ##################################### Child Profiles Routes #####################################
+        Route::get('child-sessions/{child}/{subject}', [ChildSessionController::class, 'learnSubject'])->name('child-sessions.learn-subject');
         Route::resource('child-sessions', ChildSessionController::class)->parameter('child-sessions', 'child');
     });
 
@@ -59,6 +60,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
                 Route::patch('education-level-categories/{category}/{level}/subjects/{subject}/chapter/{chapter}/video', 'updateChapterVideo')->name('update-chapter-video');
                 Route::post('education-level-categories/{category}/{level}/subjects/{subject}/chapter/{chapter}/attachment', 'updateChapterAttachment')->name('update-chapter-attachment');
                 Route::delete('education-level-categories/{category}/{level}/subjects/{subject}/chapter/{chapter}', 'deleteChapter')->name('delete-chapter');
+                Route::post('education-level-categories/{category}/{level}/subjects/{subject}/chapter/{chapter}/move-up', 'moveChapterUp')->name('move-chapter-up');
+                Route::post('education-level-categories/{category}/{level}/subjects/{subject}/chapter/{chapter}/move-down', 'moveChapterDown')->name('move-chapter-down');
             });
     });
 });

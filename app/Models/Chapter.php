@@ -3,9 +3,12 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Nevadskiy\Position\HasPosition;
 
 class Chapter extends Model
 {
+    use HasPosition;
+
     protected $fillable = [
         'title',
         'content',
@@ -35,5 +38,15 @@ class Chapter extends Model
     public function scopeActive($query)
     {
         return $query->where('is_active', true);
+    }
+
+    public function moveUp()
+    {
+        $this->move($this->position - 1);
+    }
+
+    public function moveDown()
+    {
+        $this->move($this->position + 1);
     }
 }

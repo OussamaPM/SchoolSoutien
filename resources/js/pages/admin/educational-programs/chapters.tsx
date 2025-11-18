@@ -35,11 +35,20 @@ import {
 import AppLayout from '@/layouts/app-layout';
 import programs, {
     chapterWriter,
+    moveChapterDown,
+    moveChapterUp,
     updateChapterStatus,
 } from '@/routes/admin/educational-programs';
 import { SharedData, User, type BreadcrumbItem } from '@/types';
 import { Form, Head, Link, router, usePage } from '@inertiajs/react';
-import { Paperclip, Plus, Trash2, Video } from 'lucide-react';
+import {
+    ArrowDown,
+    ArrowUp,
+    Paperclip,
+    Plus,
+    Trash2,
+    Video,
+} from 'lucide-react';
 import { useState } from 'react';
 import { toast } from 'sonner';
 import { Category } from '.';
@@ -58,6 +67,7 @@ export interface Chapter {
     created_at: string;
     updated_at: string;
     preview_text: string;
+    position: number;
 }
 
 interface Props {
@@ -124,6 +134,37 @@ export default function Index({
                             ? 'Chapitre publié avec succès'
                             : 'Chapitre mis en brouillon',
                     );
+                },
+            },
+        );
+    };
+
+    const moveChapterUpHandler = (chapter: Chapter) => {
+        router.post(
+            moveChapterUp.url([category.id, level.id, subject.id, chapter.id]),
+            {},
+            {
+                preserveScroll: true,
+                onSuccess: () => {
+                    toast.success('Chapitre déplacé vers le haut');
+                },
+            },
+        );
+    };
+
+    const moveChapterDownHandler = (chapter: Chapter) => {
+        router.post(
+            moveChapterDown.url([
+                category.id,
+                level.id,
+                subject.id,
+                chapter.id,
+            ]),
+            {},
+            {
+                preserveScroll: true,
+                onSuccess: () => {
+                    toast.success('Chapitre déplacé vers le bas');
                 },
             },
         );
@@ -221,6 +262,9 @@ export default function Index({
                                         }
                                     >
                                         <TableCell className="flex items-center gap-2 font-medium">
+                                            <span className="text-gray-400">
+                                                &#x2116; {chapter.position}
+                                            </span>
                                             {chapter.title}
                                         </TableCell>
                                         <TableCell className="max-w-xs truncate">
@@ -322,6 +366,51 @@ export default function Index({
                                         >
                                             <div className="flex justify-end gap-2">
                                                 <TooltipProvider>
+                                                    <Tooltip>
+                                                        <TooltipTrigger asChild>
+                                                            <Button
+                                                                variant="ghost"
+                                                                size="icon"
+                                                                onClick={() =>
+                                                                    moveChapterUpHandler(
+                                                                        chapter,
+                                                                    )
+                                                                }
+                                                            >
+                                                                <ArrowUp className="h-4 w-4 text-slate-500" />
+                                                            </Button>
+                                                        </TooltipTrigger>
+                                                        <TooltipContent>
+                                                            <p>
+                                                                Déplacer le
+                                                                chapitre vers le
+                                                                haut
+                                                            </p>
+                                                        </TooltipContent>
+                                                    </Tooltip>
+                                                    <Tooltip>
+                                                        <TooltipTrigger asChild>
+                                                            <Button
+                                                                variant="ghost"
+                                                                size="icon"
+                                                                onClick={() =>
+                                                                    moveChapterDownHandler(
+                                                                        chapter,
+                                                                    )
+                                                                }
+                                                            >
+                                                                <ArrowDown className="h-4 w-4 text-slate-500" />
+                                                            </Button>
+                                                        </TooltipTrigger>
+                                                        <TooltipContent>
+                                                            <p>
+                                                                Déplacer le
+                                                                chapitre vers le
+                                                                bas
+                                                            </p>
+                                                        </TooltipContent>
+                                                    </Tooltip>
+
                                                     {chapter.video_url && (
                                                         <Tooltip>
                                                             <TooltipTrigger

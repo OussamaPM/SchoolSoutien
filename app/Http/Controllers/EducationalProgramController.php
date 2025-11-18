@@ -135,7 +135,7 @@ class EducationalProgramController extends Controller
                 $query->where('created_by', auth()->id());
             })
             ->with(['creator:id,name,email', 'lastUpdater:id,name,email'])
-            ->latest()
+            ->orderByPosition()
             ->get();
 
         return Inertia::render('admin/educational-programs/chapters', [
@@ -227,6 +227,20 @@ class EducationalProgramController extends Controller
             'attachment_url' => $path,
             'last_updated_by' => Auth::id(),
         ]);
+
+        return back();
+    }
+
+    public function moveChapterUp(Request $request, EducationLevelCategory $category, EducationLevel $level, EducationalSubject $subject, Chapter $chapter)
+    {
+        $chapter->moveUp();
+
+        return back();
+    }
+
+    public function moveChapterDown(Request $request, EducationLevelCategory $category, EducationLevel $level, EducationalSubject $subject, Chapter $chapter)
+    {
+        $chapter->moveDown();
 
         return back();
     }

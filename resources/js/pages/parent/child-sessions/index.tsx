@@ -3,6 +3,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import AppLayout from '@/layouts/app-layout';
 import { Subject } from '@/pages/admin/educational-programs/subjects';
+import { learnSubject } from '@/routes/parent/child-sessions';
 import { Head, router } from '@inertiajs/react';
 import {
     ArrowLeft,
@@ -304,7 +305,14 @@ export default function ChildSession({ child }: Props) {
 
                                     return (
                                         <Card
-                                            onClick={() => console.log('first')}
+                                            onClick={() =>
+                                                router.visit(
+                                                    learnSubject.url([
+                                                        child.id,
+                                                        subject.id,
+                                                    ]),
+                                                )
+                                            }
                                             key={subject.id}
                                             className="group relative cursor-pointer overflow-hidden border-0 bg-white shadow-sm transition-all duration-300 hover:scale-105 hover:shadow-xl dark:bg-slate-900"
                                         >
