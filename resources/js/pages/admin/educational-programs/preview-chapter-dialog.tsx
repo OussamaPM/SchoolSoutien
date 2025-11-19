@@ -28,7 +28,7 @@ export function PreviewChapterDialog(props: PreviewChapterDialogProps) {
     return (
         <Dialog open={open} onOpenChange={setOpen}>
             <DialogTrigger
-                className="flex min-h-[28px] cursor-pointer items-center justify-center rounded-md bg-black px-2 py-1 text-sm text-white disabled:cursor-not-allowed disabled:opacity-50 max-lg:w-7"
+                className="flex min-h-[28px] cursor-pointer flex-col items-center justify-center rounded-md bg-black px-2 py-1 text-sm text-white disabled:cursor-not-allowed disabled:opacity-50 max-lg:w-7"
                 onClick={async (e) => {
                     e.preventDefault();
                     e.stopPropagation();
@@ -56,9 +56,7 @@ export function PreviewChapterDialog(props: PreviewChapterDialogProps) {
                 ) : (
                     <EyeIcon className="inline-block size-4 shrink-0 lg:mr-1" />
                 )}
-                <span className="hidden lg:inline-block">
-                    Prévisualisation chapitre
-                </span>
+                <span className="hidden lg:inline-block">Aperçu</span>
             </DialogTrigger>
 
             {open && (

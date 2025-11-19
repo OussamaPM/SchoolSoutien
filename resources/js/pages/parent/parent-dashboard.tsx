@@ -153,9 +153,9 @@ export default function ParentDashboard({ data }: Props) {
 
     return (
         <>
-            <div className="flex min-h-screen flex-1 flex-col bg-linear-to-br from-slate-50 via-blue-50/30 to-purple-50/20 dark:from-slate-950 dark:via-slate-900 dark:to-slate-950">
+            <div className="flex h-screen flex-col overflow-hidden bg-linear-to-br from-slate-50 via-blue-50/30 to-purple-50/20 dark:from-slate-950 dark:via-slate-900 dark:to-slate-950">
                 {childProfiles.length > 0 && (
-                    <div className="border-b border-slate-200/50 bg-white/50 px-6 py-4 backdrop-blur-sm dark:border-slate-800/50 dark:bg-slate-900/50">
+                    <div className="shrink-0 border-b border-slate-200/50 bg-white/50 px-6 py-3 backdrop-blur-sm dark:border-slate-800/50 dark:bg-slate-900/50">
                         <div className="mx-auto flex max-w-6xl items-center justify-center gap-8">
                             <div className="flex items-center gap-2">
                                 <div className="h-2 w-2 rounded-full bg-emerald-500"></div>
@@ -198,21 +198,30 @@ export default function ParentDashboard({ data }: Props) {
                     </div>
                 )}
 
-                <div className="flex flex-1 items-center justify-center px-6 py-12">
-                    <div className="w-full max-w-6xl space-y-12">
-                        <div className="space-y-3 text-center">
-                            <h1 className="text-4xl font-bold tracking-tight text-slate-900 dark:text-slate-100">
+                <div className="flex flex-1 items-center justify-center overflow-y-auto rounded-3xl bg-linear-to-br from-blue-50 via-purple-50 to-pink-50 px-4 py-8 dark:from-slate-950 dark:via-slate-900 dark:to-slate-950">
+                    <div className="w-full max-w-6xl space-y-6">
+                        <div className="space-y-4 text-center">
+                            <div className="flex items-center justify-center gap-3">
+                                <div className="animate-bounce">
+                                    <Sparkles className="h-8 w-8 text-yellow-500" />
+                                </div>
+                                <h1 className="bg-linear-to-r from-blue-600 via-purple-600 to-pink-600 bg-clip-text text-5xl font-black tracking-tight text-transparent md:text-6xl">
+                                    {childProfiles.length === 0
+                                        ? "Qui apprend aujourd'hui ?"
+                                        : "Qui apprend aujourd'hui ?"}
+                                </h1>
+                                <div className="animate-bounce delay-150">
+                                    <Star className="h-8 w-8 text-pink-500" />
+                                </div>
+                            </div>
+                            <p className="text-lg font-medium text-slate-600 dark:text-slate-400">
                                 {childProfiles.length === 0
-                                    ? "Qui apprend aujourd'hui ?"
-                                    : "Qui apprend aujourd'hui ?"}
-                            </h1>
-                            <p className="text-slate-600 dark:text-slate-400">
-                                {childProfiles.length === 0
-                                    ? 'Commencez par créer un profil pour votre enfant'
-                                    : 'Sélectionnez un profil pour continuer'}
+                                    ? '✨ Commencez par créer un profil magique pour votre enfant'
+                                    : "🚀 Sélectionnez un profil pour démarrer l'aventure"}
                             </p>
                         </div>
 
+                        {/* Profile Cards Grid */}
                         <div className="flex flex-wrap items-center justify-center gap-6">
                             {childProfiles.map((child: any, index: number) => {
                                 const { Icon, color } = getChildAvatar(
@@ -222,16 +231,16 @@ export default function ParentDashboard({ data }: Props) {
                                 return (
                                     <div
                                         key={child.id}
-                                        className="group relative flex flex-col items-center transition-all duration-300"
+                                        className="group relative transition-all duration-300"
                                     >
-                                        {/* Edit Icon */}
+                                        {/* Floating Edit Button */}
                                         <button
                                             onClick={(e) =>
                                                 handleEditChild(child, e)
                                             }
-                                            className="absolute top-0 right-0 z-10 flex h-8 w-8 items-center justify-center rounded-full bg-slate-200/80 text-slate-600 opacity-0 shadow-sm backdrop-blur-sm transition-all duration-200 group-hover:opacity-100 hover:bg-slate-300 hover:text-slate-900 dark:bg-slate-700/80 dark:text-slate-300 dark:hover:bg-slate-600 dark:hover:text-slate-100"
+                                            className="absolute -top-2 -right-2 z-10 flex h-10 w-10 items-center justify-center rounded-full bg-white text-slate-700 opacity-0 shadow-lg ring-2 ring-blue-200 transition-all duration-300 group-hover:opacity-100 hover:scale-110 hover:bg-blue-50 hover:text-blue-600 hover:ring-4 hover:ring-blue-300 dark:bg-slate-800 dark:text-slate-300 dark:ring-slate-700 dark:hover:bg-slate-700 dark:hover:text-blue-400"
                                         >
-                                            <Edit className="h-4 w-4" />
+                                            <Edit className="h-5 w-5" />
                                         </button>
 
                                         <div
@@ -240,91 +249,111 @@ export default function ParentDashboard({ data }: Props) {
                                                 handleSelectChild(child)
                                             }
                                         >
-                                            <div className="relative">
-                                                <div
-                                                    className={`flex h-32 w-32 items-center justify-center rounded-full ${color.bg} text-white shadow-lg ring-4 ring-transparent transition-all duration-300 hover:scale-110 hover:shadow-2xl hover:${color.ring} hover:ring-8`}
-                                                >
-                                                    <Icon className="h-16 w-16" />
+                                            {/* Floating Card */}
+                                            <div className="rounded-3xl bg-white p-6 shadow-lg ring-2 ring-blue-100 transition-all duration-500 hover:scale-105 hover:shadow-2xl hover:ring-4 hover:ring-purple-200 dark:bg-slate-900 dark:ring-slate-800 dark:hover:ring-purple-900">
+                                                {/* Avatar Circle */}
+                                                <div className="relative mx-auto w-fit">
+                                                    <div
+                                                        className={`flex h-28 w-28 items-center justify-center rounded-full ${color.bg} text-white shadow-xl ring-4 ring-white transition-all duration-500 group-hover:scale-110 group-hover:shadow-2xl group-hover:ring-8 group-hover:${color.ring} dark:ring-slate-900`}
+                                                    >
+                                                        <Icon className="h-14 w-14" />
+                                                    </div>
+
+                                                    {/* Active Badge */}
+                                                    {child.current_plan && (
+                                                        <div className="absolute -top-1 -right-1 flex h-7 w-7 items-center justify-center rounded-full border-4 border-white bg-emerald-500 shadow-md dark:border-slate-900">
+                                                            <Sparkles className="h-4 w-4 text-white" />
+                                                        </div>
+                                                    )}
+
+                                                    {/* Inactive Overlay */}
+                                                    {!child.current_plan && (
+                                                        <div className="absolute inset-0 flex items-center justify-center rounded-full bg-slate-900/70 backdrop-blur-sm">
+                                                            <Badge
+                                                                variant="secondary"
+                                                                className="rounded-full px-3 py-1 text-xs font-bold shadow-lg"
+                                                            >
+                                                                Inactif
+                                                            </Badge>
+                                                        </div>
+                                                    )}
                                                 </div>
 
-                                                {child.current_plan && (
-                                                    <div className="absolute -top-1 -right-1 h-6 w-6 rounded-full border-4 border-white bg-emerald-500 dark:border-slate-900" />
-                                                )}
-
-                                                {!child.current_plan && (
-                                                    <div className="absolute inset-0 flex items-center justify-center rounded-full bg-slate-900/60 backdrop-blur-[2px]">
-                                                        <Badge
-                                                            variant="secondary"
-                                                            className="text-xs font-medium"
-                                                        >
-                                                            Inactif
+                                                {/* Child Info */}
+                                                <div className="mt-5 space-y-2 text-center">
+                                                    <h3 className="text-xl font-bold text-slate-900 dark:text-slate-100">
+                                                        {child.name}
+                                                    </h3>
+                                                    {child.education_level
+                                                        ?.name && (
+                                                        <p className="text-sm font-medium text-slate-600 dark:text-slate-400">
+                                                            {
+                                                                child
+                                                                    .education_level
+                                                                    .name
+                                                            }
+                                                        </p>
+                                                    )}
+                                                    {child.current_plan && (
+                                                        <Badge className="mt-2 rounded-full bg-linear-to-r from-emerald-500 to-green-600 px-3 py-1 text-xs font-semibold shadow-md">
+                                                            ✨{' '}
+                                                            {
+                                                                child
+                                                                    .current_plan
+                                                                    .plan.name
+                                                            }
                                                         </Badge>
-                                                    </div>
-                                                )}
+                                                    )}
+                                                </div>
                                             </div>
-                                        </div>
-
-                                        <div className="mt-4 space-y-2 text-center">
-                                            <h3 className="text-base font-semibold text-slate-900 dark:text-slate-100">
-                                                {child.name}
-                                            </h3>
-                                            <p className="text-xs text-slate-500 dark:text-slate-400">
-                                                {child.education_level?.name}
-                                            </p>
-                                            {child.current_plan && (
-                                                <Badge
-                                                    variant="outline"
-                                                    className="text-xs"
-                                                >
-                                                    {
-                                                        child.current_plan.plan
-                                                            .name
-                                                    }
-                                                </Badge>
-                                            )}
                                         </div>
                                     </div>
                                 );
                             })}
 
+                            {/* Add New Profile Card */}
                             {Array.from({ length: emptySlots }).map(
                                 (_, index) => (
                                     <div
                                         key={`empty-${index}`}
-                                        className="group flex cursor-pointer flex-col items-center transition-all duration-300 hover:scale-110"
+                                        className="group cursor-pointer transition-all duration-300 hover:scale-105"
                                         onClick={handleAddChild}
                                     >
-                                        <div className="flex h-32 w-32 items-center justify-center rounded-full border-4 border-dashed border-slate-300 bg-slate-100/50 text-slate-400 shadow-sm transition-all duration-300 hover:border-blue-400 hover:bg-blue-50 hover:text-blue-500 dark:border-slate-700 dark:bg-slate-800/50 dark:hover:border-blue-500 dark:hover:bg-blue-950/30">
-                                            <Plus className="h-12 w-12" />
-                                        </div>
-                                        <div className="mt-4 space-y-1 text-center">
-                                            <h3 className="text-lg font-semibold text-slate-600 group-hover:text-blue-600 dark:text-slate-400 dark:group-hover:text-blue-400">
-                                                Ajouter
-                                            </h3>
-                                            <p className="text-xs text-slate-400 dark:text-slate-500">
-                                                Nouveau profil
-                                            </p>
+                                        <div className="rounded-3xl border-4 border-dashed border-blue-200 bg-blue-50/50 p-6 shadow-md transition-all duration-300 hover:border-purple-300 hover:bg-purple-50/50 hover:shadow-xl dark:border-slate-700 dark:bg-slate-800/30 dark:hover:border-purple-700 dark:hover:bg-purple-900/20">
+                                            <div className="flex h-28 w-28 items-center justify-center rounded-full bg-white shadow-inner ring-4 ring-blue-100 transition-all duration-300 group-hover:bg-linear-to-br group-hover:from-blue-400 group-hover:to-purple-500 group-hover:ring-purple-200 dark:bg-slate-800 dark:ring-slate-700 dark:group-hover:ring-purple-700">
+                                                <Plus className="h-14 w-14 text-blue-400 transition-colors group-hover:text-white dark:text-blue-600" />
+                                            </div>
+                                            <div className="mt-5 space-y-1 text-center">
+                                                <h3 className="text-xl font-bold text-blue-600 group-hover:text-purple-600 dark:text-blue-500 dark:group-hover:text-purple-500">
+                                                    Ajouter
+                                                </h3>
+                                                <p className="text-sm font-medium text-slate-500 dark:text-slate-400">
+                                                    Nouveau profil
+                                                </p>
+                                            </div>
                                         </div>
                                     </div>
                                 ),
                             )}
                         </div>
 
-                        <div className="flex justify-center gap-4">
+                        {/* Action Buttons */}
+                        <div className="flex flex-wrap justify-center gap-4">
                             <Button
                                 onClick={handleAddChild}
                                 size="lg"
-                                className="bg-linear-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700"
+                                className="rounded-2xl bg-linear-to-r from-blue-500 to-purple-600 px-8 py-6 text-lg font-bold shadow-lg shadow-purple-200 transition-all hover:scale-105 hover:shadow-xl hover:shadow-purple-300 dark:shadow-purple-900/30"
                             >
-                                <Plus className="mr-2 h-5 w-5" />
+                                <Plus className="mr-2 h-6 w-6" />
                                 Ajouter un enfant
                             </Button>
                             {childProfiles.length > 0 && (
                                 <Button
                                     variant="outline"
                                     size="lg"
-                                    className="border-slate-300 dark:border-slate-700"
+                                    className="rounded-2xl border-2 border-pink-300 bg-white px-8 py-6 text-lg font-bold text-pink-600 shadow-lg transition-all hover:scale-105 hover:border-pink-400 hover:bg-pink-50 hover:shadow-xl dark:border-pink-700 dark:bg-slate-900 dark:text-pink-400 dark:hover:bg-pink-950/30"
                                 >
+                                    <Heart className="mr-2 h-6 w-6" />
                                     Gérer les abonnements
                                 </Button>
                             )}
