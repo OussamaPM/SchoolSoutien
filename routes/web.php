@@ -62,6 +62,12 @@ Route::middleware(['auth', 'verified'])->group(function () {
                 Route::delete('education-level-categories/{category}/{level}/subjects/{subject}/chapter/{chapter}', 'deleteChapter')->name('delete-chapter');
                 Route::post('education-level-categories/{category}/{level}/subjects/{subject}/chapter/{chapter}/move-up', 'moveChapterUp')->name('move-chapter-up');
                 Route::post('education-level-categories/{category}/{level}/subjects/{subject}/chapter/{chapter}/move-down', 'moveChapterDown')->name('move-chapter-down');
+
+                // Quiz routes
+                Route::get('education-level-categories/{category}/{level}/subjects/{subject}/chapter/{chapter}/quiz', 'manageQuiz')->name('chapter.quiz');
+                Route::post('education-level-categories/{category}/{level}/subjects/{subject}/chapter/{chapter}/quiz', 'storeQuiz')->name('chapter.quiz.store');
+                Route::put('education-level-categories/{category}/{level}/subjects/{subject}/chapter/{chapter}/quiz/{quiz}', 'updateQuiz')->name('chapter.quiz.update');
+                Route::delete('education-level-categories/{category}/{level}/subjects/{subject}/chapter/{chapter}/quiz/{quiz}', 'deleteQuiz')->name('chapter.quiz.delete');
             });
     });
 });

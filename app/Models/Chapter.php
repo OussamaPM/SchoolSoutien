@@ -35,6 +35,11 @@ class Chapter extends Model
         return $this->belongsTo(User::class, 'last_updated_by');
     }
 
+    public function quiz()
+    {
+        return $this->hasOne(Quiz::class);
+    }
+
     public function scopeActive($query)
     {
         return $query->where('is_active', true);

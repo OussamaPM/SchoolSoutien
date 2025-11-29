@@ -22,6 +22,7 @@ import '@maily-to/core/style.css';
 import { Editor } from '@tiptap/core';
 import {
     Download,
+    FileQuestion,
     Loader2Icon,
     Paperclip,
     Redo2Icon,
@@ -318,6 +319,21 @@ export default function Index({ category, level, subject, chapter }: Props) {
                                     </DialogContent>
                                 </Dialog>
                             </div>
+
+                            {/* Quiz Button */}
+                            <button
+                                type="button"
+                                className="relative flex items-center justify-center rounded-xl bg-purple-50/50 p-2 text-gray-700 transition-all hover:bg-purple-100"
+                                title="Gérer le quiz"
+                                onClick={() => {
+                                    window.location.href = `/admin/educational-programs/education-level-categories/${category.id}/${level.id}/subjects/${subject.id}/chapter/${chapter?.id}/quiz`;
+                                }}
+                            >
+                                <FileQuestion className="h-5 w-5" />
+                                {chapter?.quiz && (
+                                    <span className="absolute -top-0.5 -right-0.5 h-2 w-2 rounded-full bg-purple-500 ring-2 ring-white" />
+                                )}
+                            </button>
                         </>
                     )}
 

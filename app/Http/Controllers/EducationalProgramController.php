@@ -6,6 +6,9 @@ use App\Models\Chapter;
 use App\Models\EducationalSubject;
 use App\Models\EducationLevel;
 use App\Models\EducationLevelCategory;
+use App\Models\Quiz;
+use App\Models\QuizQuestion;
+use App\Models\QuizAnswer;
 use App\RoleEnum;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -134,7 +137,7 @@ class EducationalProgramController extends Controller
             ->when(auth()->user()->role == RoleEnum::TEACHER->value, function ($query) {
                 $query->where('created_by', auth()->id());
             })
-            ->with(['creator:id,name,email', 'lastUpdater:id,name,email'])
+            ->with(['creator:id,name,email', 'lastUpdater:id,name,email', 'quiz:id,chapter_id,title'])
             ->orderByPosition()
             ->get();
 
@@ -148,6 +151,10 @@ class EducationalProgramController extends Controller
 
     public function chapterWriter(EducationLevelCategory $category, EducationLevel $level, EducationalSubject $subject, ?Chapter $chapter = null)
     {
+        if ($chapter) {
+            $chapter->load('quiz:id,chapter_id,title');
+        }
+
         return Inertia::render('admin/educational-programs/chapter-writer', [
             'subject' => $subject,
             'level' => $level,
@@ -243,5 +250,113 @@ class EducationalProgramController extends Controller
         $chapter->moveDown();
 
         return back();
+    }
+
+    public function manageQuiz(EducationLevelCategory $category, EducationLevel $level, EducationalSubject $subject, Chapter $chapter)
+    {
+        $quiz = $chapter->quiz()->with(['questions.answers'])->first();
+
+        return Inertia::render('admin/educational-programs/quiz-manager', [
+            'category' => $category,
+            'level' => $level,
+            'subject' => $subject,
+            'chapter' => $chapter,
+            'quiz' => $quiz,
+        ]);
+    }
+
+    public function storeQuiz(Request $request, EducationLevelCategory $category, EducationLevel $level, EducationalSubject $subject, Chapter $chapter)
+    {
+        $validated = $request->validate([
+            'title' => 'required|string|max:255',
+            'description' => 'nullable|string',
+            'questions' => 'required|array|min:1',
+            'questions.*.question' => 'required|string',
+            'questions.*.answers' => 'required|array|min:2',
+            'questions.*.answers.*.answer' => 'required|string',
+            'questions.*.answers.*.is_correct' => 'required|boolean',
+        ]);
+
+        $quiz = $chapter->quiz()->create([
+            'title' => $validated['title'],
+            'description' => $validated['description'] ?? null,
+        ]);
+
+        foreach ($validated['questions'] as $index => $questionData) {
+            $question = $quiz->questions()->create([
+                'question' => $questionData['question'],
+                'position' => $index,
+            ]);
+
+            foreach ($questionData['answers'] as $answerIndex => $answerData) {
+                $question->answers()->create([
+                    'answer' => $answerData['answer'],
+                    'is_correct' => $answerData['is_correct'],
+                    'position' => $answerIndex,
+                ]);
+            }
+        }
+
+        return redirect()->route('admin.educational-programs.chapter.quiz', [
+            'category' => $category->id,
+            'level' => $level->id,
+            'subject' => $subject->id,
+            'chapter' => $chapter->id,
+        ])->with('success', 'Quiz créé avec succès.');
+    }
+
+    public function updateQuiz(Request $request, EducationLevelCategory $category, EducationLevel $level, EducationalSubject $subject, Chapter $chapter, Quiz $quiz)
+    {
+        $validated = $request->validate([
+            'title' => 'required|string|max:255',
+            'description' => 'nullable|string',
+            'questions' => 'required|array|min:1',
+            'questions.*.id' => 'nullable|exists:quiz_questions,id',
+            'questions.*.question' => 'required|string',
+            'questions.*.answers' => 'required|array|min:2',
+            'questions.*.answers.*.id' => 'nullable|exists:quiz_answers,id',
+            'questions.*.answers.*.answer' => 'required|string',
+            'questions.*.answers.*.is_correct' => 'required|boolean',
+        ]);
+
+        $quiz->update([
+            'title' => $validated['title'],
+            'description' => $validated['description'] ?? null,
+        ]);
+
+        $quiz->questions()->delete();
+
+        foreach ($validated['questions'] as $index => $questionData) {
+            $question = $quiz->questions()->create([
+                'question' => $questionData['question'],
+                'position' => $index,
+            ]);
+
+            foreach ($questionData['answers'] as $answerIndex => $answerData) {
+                $question->answers()->create([
+                    'answer' => $answerData['answer'],
+                    'is_correct' => $answerData['is_correct'],
+                    'position' => $answerIndex,
+                ]);
+            }
+        }
+
+        return redirect()->route('admin.educational-programs.chapter.quiz', [
+            'category' => $category->id,
+            'level' => $level->id,
+            'subject' => $subject->id,
+            'chapter' => $chapter->id,
+        ])->with('success', 'Quiz mis à jour avec succès.');
+    }
+
+    public function deleteQuiz(EducationLevelCategory $category, EducationLevel $level, EducationalSubject $subject, Chapter $chapter, Quiz $quiz)
+    {
+        $quiz->delete();
+
+        return redirect()->route('admin.educational-programs.chapters', [
+            'category' => $category->id,
+            'level' => $level->id,
+            'subject' => $subject->id,
+        ])->with('success', 'Quiz supprimé avec succès.');
     }
 }
