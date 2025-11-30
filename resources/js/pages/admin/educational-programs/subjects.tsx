@@ -167,9 +167,10 @@ export default function Index({ subjects = [], level, category }: Props) {
                                                 <Button
                                                     variant="ghost"
                                                     size="icon"
-                                                    onClick={() =>
-                                                        openEdit(subject)
-                                                    }
+                                                    onClick={(e) => {
+                                                        e.stopPropagation();
+                                                        openEdit(subject);
+                                                    }}
                                                 >
                                                     <Edit className="h-4 w-4" />
                                                 </Button>
@@ -177,9 +178,10 @@ export default function Index({ subjects = [], level, category }: Props) {
                                                     variant="ghost"
                                                     size="icon"
                                                     className="text-destructive"
-                                                    onClick={() =>
-                                                        openDelete(subject)
-                                                    }
+                                                    onClick={(e) => {
+                                                        e.stopPropagation();
+                                                        openDelete(subject);
+                                                    }}
                                                 >
                                                     <Trash2 className="h-4 w-4" />
                                                 </Button>
@@ -311,6 +313,7 @@ export default function Index({ subjects = [], level, category }: Props) {
                                     <DialogFooter>
                                         <div className="flex items-center gap-4">
                                             <Button
+                                                type="button"
                                                 variant="outline"
                                                 onClick={() =>
                                                     setIsEditOpen(false)
@@ -366,6 +369,7 @@ export default function Index({ subjects = [], level, category }: Props) {
                                     <DialogFooter>
                                         <div className="flex items-center gap-4">
                                             <Button
+                                                type="button"
                                                 variant="outline"
                                                 onClick={() =>
                                                     setIsDeleteOpen(false)

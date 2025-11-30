@@ -10,8 +10,10 @@ export default function AppHeaderLayout({
 }: PropsWithChildren<{ breadcrumbs?: BreadcrumbItem[] }>) {
     return (
         <AppShell>
-            <AppHeader breadcrumbs={breadcrumbs} />
-            <AppContent>{children}</AppContent>
+            <div className="flex min-h-screen flex-col bg-linear-to-br from-slate-50 via-blue-50/30 to-purple-50/20 dark:from-slate-950 dark:via-slate-900 dark:to-slate-950">
+                <AppHeader breadcrumbs={breadcrumbs} />
+                <AppContent>{children}</AppContent>
+            </div>
         </AppShell>
     );
 }

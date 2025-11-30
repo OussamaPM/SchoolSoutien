@@ -457,9 +457,10 @@ export default function Index({
                                                     variant="ghost"
                                                     size="icon"
                                                     className="text-destructive"
-                                                    onClick={() =>
-                                                        openDelete(chapter)
-                                                    }
+                                                    onClick={(e) => {
+                                                        e.stopPropagation();
+                                                        openDelete(chapter);
+                                                    }}
                                                 >
                                                     <Trash2 className="h-4 w-4" />
                                                 </Button>
@@ -514,6 +515,7 @@ export default function Index({
                                     <DialogFooter>
                                         <div className="flex items-center gap-4">
                                             <Button
+                                                type="button"
                                                 variant="outline"
                                                 onClick={() =>
                                                     setIsDeleteOpen(false)

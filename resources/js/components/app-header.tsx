@@ -25,16 +25,16 @@ import {
     TooltipProvider,
     TooltipTrigger,
 } from '@/components/ui/tooltip';
-import { UserMenuContent } from '@/components/user-menu-content';
 import { useInitials } from '@/hooks/use-initials';
 import { cn } from '@/lib/utils';
 import { dashboard } from '@/routes';
 import forfaitStore from '@/routes/parent/forfait-store';
 import { type BreadcrumbItem, type NavItem, type SharedData } from '@/types';
 import { Link, usePage } from '@inertiajs/react';
-import { HandCoins, LayoutGrid, Menu, Search } from 'lucide-react';
+import { HandCoins, LayoutGrid, Menu } from 'lucide-react';
 import AppLogo from './app-logo';
 import AppLogoIcon from './app-logo-icon';
+import { ParentUserMenuContent } from './parent-user-menu-content';
 
 const mainNavItems: NavItem[] = [
     {
@@ -68,7 +68,7 @@ export function AppHeader({ breadcrumbs = [] }: AppHeaderProps) {
                 <div className="mx-auto px-4 py-3 md:max-w-7xl">
                     <div className="rounded-3xl border-2 border-blue-100 bg-linear-to-r from-blue-50/50 via-pink-50/50 to-purple-50/50 shadow-lg shadow-blue-100/50 transition-all hover:shadow-xl hover:shadow-blue-200/50 dark:border-slate-800 dark:from-slate-900 dark:via-slate-900 dark:to-slate-900 dark:shadow-slate-900/50">
                         <div className="flex h-16 items-center px-6">
-                            <div className="lg:hidden">
+                            <div className="hidden lg:hidden">
                                 <Sheet>
                                     <SheetTrigger asChild>
                                         <Button
@@ -198,13 +198,6 @@ export function AppHeader({ breadcrumbs = [] }: AppHeaderProps) {
 
                             <div className="ml-auto flex items-center space-x-2">
                                 <div className="relative flex items-center space-x-2">
-                                    <Button
-                                        variant="ghost"
-                                        size="icon"
-                                        className="group h-10 w-10 rounded-2xl bg-linear-to-br from-pink-400 to-rose-500 text-white shadow-md transition-all hover:scale-110 hover:from-pink-500 hover:to-rose-600 hover:shadow-lg"
-                                    >
-                                        <Search className="h-5 w-5" />
-                                    </Button>
                                     <div className="hidden lg:flex">
                                         {rightNavItems.map((item) => (
                                             <TooltipProvider
@@ -266,10 +259,12 @@ export function AppHeader({ breadcrumbs = [] }: AppHeaderProps) {
                                         </Button>
                                     </DropdownMenuTrigger>
                                     <DropdownMenuContent
-                                        className="w-56"
+                                        className="w-72 rounded-2xl border-2 border-blue-100 p-0 shadow-xl dark:border-slate-800"
                                         align="end"
                                     >
-                                        <UserMenuContent user={auth.user} />
+                                        <ParentUserMenuContent
+                                            user={auth.user}
+                                        />
                                     </DropdownMenuContent>
                                 </DropdownMenu>
                             </div>

@@ -21,10 +21,12 @@ import {
 import forfaitStore from '@/routes/parent/forfait-store';
 import { Form, Link, router } from '@inertiajs/react';
 import {
+    AlertCircle,
     BookOpen,
     Crown,
     Edit,
     Flame,
+    GraduationCap,
     Heart,
     Music,
     Palette,
@@ -32,7 +34,9 @@ import {
     Rocket,
     Sparkles,
     Star,
+    Target,
     Trophy,
+    Users,
 } from 'lucide-react';
 import { useState } from 'react';
 import { toast } from 'sonner';
@@ -153,7 +157,7 @@ export default function ParentDashboard({ data }: Props) {
 
     return (
         <>
-            <div className="flex h-screen flex-col overflow-hidden bg-linear-to-br from-slate-50 via-blue-50/30 to-purple-50/20 dark:from-slate-950 dark:via-slate-900 dark:to-slate-950">
+            <div className="flex h-screen flex-col overflow-hidden">
                 {childProfiles.length > 0 && (
                     <div className="shrink-0 border-b border-slate-200/50 bg-white/50 px-6 py-3 backdrop-blur-sm dark:border-slate-800/50 dark:bg-slate-900/50">
                         <div className="mx-auto flex max-w-6xl items-center justify-center gap-8">
@@ -198,7 +202,7 @@ export default function ParentDashboard({ data }: Props) {
                     </div>
                 )}
 
-                <div className="flex flex-1 items-center justify-center overflow-y-auto rounded-3xl bg-linear-to-br from-blue-50 via-purple-50 to-pink-50 px-4 py-8 dark:from-slate-950 dark:via-slate-900 dark:to-slate-950">
+                <div className="flex flex-1 items-center justify-center overflow-y-auto px-4 py-8">
                     <div className="w-full max-w-6xl space-y-6">
                         <div className="space-y-4 text-center">
                             <div className="flex items-center justify-center gap-3">
@@ -214,10 +218,20 @@ export default function ParentDashboard({ data }: Props) {
                                     <Star className="h-8 w-8 text-pink-500" />
                                 </div>
                             </div>
-                            <p className="text-lg font-medium text-slate-600 dark:text-slate-400">
-                                {childProfiles.length === 0
-                                    ? '✨ Commencez par créer un profil magique pour votre enfant'
-                                    : "🚀 Sélectionnez un profil pour démarrer l'aventure"}
+                            <p className="flex items-center justify-center gap-2 text-lg font-medium text-slate-600 dark:text-slate-400">
+                                {childProfiles.length === 0 ? (
+                                    <>
+                                        <Sparkles className="h-5 w-5 text-yellow-500" />
+                                        Commencez par créer un profil magique
+                                        pour votre enfant
+                                    </>
+                                ) : (
+                                    <>
+                                        <Rocket className="h-5 w-5 text-purple-500" />
+                                        Sélectionnez un profil pour démarrer
+                                        l'aventure
+                                    </>
+                                )}
                             </p>
                         </div>
 
@@ -295,8 +309,8 @@ export default function ParentDashboard({ data }: Props) {
                                                         </p>
                                                     )}
                                                     {child.current_plan && (
-                                                        <Badge className="mt-2 rounded-full bg-linear-to-r from-emerald-500 to-green-600 px-3 py-1 text-xs font-semibold shadow-md">
-                                                            ✨{' '}
+                                                        <Badge className="mt-2 flex items-center justify-center gap-1.5 rounded-full bg-linear-to-r from-emerald-500 to-green-600 px-3 py-1 text-xs font-semibold shadow-md">
+                                                            <Sparkles className="h-3 w-3" />
                                                             {
                                                                 child
                                                                     .current_plan
@@ -363,47 +377,67 @@ export default function ParentDashboard({ data }: Props) {
             </div>
 
             <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-                <DialogContent className="sm:max-w-[650px]">
+                <DialogContent className="rounded-3xl border-2 border-blue-100 sm:max-w-[700px]">
                     <DialogHeader>
-                        <DialogTitle>
-                            {editChild
-                                ? 'Modifier le profil enfant'
-                                : 'Ajouter un profil enfant'}
+                        <DialogTitle className="flex items-center gap-2 text-2xl">
+                            <div className="flex items-center gap-2">
+                                <Sparkles className="h-6 w-6 text-yellow-500" />
+                                <span className="bg-linear-to-r from-blue-600 via-purple-600 to-pink-600 bg-clip-text font-bold text-transparent">
+                                    {editChild
+                                        ? 'Modifier le profil'
+                                        : 'Créer un profil magique'}
+                                </span>
+                                <Star className="h-6 w-6 text-pink-500" />
+                            </div>
                         </DialogTitle>
-                        <DialogDescription>
-                            {editChild
-                                ? "Vous pouvez modifier le nom, l'icône et la couleur du profil. Les autres champs ne sont pas modifiables."
-                                : hasAvailablePlans
-                                  ? 'Remplissez les informations de votre enfant et personnalisez son profil.'
-                                  : "Vous devez d'abord acheter un plan pour pouvoir créer un profil enfant."}
+                        <DialogDescription className="flex items-center gap-2 text-base">
+                            {editChild ? (
+                                <>
+                                    <Edit className="h-4 w-4 text-blue-500" />
+                                    Personnalisez le profil de votre enfant
+                                </>
+                            ) : hasAvailablePlans ? (
+                                <>
+                                    <Palette className="h-4 w-4 text-purple-500" />
+                                    Créez un profil personnalisé pour votre
+                                    enfant
+                                </>
+                            ) : (
+                                <>
+                                    <AlertCircle className="h-4 w-4 text-amber-500" />
+                                    Vous devez d'abord acheter un plan
+                                </>
+                            )}
                         </DialogDescription>
                     </DialogHeader>
 
                     {!hasAvailablePlans && !editChild ? (
-                        <div className="space-y-4 py-6 text-center">
-                            <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-yellow-100 dark:bg-yellow-900/30">
-                                <Plus className="h-8 w-8 text-yellow-600 dark:text-yellow-500" />
+                        <div className="space-y-6 py-8 text-center">
+                            <div className="mx-auto flex h-24 w-24 items-center justify-center rounded-full bg-linear-to-br from-amber-400 to-orange-500 shadow-xl">
+                                <Heart className="h-12 w-12 text-white" />
                             </div>
-                            <div className="space-y-2">
-                                <h3 className="text-lg font-semibold">
+                            <div className="space-y-3">
+                                <h3 className="text-2xl font-bold text-slate-900 dark:text-slate-100">
                                     Aucun plan disponible
                                 </h3>
-                                <p className="text-sm text-muted-foreground">
+                                <p className="flex items-center justify-center gap-2 text-base text-slate-600 dark:text-slate-400">
+                                    <Target className="h-5 w-5 text-blue-500" />
                                     Pour créer un profil enfant, vous devez
                                     d'abord acheter un plan d'apprentissage.
                                 </p>
                             </div>
-                            <div className="flex gap-3">
+                            <div className="flex gap-3 pt-4">
                                 <Link
                                     as={Button}
                                     href={forfaitStore.index()}
-                                    className="flex-1"
+                                    className="flex-1 rounded-2xl bg-linear-to-r from-blue-500 to-purple-600 px-6 py-3 text-base font-bold shadow-lg hover:scale-105"
                                 >
+                                    <Plus className="mr-2 h-5 w-5" />
                                     Acheter un plan
                                 </Link>
                                 <Button
                                     variant="outline"
-                                    className="flex-1"
+                                    className="flex-1 rounded-2xl border-2 border-slate-300 px-6 py-3 text-base font-semibold hover:bg-slate-100"
                                     onClick={() => setIsDialogOpen(false)}
                                 >
                                     Annuler
@@ -451,15 +485,16 @@ export default function ParentDashboard({ data }: Props) {
                                     <>
                                         <div className="grid gap-6 py-4">
                                             {/* Avatar Customization */}
-                                            <div className="space-y-3">
-                                                <Label className="text-sm font-medium">
+                                            <div className="space-y-4 rounded-2xl bg-blue-50/50 p-6 dark:bg-slate-800/30">
+                                                <Label className="flex items-center gap-2 text-base font-bold text-slate-900 dark:text-slate-100">
+                                                    <Palette className="h-5 w-5 text-purple-500" />
                                                     Personnaliser l'avatar
                                                 </Label>
                                                 <div className="flex items-center gap-6">
                                                     <div
-                                                        className={`flex h-24 w-24 shrink-0 items-center justify-center rounded-full ${selectedColorClass.bg} text-white shadow-lg`}
+                                                        className={`flex h-28 w-28 shrink-0 items-center justify-center rounded-full ${selectedColorClass.bg} text-white shadow-2xl ring-4 ${selectedColorClass.ring}`}
                                                     >
-                                                        <SelectedIcon className="h-12 w-12" />
+                                                        <SelectedIcon className="h-14 w-14" />
                                                     </div>
 
                                                     <div className="flex-1 space-y-3">
@@ -548,14 +583,15 @@ export default function ParentDashboard({ data }: Props) {
                                                 />
                                             </div>
 
-                                            <div className="h-px bg-slate-200 dark:bg-slate-700" />
+                                            <div className="h-px bg-linear-to-r from-transparent via-blue-200 to-transparent dark:via-slate-700" />
 
                                             {/* Name */}
                                             <div className="grid grid-cols-4 items-center gap-4">
                                                 <Label
                                                     htmlFor="name"
-                                                    className="text-right"
+                                                    className="flex items-center justify-end gap-2 text-right font-semibold"
                                                 >
+                                                    <Users className="h-4 w-4 text-blue-500" />
                                                     Nom complet
                                                 </Label>
                                                 <div className="col-span-3 space-y-1">
@@ -563,6 +599,7 @@ export default function ParentDashboard({ data }: Props) {
                                                         id="name"
                                                         name="name"
                                                         placeholder="Ex: Emma Dubois"
+                                                        className="rounded-xl border-2 border-blue-200 focus:border-purple-400 focus:ring-purple-400"
                                                         value={
                                                             editChild
                                                                 ? editName
@@ -588,11 +625,19 @@ export default function ParentDashboard({ data }: Props) {
 
                                             {/* Disabled fields in edit mode */}
                                             {editChild && (
-                                                <div className="space-y-2 rounded-lg bg-slate-100 px-4 py-3 text-xs text-slate-500 dark:bg-slate-800 dark:text-slate-400">
-                                                    Les champs "Niveau",
-                                                    "Classe" et "Plan" ne
-                                                    peuvent pas être modifiés
-                                                    après la création du profil.
+                                                <div className="flex items-start gap-3 rounded-2xl border-2 border-amber-200 bg-amber-50 px-5 py-4 dark:border-amber-800 dark:bg-amber-900/20">
+                                                    <div className="shrink-0">
+                                                        <div className="flex h-8 w-8 items-center justify-center rounded-full bg-amber-400 text-white">
+                                                            <AlertCircle className="h-5 w-5" />
+                                                        </div>
+                                                    </div>
+                                                    <div className="text-sm font-medium text-amber-900 dark:text-amber-200">
+                                                        Les champs "Niveau",
+                                                        "Classe" et "Plan" ne
+                                                        peuvent pas être
+                                                        modifiés après la
+                                                        création du profil.
+                                                    </div>
                                                 </div>
                                             )}
 
@@ -600,8 +645,9 @@ export default function ParentDashboard({ data }: Props) {
                                             <div className="grid grid-cols-4 items-center gap-4">
                                                 <Label
                                                     htmlFor="level"
-                                                    className="text-right"
+                                                    className="flex items-center justify-end gap-2 text-right font-semibold"
                                                 >
+                                                    <BookOpen className="h-4 w-4 text-blue-500" />
                                                     Niveau
                                                 </Label>
                                                 <div className="col-span-3 space-y-1">
@@ -652,8 +698,9 @@ export default function ParentDashboard({ data }: Props) {
                                             <div className="grid grid-cols-4 items-center gap-4">
                                                 <Label
                                                     htmlFor="class"
-                                                    className="text-right"
+                                                    className="flex items-center justify-end gap-2 text-right font-semibold"
                                                 >
+                                                    <GraduationCap className="h-4 w-4 text-purple-500" />
                                                     Classe
                                                 </Label>
                                                 <div className="col-span-3 space-y-1">
@@ -707,8 +754,9 @@ export default function ParentDashboard({ data }: Props) {
                                             <div className="grid grid-cols-4 items-center gap-4">
                                                 <Label
                                                     htmlFor="plan"
-                                                    className="text-right"
+                                                    className="flex items-center justify-end gap-2 text-right font-semibold"
                                                 >
+                                                    <Star className="h-4 w-4 text-yellow-500" />
                                                     Plan à assigner
                                                 </Label>
                                                 <div className="col-span-3 space-y-1">
@@ -767,27 +815,45 @@ export default function ParentDashboard({ data }: Props) {
                                             </div>
                                         </div>
 
-                                        <DialogFooter>
+                                        <DialogFooter className="gap-3">
                                             <Button
                                                 variant="outline"
                                                 type="button"
                                                 onClick={() =>
                                                     setIsDialogOpen(false)
                                                 }
+                                                className="rounded-2xl border-2 border-slate-300 px-6 font-semibold"
                                             >
                                                 Annuler
                                             </Button>
                                             <Button
                                                 type="submit"
                                                 disabled={processing}
+                                                className="rounded-2xl bg-linear-to-r from-blue-500 to-purple-600 px-6 font-bold shadow-lg hover:scale-105 hover:shadow-xl"
                                             >
-                                                {processing
-                                                    ? editChild
-                                                        ? 'Modification...'
-                                                        : 'Création...'
-                                                    : editChild
-                                                      ? 'Enregistrer'
-                                                      : 'Créer le profil'}
+                                                {processing ? (
+                                                    editChild ? (
+                                                        <>
+                                                            <div className="mr-2 h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent" />
+                                                            Modification...
+                                                        </>
+                                                    ) : (
+                                                        <>
+                                                            <div className="mr-2 h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent" />
+                                                            Création...
+                                                        </>
+                                                    )
+                                                ) : editChild ? (
+                                                    <>
+                                                        <Star className="mr-2 h-4 w-4" />
+                                                        Enregistrer
+                                                    </>
+                                                ) : (
+                                                    <>
+                                                        <Sparkles className="mr-2 h-4 w-4" />
+                                                        Créer le profil
+                                                    </>
+                                                )}
                                             </Button>
                                         </DialogFooter>
                                     </>

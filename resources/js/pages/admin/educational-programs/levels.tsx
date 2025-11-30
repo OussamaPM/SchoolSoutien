@@ -77,8 +77,6 @@ export default function Index({ levels = [], category }: Props) {
         setIsDeleteOpen(true);
     };
 
-    console.log(levels);
-
     return (
         <AppLayout breadcrumbs={breadcrumbs(category?.id, category?.name)}>
             <Head title={`Niveaux — ${category?.name || ''}`} />
@@ -173,9 +171,10 @@ export default function Index({ levels = [], category }: Props) {
                                                 <Button
                                                     variant="ghost"
                                                     size="icon"
-                                                    onClick={() =>
-                                                        openEdit(level)
-                                                    }
+                                                    onClick={(e) => {
+                                                        e.stopPropagation();
+                                                        openEdit(level);
+                                                    }}
                                                 >
                                                     <Edit className="h-4 w-4" />
                                                 </Button>
@@ -183,9 +182,10 @@ export default function Index({ levels = [], category }: Props) {
                                                     variant="ghost"
                                                     size="icon"
                                                     className="text-destructive"
-                                                    onClick={() =>
-                                                        openDelete(level)
-                                                    }
+                                                    onClick={(e) => {
+                                                        e.stopPropagation();
+                                                        openDelete(level);
+                                                    }}
                                                 >
                                                     <Trash2 className="h-4 w-4" />
                                                 </Button>
@@ -353,6 +353,7 @@ export default function Index({ levels = [], category }: Props) {
                                     <DialogFooter>
                                         <div className="flex items-center gap-4">
                                             <Button
+                                                type="button"
                                                 variant="outline"
                                                 onClick={() =>
                                                     setIsEditOpen(false)
@@ -409,6 +410,7 @@ export default function Index({ levels = [], category }: Props) {
                                     <DialogFooter>
                                         <div className="flex items-center gap-4">
                                             <Button
+                                                type="button"
                                                 variant="outline"
                                                 onClick={() =>
                                                     setIsDeleteOpen(false)
