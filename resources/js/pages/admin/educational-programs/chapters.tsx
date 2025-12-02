@@ -111,6 +111,7 @@ export default function Index({
     const [deletingChapter, setDeletingChapter] = useState<Chapter | null>(
         null,
     );
+    const isAdmin = usePage<SharedData>().props.auth.user?.role === 'admin';
     const openDelete = (chapter: Chapter) => {
         setDeletingChapter(chapter);
         setIsDeleteOpen(true);
@@ -311,55 +312,73 @@ export default function Index({
                                             className="max-w-xs truncate"
                                             onClick={(e) => e.stopPropagation()}
                                         >
-                                            <DropdownMenu>
-                                                <DropdownMenuTrigger asChild>
-                                                    <Button
-                                                        variant="ghost"
-                                                        className="h-auto p-0 hover:bg-transparent"
+                                            {isAdmin && (
+                                                <DropdownMenu>
+                                                    <DropdownMenuTrigger
+                                                        asChild
                                                     >
-                                                        <Badge
-                                                            variant={
-                                                                chapter.is_active
-                                                                    ? 'default'
-                                                                    : 'secondary'
-                                                            }
-                                                            className="cursor-pointer"
+                                                        <Button
+                                                            variant="ghost"
+                                                            className="h-auto p-0 hover:bg-transparent"
                                                         >
-                                                            {chapter.is_active
-                                                                ? 'Publié'
-                                                                : 'Brouillon'}
-                                                        </Badge>
-                                                    </Button>
-                                                </DropdownMenuTrigger>
-                                                <DropdownMenuContent>
-                                                    <DropdownMenuLabel>
-                                                        Statut du chapitre
-                                                    </DropdownMenuLabel>
-                                                    <DropdownMenuSeparator />
-                                                    <DropdownMenuRadioGroup
-                                                        value={
-                                                            chapter.is_active
-                                                                ? 'published'
-                                                                : 'draft'
-                                                        }
-                                                        onValueChange={(
-                                                            value,
-                                                        ) =>
-                                                            handleStatusChange(
-                                                                chapter,
+                                                            <Badge
+                                                                variant={
+                                                                    chapter.is_active
+                                                                        ? 'default'
+                                                                        : 'secondary'
+                                                                }
+                                                                className="cursor-pointer"
+                                                            >
+                                                                {chapter.is_active
+                                                                    ? 'Publié'
+                                                                    : 'Brouillon'}
+                                                            </Badge>
+                                                        </Button>
+                                                    </DropdownMenuTrigger>
+                                                    <DropdownMenuContent>
+                                                        <DropdownMenuLabel>
+                                                            Statut du chapitre
+                                                        </DropdownMenuLabel>
+                                                        <DropdownMenuSeparator />
+                                                        <DropdownMenuRadioGroup
+                                                            value={
+                                                                chapter.is_active
+                                                                    ? 'published'
+                                                                    : 'draft'
+                                                            }
+                                                            onValueChange={(
                                                                 value,
-                                                            )
-                                                        }
-                                                    >
-                                                        <DropdownMenuRadioItem value="published">
-                                                            Publié
-                                                        </DropdownMenuRadioItem>
-                                                        <DropdownMenuRadioItem value="draft">
-                                                            Brouillon
-                                                        </DropdownMenuRadioItem>
-                                                    </DropdownMenuRadioGroup>
-                                                </DropdownMenuContent>
-                                            </DropdownMenu>
+                                                            ) =>
+                                                                handleStatusChange(
+                                                                    chapter,
+                                                                    value,
+                                                                )
+                                                            }
+                                                        >
+                                                            <DropdownMenuRadioItem value="published">
+                                                                Publié
+                                                            </DropdownMenuRadioItem>
+                                                            <DropdownMenuRadioItem value="draft">
+                                                                Brouillon
+                                                            </DropdownMenuRadioItem>
+                                                        </DropdownMenuRadioGroup>
+                                                    </DropdownMenuContent>
+                                                </DropdownMenu>
+                                            )}
+                                            {!isAdmin && (
+                                                <Badge
+                                                    className="cursor-default"
+                                                    variant={
+                                                        chapter.is_active
+                                                            ? 'default'
+                                                            : 'secondary'
+                                                    }
+                                                >
+                                                    {chapter.is_active
+                                                        ? 'Publié'
+                                                        : 'Brouillon'}
+                                                </Badge>
+                                            )}
                                         </TableCell>
                                         <TableCell
                                             className="text-right"

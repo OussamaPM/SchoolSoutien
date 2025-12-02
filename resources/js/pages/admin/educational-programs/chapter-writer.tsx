@@ -16,8 +16,8 @@ import programs, {
     updateChapter,
     updateChapterVideo,
 } from '@/routes/admin/educational-programs';
-import { type BreadcrumbItem } from '@/types';
-import { Form, Head, useForm } from '@inertiajs/react';
+import { SharedData, type BreadcrumbItem } from '@/types';
+import { Form, Head, useForm, usePage } from '@inertiajs/react';
 import '@maily-to/core/style.css';
 import { Editor } from '@tiptap/core';
 import {
@@ -86,6 +86,7 @@ export default function Index({ category, level, subject, chapter }: Props) {
     const [isAttachmentDialogOpen, setIsAttachmentDialogOpen] = useState(false);
     const [tempVideoUrl, setTempVideoUrl] = useState('');
     const [selectedFile, setSelectedFile] = useState<File | null>(null);
+    const isAdmin = usePage<SharedData>().props.auth.user?.role === 'admin';
 
     const {
         data: chapterData,
@@ -458,7 +459,7 @@ export default function Index({ category, level, subject, chapter }: Props) {
             </div>
 
             <ChapterEditor
-                editable={chapter ? !chapter.is_active : true}
+                editable={isAdmin || (chapter ? !chapter.is_active : true)}
                 defaultContent={
                     chapter?.content || JSON.stringify(defaultEmailJSON)
                 }

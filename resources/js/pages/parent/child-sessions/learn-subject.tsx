@@ -11,9 +11,11 @@ import {
     BookOpen,
     CheckCircle2,
     Circle,
+    FileQuestion,
     GraduationCap,
     Lock,
     Sparkles,
+    Target,
 } from 'lucide-react';
 import { ChildProfile } from './index';
 
@@ -158,23 +160,73 @@ export default function LearnSubject({ child, subject }: Props) {
                                                     }}
                                                 >
                                                     <CardContent className="p-3">
-                                                        <div className="flex items-center gap-2">
-                                                            <Badge
-                                                                variant="outline"
-                                                                className="text-xs font-semibold"
-                                                            >
-                                                                Ch. {index + 1}
-                                                            </Badge>
-                                                            {isFirst && (
-                                                                <Badge className="bg-linear-to-r from-purple-500 to-blue-500 text-xs">
-                                                                    <Sparkles className="mr-1 h-3 w-3" />
-                                                                    Démarrer ici
+                                                        <div className="flex items-center justify-between gap-3">
+                                                            <div className="flex items-center gap-2">
+                                                                <Badge
+                                                                    variant="outline"
+                                                                    className="text-xs font-semibold"
+                                                                >
+                                                                    Ch.{' '}
+                                                                    {index + 1}
                                                                 </Badge>
-                                                            )}
+                                                                {isFirst && (
+                                                                    <Badge className="bg-linear-to-r from-purple-500 to-blue-500 text-xs">
+                                                                        <Sparkles className="mr-1 h-3 w-3" />
+                                                                        Démarrer
+                                                                        ici
+                                                                    </Badge>
+                                                                )}
 
-                                                            <h3 className="text-sm font-semibold text-slate-900 dark:text-slate-100">
-                                                                {chapter.title}
-                                                            </h3>
+                                                                <h3 className="text-sm font-semibold text-slate-900 dark:text-slate-100">
+                                                                    {
+                                                                        chapter.title
+                                                                    }
+                                                                </h3>
+                                                            </div>
+
+                                                            <div
+                                                                className="flex items-center gap-2"
+                                                                onClick={(e) =>
+                                                                    e.stopPropagation()
+                                                                }
+                                                            >
+                                                                {chapter.quiz && (
+                                                                    <Button
+                                                                        size="sm"
+                                                                        variant="outline"
+                                                                        className="h-7 gap-1.5 border-purple-200 bg-purple-50 text-purple-700 hover:bg-purple-100 hover:text-purple-800"
+                                                                        onClick={() =>
+                                                                            router.visit(
+                                                                                parent.childSessions.startQuiz.url(
+                                                                                    [
+                                                                                        child.id,
+                                                                                        subject.id,
+                                                                                        chapter.id,
+                                                                                        chapter
+                                                                                            .quiz!
+                                                                                            .id,
+                                                                                    ],
+                                                                                ),
+                                                                            )
+                                                                        }
+                                                                        disabled={
+                                                                            isLocked
+                                                                        }
+                                                                    >
+                                                                        <FileQuestion className="h-3.5 w-3.5" />
+                                                                        Quiz
+                                                                    </Button>
+                                                                )}
+                                                                <Button
+                                                                    size="sm"
+                                                                    variant="outline"
+                                                                    className="h-7 cursor-not-allowed gap-1.5 border-slate-200 bg-slate-100 text-slate-400"
+                                                                    disabled
+                                                                >
+                                                                    <Target className="h-3.5 w-3.5" />
+                                                                    Exercice
+                                                                </Button>
+                                                            </div>
                                                         </div>
                                                     </CardContent>
                                                 </Card>

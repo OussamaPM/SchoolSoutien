@@ -5,6 +5,7 @@ import AppLayout from '@/layouts/app-layout';
 import { ChapterPreviewIFrame } from '@/pages/admin/educational-programs/chapter-preview-iframe';
 import { Chapter } from '@/pages/admin/educational-programs/chapters';
 import { Subject } from '@/pages/admin/educational-programs/subjects';
+import parent from '@/routes/parent';
 import { Head, router } from '@inertiajs/react';
 import { render } from '@maily-to/render';
 import {
@@ -29,7 +30,6 @@ interface Props {
 }
 
 export default function ViewChapter({ child, subject, chapter }: Props) {
-    const [showQuiz, setShowQuiz] = useState(false);
     const [html, setHtml] = useState('');
     const [isLoadingContent, setIsLoadingContent] = useState(true);
 
@@ -279,7 +279,18 @@ export default function ViewChapter({ child, subject, chapter }: Props) {
                                             'Répondez aux questions pour valider ce chapitre'}
                                     </p>
                                     <Button
-                                        onClick={() => setShowQuiz(true)}
+                                        onClick={() =>
+                                            router.visit(
+                                                parent.childSessions.startQuiz.url(
+                                                    [
+                                                        child.id,
+                                                        subject.id,
+                                                        chapter.id,
+                                                        chapter.quiz!.id,
+                                                    ],
+                                                ),
+                                            )
+                                        }
                                         className="rounded-2xl bg-linear-to-r from-purple-500 to-pink-600 px-6 py-3 font-bold shadow-lg hover:scale-105"
                                     >
                                         <FileQuestion className="mr-2 h-5 w-5" />

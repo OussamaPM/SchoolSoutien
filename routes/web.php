@@ -28,6 +28,9 @@ Route::middleware(['auth', 'verified'])->group(function () {
         ##################################### Child Profiles Routes #####################################
         Route::get('child-sessions/{child}/{subject}', [ChildSessionController::class, 'learnSubject'])->name('child-sessions.learn-subject');
         Route::get('child-sessions/{child}/{subject}/chapter/{chapter}', [ChildSessionController::class, 'viewChapter'])->name('child-sessions.view-chapter');
+        Route::get('child-sessions/{child}/{subject}/chapter/{chapter}/quiz/{quiz}', [ChildSessionController::class, 'startQuiz'])->name('child-sessions.start-quiz');
+        Route::post('child-sessions/{child}/{subject}/chapter/{chapter}/quiz/{quiz}', [ChildSessionController::class, 'submitQuiz'])->name('child-sessions.submit-quiz');
+        Route::get('child-sessions/{child}/{subject}/chapter/{chapter}/quiz/{quiz}/results/{attempt}', [ChildSessionController::class, 'quizResults'])->name('child-sessions.quiz-results');
         Route::resource('child-sessions', ChildSessionController::class)->parameter('child-sessions', 'child');
     });
 
