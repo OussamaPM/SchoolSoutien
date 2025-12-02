@@ -64,7 +64,7 @@ export interface Chapter {
     is_active: boolean;
     video_url?: string | null;
     attachment_url?: string | null;
-    quiz?: { id: number; title: string } | null;
+    quiz?: { id: number; title: string; description: string } | null;
     created_at: string;
     updated_at: string;
     preview_text: string;

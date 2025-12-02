@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Parent;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use App\Models\ChildProfile;
+use App\Models\Chapter;
 use App\Models\EducationalSubject;
 use Inertia\Inertia;
 
@@ -42,6 +43,26 @@ class ChildSessionController extends Controller
         return Inertia::render('parent/child-sessions/learn-subject', [
             'child' => $child,
             'subject' => $subject,
+        ]);
+    }
+
+    public function viewChapter(ChildProfile $child, EducationalSubject $subject, Chapter $chapter)
+    {
+        if ($chapter->educational_subject_id !== $subject->id || !$chapter->is_active) {
+            return back()->withErrors(['message' => 'Chapitre non disponible.']);
+        }
+
+        $child->load([
+            'currentPlan.plan',
+            'educationLevel.category'
+        ]);
+
+        $chapter->load(['quiz.questions.answers']);
+
+        return Inertia::render('parent/child-sessions/view-chapter', [
+            'child' => $child,
+            'subject' => $subject,
+            'chapter' => $chapter,
         ]);
     }
 }

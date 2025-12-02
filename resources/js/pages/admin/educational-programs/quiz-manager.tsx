@@ -4,6 +4,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import AppLayout from '@/layouts/app-layout';
+import educationalPrograms from '@/routes/admin/educational-programs';
 import { type BreadcrumbItem } from '@/types';
 import { Head, router, useForm } from '@inertiajs/react';
 import { GripVertical, Plus, Trash2 } from 'lucide-react';
@@ -24,25 +25,31 @@ const breadcrumbs = (
     chapterId?: number,
     chapterTitle?: string,
 ): BreadcrumbItem[] => [
-    {
-        title: 'Programmes',
-        href: `/admin/educational-programs/education-level-categories`,
-    },
+    { title: 'Programmes', href: educationalPrograms.levelCategories.url() },
     {
         title: categoryName || 'Niveaux',
-        href: `/admin/educational-programs/education-level-categories/${categoryId}`,
+        href: educationalPrograms.levels.url(categoryId!),
     },
     {
         title: levelName || 'Matières',
-        href: `/admin/educational-programs/education-level-categories/${categoryId}/${levelId}`,
+        href: educationalPrograms.subjects.url([categoryId!, levelId!]),
     },
     {
         title: subjectName || 'Chapitres',
-        href: `/admin/educational-programs/education-level-categories/${categoryId}/${levelId}/subjects/${subjectId}`,
+        href: educationalPrograms.chapters.url([
+            categoryId!,
+            levelId!,
+            subjectId!,
+        ]),
     },
     {
         title: chapterTitle || 'Chapitre',
-        href: `/admin/educational-programs/education-level-categories/${categoryId}/${levelId}/subjects/${subjectId}/chapter/${chapterId}`,
+        href: educationalPrograms.chapterWriter.url([
+            categoryId!,
+            levelId!,
+            subjectId!,
+            chapterId!,
+        ]),
     },
     {
         title: 'Quiz',

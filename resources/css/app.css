@@ -151,4 +151,8 @@
     body {
         @apply bg-background text-foreground;
     }
+
+    table[role='presentation'] {
+        width: 800px !important;
+    }
 }

@@ -120,210 +120,214 @@ export default function Index({ category, level, subject, chapter }: Props) {
 
                     {chapter && (
                         <>
-                            <div className="flex flex-col gap-2 rounded-xl bg-blue-50/50 p-1.5">
-                                <Dialog
-                                    open={isVideoDialogOpen}
-                                    onOpenChange={setIsVideoDialogOpen}
-                                >
-                                    <DialogTrigger asChild>
-                                        <button
-                                            type="button"
-                                            className="relative flex items-center justify-center rounded-lg p-2 text-gray-700 transition-all hover:bg-blue-100"
-                                            title="Ajouter une vidéo"
-                                            onClick={() =>
-                                                setTempVideoUrl(
-                                                    chapter?.video_url || '',
-                                                )
-                                            }
-                                        >
-                                            <Video className="h-4 w-4" />
-                                            {chapter?.video_url && (
-                                                <span className="absolute -top-0.5 -right-0.5 h-2 w-2 rounded-full bg-blue-500 ring-2 ring-white" />
-                                            )}
-                                        </button>
-                                    </DialogTrigger>
-                                    <DialogContent>
-                                        <Form
-                                            {...updateChapterVideo.form([
-                                                category.id,
-                                                level.id,
-                                                subject.id,
-                                                chapter?.id!,
-                                            ])}
-                                            onSuccess={() => {
-                                                setIsVideoDialogOpen(false);
-                                                toast.success(
-                                                    'Vidéo mise à jour avec succès',
-                                                );
-                                            }}
-                                        >
-                                            <DialogHeader>
-                                                <DialogTitle>
-                                                    Ajouter une vidéo
-                                                </DialogTitle>
-                                                <DialogDescription>
-                                                    Ajoutez un lien YouTube ou
-                                                    Vimeo pour ce chapitre
-                                                </DialogDescription>
-                                            </DialogHeader>
-                                            <div className="space-y-4 py-4">
-                                                <div className="space-y-2">
-                                                    <Label htmlFor="video-url">
-                                                        URL de la vidéo
-                                                    </Label>
-                                                    <Input
-                                                        id="video-url"
-                                                        name="video_url"
-                                                        placeholder="https://www.youtube.com/watch?v=..."
-                                                        defaultValue={
-                                                            chapter?.video_url ||
-                                                            ''
-                                                        }
-                                                    />
-                                                </div>
+                            <Dialog
+                                open={isVideoDialogOpen}
+                                onOpenChange={setIsVideoDialogOpen}
+                            >
+                                <DialogTrigger asChild>
+                                    <button
+                                        type="button"
+                                        className={`relative flex items-center justify-center rounded-xl p-2 transition-all ${
+                                            chapter?.video_url
+                                                ? 'bg-green-100 text-green-700 hover:bg-green-200'
+                                                : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                                        }`}
+                                        title="Ajouter une vidéo"
+                                        onClick={() =>
+                                            setTempVideoUrl(
+                                                chapter?.video_url || '',
+                                            )
+                                        }
+                                    >
+                                        <Video className="h-5 w-5" />
+                                        {chapter?.video_url && (
+                                            <span className="absolute -top-0.5 -right-0.5 h-2 w-2 rounded-full bg-green-500 ring-2 ring-white" />
+                                        )}
+                                    </button>
+                                </DialogTrigger>
+                                <DialogContent>
+                                    <Form
+                                        {...updateChapterVideo.form([
+                                            category.id,
+                                            level.id,
+                                            subject.id,
+                                            chapter?.id!,
+                                        ])}
+                                        onSuccess={() => {
+                                            setIsVideoDialogOpen(false);
+                                            toast.success(
+                                                'Vidéo mise à jour avec succès',
+                                            );
+                                        }}
+                                    >
+                                        <DialogHeader>
+                                            <DialogTitle>
+                                                Ajouter une vidéo
+                                            </DialogTitle>
+                                            <DialogDescription>
+                                                Ajoutez un lien YouTube ou Vimeo
+                                                pour ce chapitre
+                                            </DialogDescription>
+                                        </DialogHeader>
+                                        <div className="space-y-4 py-4">
+                                            <div className="space-y-2">
+                                                <Label htmlFor="video-url">
+                                                    URL de la vidéo
+                                                </Label>
+                                                <Input
+                                                    id="video-url"
+                                                    name="video_url"
+                                                    placeholder="https://www.youtube.com/watch?v=..."
+                                                    defaultValue={
+                                                        chapter?.video_url || ''
+                                                    }
+                                                />
                                             </div>
-                                            <DialogFooter>
-                                                <Button
-                                                    type="button"
-                                                    variant="outline"
-                                                    onClick={() =>
-                                                        setIsVideoDialogOpen(
-                                                            false,
+                                        </div>
+                                        <DialogFooter>
+                                            <Button
+                                                type="button"
+                                                variant="outline"
+                                                onClick={() =>
+                                                    setIsVideoDialogOpen(false)
+                                                }
+                                            >
+                                                Annuler
+                                            </Button>
+                                            <Button type="submit">
+                                                Enregistrer
+                                            </Button>
+                                        </DialogFooter>
+                                    </Form>
+                                </DialogContent>
+                            </Dialog>
+
+                            <Dialog
+                                open={isAttachmentDialogOpen}
+                                onOpenChange={setIsAttachmentDialogOpen}
+                            >
+                                <DialogTrigger asChild>
+                                    <button
+                                        type="button"
+                                        className={`relative flex items-center justify-center rounded-xl p-2 transition-all ${
+                                            chapter?.attachment_url
+                                                ? 'bg-green-100 text-green-700 hover:bg-green-200'
+                                                : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                                        }`}
+                                        title="Ajouter une pièce jointe"
+                                    >
+                                        <Paperclip className="h-5 w-5" />
+                                        {chapter?.attachment_url && (
+                                            <span className="absolute -top-0.5 -right-0.5 h-2 w-2 rounded-full bg-green-500 ring-2 ring-white" />
+                                        )}
+                                    </button>
+                                </DialogTrigger>
+                                <DialogContent>
+                                    <Form
+                                        method="post"
+                                        encType="multipart/form-data"
+                                        action={`/admin/educational-programs/education-level-categories/${category.id}/${level.id}/subjects/${subject.id}/chapter/${chapter?.id}/attachment`}
+                                        onSuccess={() => {
+                                            setIsAttachmentDialogOpen(false);
+                                            setSelectedFile(null);
+                                            toast.success(
+                                                'Pièce jointe téléversée avec succès',
+                                            );
+                                        }}
+                                    >
+                                        <DialogHeader>
+                                            <DialogTitle>
+                                                Ajouter une pièce jointe
+                                            </DialogTitle>
+                                            <DialogDescription>
+                                                Téléversez un fichier (PDF,
+                                                Word, Excel, PowerPoint, ZIP -
+                                                max 10MB)
+                                            </DialogDescription>
+                                        </DialogHeader>
+                                        <div className="space-y-4 py-4">
+                                            {chapter?.attachment_url && (
+                                                <div className="space-y-2">
+                                                    <Label className="text-sm font-medium">
+                                                        Fichier actuel
+                                                    </Label>
+                                                    <div className="flex items-center gap-2 rounded-md border border-slate-200 bg-slate-50 p-3">
+                                                        <p className="flex-1 truncate text-sm text-slate-700">
+                                                            {chapter.attachment_url
+                                                                .split('/')
+                                                                .pop()}
+                                                        </p>
+                                                        <Button
+                                                            type="button"
+                                                            variant="outline"
+                                                            size="sm"
+                                                            asChild
+                                                        >
+                                                            <a
+                                                                href={`/storage/${chapter.attachment_url}`}
+                                                                download
+                                                                target="_blank"
+                                                                rel="noopener noreferrer"
+                                                            >
+                                                                <Download className="h-4 w-4" />
+                                                            </a>
+                                                        </Button>
+                                                    </div>
+                                                </div>
+                                            )}
+                                            <div className="space-y-2">
+                                                <Label htmlFor="attachment">
+                                                    {chapter?.attachment_url
+                                                        ? 'Remplacer le fichier'
+                                                        : 'Fichier'}
+                                                </Label>
+                                                <Input
+                                                    id="attachment"
+                                                    name="attachment"
+                                                    type="file"
+                                                    accept=".pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx,.zip"
+                                                    onChange={(e) =>
+                                                        setSelectedFile(
+                                                            e.target
+                                                                .files?.[0] ||
+                                                                null,
                                                         )
                                                     }
-                                                >
-                                                    Annuler
-                                                </Button>
-                                                <Button type="submit">
-                                                    Enregistrer
-                                                </Button>
-                                            </DialogFooter>
-                                        </Form>
-                                    </DialogContent>
-                                </Dialog>
-
-                                {/* Attachment Upload Dialog */}
-                                <Dialog
-                                    open={isAttachmentDialogOpen}
-                                    onOpenChange={setIsAttachmentDialogOpen}
-                                >
-                                    <DialogTrigger asChild>
-                                        <button
-                                            type="button"
-                                            className="relative flex items-center justify-center rounded-lg p-2 text-gray-700 transition-all hover:bg-blue-100"
-                                            title="Ajouter une pièce jointe"
-                                        >
-                                            <Paperclip className="h-4 w-4" />
-                                            {chapter?.attachment_url && (
-                                                <span className="absolute -top-0.5 -right-0.5 h-2 w-2 rounded-full bg-green-500 ring-2 ring-white" />
-                                            )}
-                                        </button>
-                                    </DialogTrigger>
-                                    <DialogContent>
-                                        <Form
-                                            method="post"
-                                            encType="multipart/form-data"
-                                            action={`/admin/educational-programs/education-level-categories/${category.id}/${level.id}/subjects/${subject.id}/chapter/${chapter?.id}/attachment`}
-                                            onSuccess={() => {
-                                                setIsAttachmentDialogOpen(
-                                                    false,
-                                                );
-                                                setSelectedFile(null);
-                                                toast.success(
-                                                    'Pièce jointe téléversée avec succès',
-                                                );
-                                            }}
-                                        >
-                                            <DialogHeader>
-                                                <DialogTitle>
-                                                    Ajouter une pièce jointe
-                                                </DialogTitle>
-                                                <DialogDescription>
-                                                    Téléversez un fichier (PDF,
-                                                    Word, Excel, PowerPoint, ZIP
-                                                    - max 10MB)
-                                                </DialogDescription>
-                                            </DialogHeader>
-                                            <div className="space-y-4 py-4">
-                                                {chapter?.attachment_url && (
-                                                    <div className="space-y-2">
-                                                        <Label className="text-sm font-medium">
-                                                            Fichier actuel
-                                                        </Label>
-                                                        <div className="flex items-center gap-2 rounded-md border border-slate-200 bg-slate-50 p-3">
-                                                            <p className="flex-1 truncate text-sm text-slate-700">
-                                                                {chapter.attachment_url
-                                                                    .split('/')
-                                                                    .pop()}
-                                                            </p>
-                                                            <Button
-                                                                type="button"
-                                                                variant="outline"
-                                                                size="sm"
-                                                                asChild
-                                                            >
-                                                                <a
-                                                                    href={`/storage/${chapter.attachment_url}`}
-                                                                    download
-                                                                    target="_blank"
-                                                                    rel="noopener noreferrer"
-                                                                >
-                                                                    <Download className="h-4 w-4" />
-                                                                </a>
-                                                            </Button>
-                                                        </div>
-                                                    </div>
-                                                )}
-                                                <div className="space-y-2">
-                                                    <Label htmlFor="attachment">
-                                                        {chapter?.attachment_url
-                                                            ? 'Remplacer le fichier'
-                                                            : 'Fichier'}
-                                                    </Label>
-                                                    <Input
-                                                        id="attachment"
-                                                        name="attachment"
-                                                        type="file"
-                                                        accept=".pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx,.zip"
-                                                        onChange={(e) =>
-                                                            setSelectedFile(
-                                                                e.target
-                                                                    .files?.[0] ||
-                                                                    null,
-                                                            )
-                                                        }
-                                                    />
-                                                </div>
+                                                />
                                             </div>
-                                            <DialogFooter>
-                                                <Button
-                                                    type="button"
-                                                    variant="outline"
-                                                    onClick={() => {
-                                                        setIsAttachmentDialogOpen(
-                                                            false,
-                                                        );
-                                                        setSelectedFile(null);
-                                                    }}
-                                                >
-                                                    Annuler
-                                                </Button>
-                                                <Button
-                                                    type="submit"
-                                                    disabled={!selectedFile}
-                                                >
-                                                    Téléverser
-                                                </Button>
-                                            </DialogFooter>
-                                        </Form>
-                                    </DialogContent>
-                                </Dialog>
-                            </div>
+                                        </div>
+                                        <DialogFooter>
+                                            <Button
+                                                type="button"
+                                                variant="outline"
+                                                onClick={() => {
+                                                    setIsAttachmentDialogOpen(
+                                                        false,
+                                                    );
+                                                    setSelectedFile(null);
+                                                }}
+                                            >
+                                                Annuler
+                                            </Button>
+                                            <Button
+                                                type="submit"
+                                                disabled={!selectedFile}
+                                            >
+                                                Téléverser
+                                            </Button>
+                                        </DialogFooter>
+                                    </Form>
+                                </DialogContent>
+                            </Dialog>
 
                             {/* Quiz Button */}
                             <button
                                 type="button"
-                                className="relative flex items-center justify-center rounded-xl bg-purple-50/50 p-2 text-gray-700 transition-all hover:bg-purple-100"
+                                className={`relative flex items-center justify-center rounded-xl p-2 transition-all ${
+                                    chapter?.quiz
+                                        ? 'bg-green-100 text-green-700 hover:bg-green-200'
+                                        : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                                }`}
                                 title="Gérer le quiz"
                                 onClick={() => {
                                     window.location.href = `/admin/educational-programs/education-level-categories/${category.id}/${level.id}/subjects/${subject.id}/chapter/${chapter?.id}/quiz`;
@@ -331,7 +335,7 @@ export default function Index({ category, level, subject, chapter }: Props) {
                             >
                                 <FileQuestion className="h-5 w-5" />
                                 {chapter?.quiz && (
-                                    <span className="absolute -top-0.5 -right-0.5 h-2 w-2 rounded-full bg-purple-500 ring-2 ring-white" />
+                                    <span className="absolute -top-0.5 -right-0.5 h-2 w-2 rounded-full bg-green-500 ring-2 ring-white" />
                                 )}
                             </button>
                         </>

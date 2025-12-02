@@ -28,7 +28,7 @@ export function PreviewChapterDialog(props: PreviewChapterDialogProps) {
     return (
         <Dialog open={open} onOpenChange={setOpen}>
             <DialogTrigger
-                className="flex min-h-[28px] cursor-pointer flex-col items-center justify-center rounded-md bg-black px-2 py-1 text-sm text-white disabled:cursor-not-allowed disabled:opacity-50 max-lg:w-7"
+                className="flex min-h-7 cursor-pointer flex-col items-center justify-center rounded-md bg-black px-2 py-1 text-sm text-white disabled:cursor-not-allowed disabled:opacity-50 max-lg:w-7"
                 onClick={async (e) => {
                     e.preventDefault();
                     e.stopPropagation();
@@ -60,7 +60,10 @@ export function PreviewChapterDialog(props: PreviewChapterDialogProps) {
             </DialogTrigger>
 
             {open && (
-                <DialogContent className="z-[99999] flex max-w-[620px] flex-col border-none bg-transparent p-0 shadow-none max-[680px]:h-full max-[680px]:border-0 max-[680px]:p-2">
+                <DialogContent
+                    className="z-[99999] flex w-[900px] max-w-[calc(100%-2rem)] flex-col border-none bg-transparent p-0 shadow-none max-[960px]:h-full max-[960px]:w-full max-[960px]:border-0 max-[960px]:p-2"
+                    style={{ maxWidth: '900px' }}
+                >
                     <DialogHeader className="sr-only">
                         <DialogTitle>Prévisualisation chapitre</DialogTitle>
                         <DialogDescription>

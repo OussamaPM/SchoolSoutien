@@ -27,6 +27,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::resource('forfait-store', ForfaitStoreController::class);
         ##################################### Child Profiles Routes #####################################
         Route::get('child-sessions/{child}/{subject}', [ChildSessionController::class, 'learnSubject'])->name('child-sessions.learn-subject');
+        Route::get('child-sessions/{child}/{subject}/chapter/{chapter}', [ChildSessionController::class, 'viewChapter'])->name('child-sessions.view-chapter');
         Route::resource('child-sessions', ChildSessionController::class)->parameter('child-sessions', 'child');
     });
 

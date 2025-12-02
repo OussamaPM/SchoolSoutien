@@ -4,6 +4,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import AppLayout from '@/layouts/app-layout';
 import { Chapter } from '@/pages/admin/educational-programs/chapters';
 import { Subject } from '@/pages/admin/educational-programs/subjects';
+import parent from '@/routes/parent';
 import { Head, router } from '@inertiajs/react';
 import {
     ArrowLeft,
@@ -22,12 +23,18 @@ interface Props {
 }
 
 export default function LearnSubject({ child, subject }: Props) {
-    const activeChapters = subject.chapters.filter(
+    const activeChapters = subject.chapters!.filter(
         (chapter) => chapter.is_active,
     );
 
     const handleChapterClick = (chapter: Chapter, index: number) => {
-        console.log('Chapter clicked:', chapter);
+        router.visit(
+            parent.childSessions.viewChapter.url([
+                child.id,
+                subject.id,
+                chapter.id,
+            ]),
+        );
     };
 
     return (
@@ -142,13 +149,13 @@ export default function LearnSubject({ child, subject }: Props) {
                                                             ? 'cursor-not-allowed opacity-60'
                                                             : 'cursor-pointer hover:scale-[1.02] hover:shadow-xl'
                                                     }`}
-                                                    onClick={() =>
+                                                    onClick={() => {
                                                         !isLocked &&
-                                                        handleChapterClick(
-                                                            chapter,
-                                                            index,
-                                                        )
-                                                    }
+                                                            handleChapterClick(
+                                                                chapter,
+                                                                index,
+                                                            );
+                                                    }}
                                                 >
                                                     <CardContent className="p-3">
                                                         <div className="flex items-center gap-2">

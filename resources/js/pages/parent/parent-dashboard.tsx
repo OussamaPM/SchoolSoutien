@@ -377,7 +377,7 @@ export default function ParentDashboard({ data }: Props) {
             </div>
 
             <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-                <DialogContent className="rounded-3xl border-2 border-blue-100 sm:max-w-[700px]">
+                <DialogContent className="rounded-3xl border-2 border-blue-100 sm:max-w-[900px]">
                     <DialogHeader>
                         <DialogTitle className="flex items-center gap-2 text-2xl">
                             <div className="flex items-center gap-2">
@@ -483,94 +483,87 @@ export default function ParentDashboard({ data }: Props) {
 
                                 return (
                                     <>
-                                        <div className="grid gap-6 py-4">
-                                            {/* Avatar Customization */}
-                                            <div className="space-y-4 rounded-2xl bg-blue-50/50 p-6 dark:bg-slate-800/30">
-                                                <Label className="flex items-center gap-2 text-base font-bold text-slate-900 dark:text-slate-100">
-                                                    <Palette className="h-5 w-5 text-purple-500" />
+                                        <div className="grid gap-6 py-4 md:grid-cols-2">
+                                            {/* Left Column - Avatar Customization */}
+                                            <div className="space-y-3 rounded-2xl bg-blue-50/50 p-5 dark:bg-slate-800/30">
+                                                <Label className="flex items-center gap-2 text-sm font-bold text-slate-900 dark:text-slate-100">
+                                                    <Palette className="h-4 w-4 text-purple-500" />
                                                     Personnaliser l'avatar
                                                 </Label>
-                                                <div className="flex items-center gap-6">
+
+                                                {/* Avatar Preview */}
+                                                <div className="flex justify-center py-2">
                                                     <div
-                                                        className={`flex h-28 w-28 shrink-0 items-center justify-center rounded-full ${selectedColorClass.bg} text-white shadow-2xl ring-4 ${selectedColorClass.ring}`}
+                                                        className={`flex h-24 w-24 items-center justify-center rounded-full ${selectedColorClass.bg} text-white shadow-2xl ring-4 ${selectedColorClass.ring}`}
                                                     >
-                                                        <SelectedIcon className="h-14 w-14" />
-                                                    </div>
-
-                                                    <div className="flex-1 space-y-3">
-                                                        {/* Icon Selection */}
-                                                        <div className="space-y-2">
-                                                            <Label className="text-xs text-muted-foreground">
-                                                                Icône
-                                                            </Label>
-                                                            <div className="flex flex-wrap gap-2">
-                                                                {AVATAR_ICONS.map(
-                                                                    (
-                                                                        icon,
-                                                                        index,
-                                                                    ) => {
-                                                                        const Icon =
-                                                                            icon.Icon;
-                                                                        return (
-                                                                            <button
-                                                                                key={
-                                                                                    index
-                                                                                }
-                                                                                type="button"
-                                                                                onClick={() =>
-                                                                                    setSelectedAvatar(
-                                                                                        index,
-                                                                                    )
-                                                                                }
-                                                                                className={`flex h-10 w-10 items-center justify-center rounded-lg border-2 transition-all ${
-                                                                                    selectedAvatar ===
-                                                                                    index
-                                                                                        ? 'border-blue-500 bg-blue-50 text-blue-600 dark:bg-blue-950 dark:text-blue-400'
-                                                                                        : 'border-slate-200 bg-white text-slate-600 hover:border-slate-300 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-400'
-                                                                                }`}
-                                                                            >
-                                                                                <Icon className="h-5 w-5" />
-                                                                            </button>
-                                                                        );
-                                                                    },
-                                                                )}
-                                                            </div>
-                                                        </div>
-
-                                                        {/* Color Selection */}
-                                                        <div className="space-y-2">
-                                                            <Label className="text-xs text-muted-foreground">
-                                                                Couleur
-                                                            </Label>
-                                                            <div className="flex flex-wrap gap-2">
-                                                                {AVATAR_COLORS.map(
-                                                                    (
-                                                                        color,
-                                                                        index,
-                                                                    ) => (
-                                                                        <button
-                                                                            key={
-                                                                                index
-                                                                            }
-                                                                            type="button"
-                                                                            onClick={() =>
-                                                                                setSelectedColor(
-                                                                                    index,
-                                                                                )
-                                                                            }
-                                                                            className={`h-8 w-8 rounded-full border-2 transition-all ${color.bg} ${
-                                                                                selectedColor ===
-                                                                                index
-                                                                                    ? 'scale-110 border-white ring-2 ring-slate-400 dark:ring-slate-500'
-                                                                                    : 'border-transparent hover:scale-105'
-                                                                            }`}
-                                                                        />
-                                                                    ),
-                                                                )}
-                                                            </div>
-                                                        </div>
+                                                        <SelectedIcon className="h-12 w-12" />
                                                     </div>
                                                 </div>
+
+                                                {/* Icon Selection */}
+                                                <div className="space-y-1.5">
+                                                    <Label className="text-xs font-semibold text-slate-700 dark:text-slate-300">
+                                                        Icône
+                                                    </Label>
+                                                    <div className="flex flex-wrap gap-1.5">
+                                                        {AVATAR_ICONS.map(
+                                                            (icon, index) => {
+                                                                const Icon =
+                                                                    icon.Icon;
+                                                                return (
+                                                                    <button
+                                                                        key={
+                                                                            index
+                                                                        }
+                                                                        type="button"
+                                                                        onClick={() =>
+                                                                            setSelectedAvatar(
+                                                                                index,
+                                                                            )
+                                                                        }
+                                                                        className={`flex h-9 w-9 items-center justify-center rounded-lg border-2 transition-all ${
+                                                                            selectedAvatar ===
+                                                                            index
+                                                                                ? 'border-blue-500 bg-blue-50 text-blue-600 dark:bg-blue-950 dark:text-blue-400'
+                                                                                : 'border-slate-200 bg-white text-slate-600 hover:border-slate-300 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-400'
+                                                                        }`}
+                                                                    >
+                                                                        <Icon className="h-4 w-4" />
+                                                                    </button>
+                                                                );
+                                                            },
+                                                        )}
+                                                    </div>
+                                                </div>
+
+                                                {/* Color Selection */}
+                                                <div className="space-y-1.5">
+                                                    <Label className="text-xs font-semibold text-slate-700 dark:text-slate-300">
+                                                        Couleur
+                                                    </Label>
+                                                    <div className="flex flex-wrap gap-1.5">
+                                                        {AVATAR_COLORS.map(
+                                                            (color, index) => (
+                                                                <button
+                                                                    key={index}
+                                                                    type="button"
+                                                                    onClick={() =>
+                                                                        setSelectedColor(
+                                                                            index,
+                                                                        )
+                                                                    }
+                                                                    className={`h-8 w-8 rounded-full border-2 transition-all ${color.bg} ${
+                                                                        selectedColor ===
+                                                                        index
+                                                                            ? 'scale-110 border-white ring-2 ring-slate-400 dark:ring-slate-500'
+                                                                            : 'border-transparent hover:scale-105'
+                                                                    }`}
+                                                                />
+                                                            ),
+                                                        )}
+                                                    </div>
+                                                </div>
+
                                                 <input
                                                     type="hidden"
                                                     name="avatar_icon"
@@ -583,23 +576,22 @@ export default function ParentDashboard({ data }: Props) {
                                                 />
                                             </div>
 
-                                            <div className="h-px bg-linear-to-r from-transparent via-blue-200 to-transparent dark:via-slate-700" />
-
-                                            {/* Name */}
-                                            <div className="grid grid-cols-4 items-center gap-4">
-                                                <Label
-                                                    htmlFor="name"
-                                                    className="flex items-center justify-end gap-2 text-right font-semibold"
-                                                >
-                                                    <Users className="h-4 w-4 text-blue-500" />
-                                                    Nom complet
-                                                </Label>
-                                                <div className="col-span-3 space-y-1">
+                                            {/* Right Column - Details */}
+                                            <div className="space-y-3">
+                                                {/* Name */}
+                                                <div className="space-y-1.5">
+                                                    <Label
+                                                        htmlFor="name"
+                                                        className="flex items-center gap-2 text-sm font-semibold"
+                                                    >
+                                                        <Users className="h-3.5 w-3.5 text-blue-500" />
+                                                        Nom complet
+                                                    </Label>
                                                     <Input
                                                         id="name"
                                                         name="name"
                                                         placeholder="Ex: Emma Dubois"
-                                                        className="rounded-xl border-2 border-blue-200 focus:border-purple-400 focus:ring-purple-400"
+                                                        className="h-9 rounded-xl border-2 border-blue-200 focus:border-purple-400 focus:ring-purple-400"
                                                         value={
                                                             editChild
                                                                 ? editName
@@ -621,36 +613,34 @@ export default function ParentDashboard({ data }: Props) {
                                                         message={errors.name}
                                                     />
                                                 </div>
-                                            </div>
 
-                                            {/* Disabled fields in edit mode */}
-                                            {editChild && (
-                                                <div className="flex items-start gap-3 rounded-2xl border-2 border-amber-200 bg-amber-50 px-5 py-4 dark:border-amber-800 dark:bg-amber-900/20">
-                                                    <div className="shrink-0">
-                                                        <div className="flex h-8 w-8 items-center justify-center rounded-full bg-amber-400 text-white">
-                                                            <AlertCircle className="h-5 w-5" />
+                                                {/* Disabled fields in edit mode */}
+                                                {editChild && (
+                                                    <div className="flex items-start gap-2 rounded-xl border-2 border-amber-200 bg-amber-50 px-3 py-2 dark:border-amber-800 dark:bg-amber-900/20">
+                                                        <div className="shrink-0">
+                                                            <div className="flex h-6 w-6 items-center justify-center rounded-full bg-amber-400 text-white">
+                                                                <AlertCircle className="h-3.5 w-3.5" />
+                                                            </div>
+                                                        </div>
+                                                        <div className="text-xs leading-tight font-medium text-amber-900 dark:text-amber-200">
+                                                            Les champs "Niveau",
+                                                            "Classe" et "Plan"
+                                                            ne peuvent pas être
+                                                            modifiés après la
+                                                            création du profil.
                                                         </div>
                                                     </div>
-                                                    <div className="text-sm font-medium text-amber-900 dark:text-amber-200">
-                                                        Les champs "Niveau",
-                                                        "Classe" et "Plan" ne
-                                                        peuvent pas être
-                                                        modifiés après la
-                                                        création du profil.
-                                                    </div>
-                                                </div>
-                                            )}
+                                                )}
 
-                                            {/* Programme */}
-                                            <div className="grid grid-cols-4 items-center gap-4">
-                                                <Label
-                                                    htmlFor="level"
-                                                    className="flex items-center justify-end gap-2 text-right font-semibold"
-                                                >
-                                                    <BookOpen className="h-4 w-4 text-blue-500" />
-                                                    Niveau
-                                                </Label>
-                                                <div className="col-span-3 space-y-1">
+                                                {/* Programme */}
+                                                <div className="space-y-1.5">
+                                                    <Label
+                                                        htmlFor="level"
+                                                        className="flex items-center gap-2 text-sm font-semibold"
+                                                    >
+                                                        <BookOpen className="h-3.5 w-3.5 text-blue-500" />
+                                                        Niveau
+                                                    </Label>
                                                     <Select
                                                         name="programme_id"
                                                         onValueChange={(
@@ -662,7 +652,7 @@ export default function ParentDashboard({ data }: Props) {
                                                         }}
                                                         disabled={!!editChild}
                                                     >
-                                                        <SelectTrigger>
+                                                        <SelectTrigger className="h-9 rounded-xl border-2">
                                                             <SelectValue placeholder="Choisir un niveau" />
                                                         </SelectTrigger>
                                                         <SelectContent>
@@ -692,18 +682,16 @@ export default function ParentDashboard({ data }: Props) {
                                                         }
                                                     />
                                                 </div>
-                                            </div>
 
-                                            {/* Class */}
-                                            <div className="grid grid-cols-4 items-center gap-4">
-                                                <Label
-                                                    htmlFor="class"
-                                                    className="flex items-center justify-end gap-2 text-right font-semibold"
-                                                >
-                                                    <GraduationCap className="h-4 w-4 text-purple-500" />
-                                                    Classe
-                                                </Label>
-                                                <div className="col-span-3 space-y-1">
+                                                {/* Class */}
+                                                <div className="space-y-1.5">
+                                                    <Label
+                                                        htmlFor="class"
+                                                        className="flex items-center gap-2 text-sm font-semibold"
+                                                    >
+                                                        <GraduationCap className="h-3.5 w-3.5 text-purple-500" />
+                                                        Classe
+                                                    </Label>
                                                     <Select
                                                         name="level_id"
                                                         disabled={
@@ -712,7 +700,7 @@ export default function ParentDashboard({ data }: Props) {
                                                                 0
                                                         }
                                                     >
-                                                        <SelectTrigger>
+                                                        <SelectTrigger className="h-9 rounded-xl border-2">
                                                             <SelectValue
                                                                 placeholder={
                                                                     selectedProgrammeId
@@ -748,23 +736,21 @@ export default function ParentDashboard({ data }: Props) {
                                                         }
                                                     />
                                                 </div>
-                                            </div>
 
-                                            {/* Plan */}
-                                            <div className="grid grid-cols-4 items-center gap-4">
-                                                <Label
-                                                    htmlFor="plan"
-                                                    className="flex items-center justify-end gap-2 text-right font-semibold"
-                                                >
-                                                    <Star className="h-4 w-4 text-yellow-500" />
-                                                    Plan à assigner
-                                                </Label>
-                                                <div className="col-span-3 space-y-1">
+                                                {/* Plan */}
+                                                <div className="space-y-1.5">
+                                                    <Label
+                                                        htmlFor="plan"
+                                                        className="flex items-center gap-2 text-sm font-semibold"
+                                                    >
+                                                        <Star className="h-3.5 w-3.5 text-yellow-500" />
+                                                        Plan à assigner
+                                                    </Label>
                                                     <Select
                                                         name="purchased_plan_id"
                                                         disabled={!!editChild}
                                                     >
-                                                        <SelectTrigger>
+                                                        <SelectTrigger className="h-9 rounded-xl border-2">
                                                             <SelectValue placeholder="Choisir un plan" />
                                                         </SelectTrigger>
                                                         <SelectContent>

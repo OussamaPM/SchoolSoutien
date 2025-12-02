@@ -9,6 +9,7 @@ type ChapterPreviewIFrameProps = {
     isServer?: boolean;
     showOpenInNewTab?: boolean;
     wrapperClassName?: string;
+    autoHeight?: boolean;
 } & React.HTMLProps<HTMLIFrameElement>;
 
 function renderHTMLToIFrame(
@@ -32,6 +33,11 @@ function renderHTMLToIFrame(
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap">
+        <style>
+            table[role='presentation'] {
+                max-width: 800px !important;
+            }
+        </style>
       </head>
       <body>
         ${html}
@@ -47,6 +53,7 @@ export function ChapterPreviewIFrame(props: ChapterPreviewIFrameProps) {
         isServer,
         showOpenInNewTab = true,
         wrapperClassName,
+        autoHeight = false,
         ...defaultProps
     } = props;
 
@@ -58,7 +65,27 @@ export function ChapterPreviewIFrame(props: ChapterPreviewIFrameProps) {
         }
 
         renderHTMLToIFrame(iframeRef, innerHTML);
-    }, [innerHTML, iframeRef, isServer]);
+
+        if (!autoHeight) {
+            return;
+        }
+
+        const iframe = iframeRef.current;
+        const resizeIframe = () => {
+            if (iframe.contentDocument?.body) {
+                const height = iframe.contentDocument.body.scrollHeight;
+                iframe.style.height = `${height + 20}px`;
+            }
+        };
+
+        iframe.addEventListener('load', resizeIframe);
+
+        setTimeout(resizeIframe, 100);
+
+        return () => {
+            iframe.removeEventListener('load', resizeIframe);
+        };
+    }, [innerHTML, iframeRef, isServer, autoHeight]);
 
     function handleOpen() {
         if (innerHTML.trim().length === 0) {
