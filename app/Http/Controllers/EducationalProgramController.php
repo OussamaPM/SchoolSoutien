@@ -7,9 +7,12 @@ use App\Models\EducationalSubject;
 use App\Models\EducationLevel;
 use App\Models\EducationLevelCategory;
 use App\Models\Quiz;
+use App\Models\Exercise;
+use App\Models\ExerciseImage;
 use App\Models\QuizQuestion;
 use App\Models\QuizAnswer;
 use App\RoleEnum;
+use App\ExerciseTypeEnum;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
@@ -137,7 +140,7 @@ class EducationalProgramController extends Controller
             ->when(auth()->user()->role == RoleEnum::TEACHER->value, function ($query) {
                 $query->where('created_by', auth()->id());
             })
-            ->with(['creator:id,name,email', 'lastUpdater:id,name,email', 'quiz:id,chapter_id,title'])
+            ->with(['creator:id,name,email', 'lastUpdater:id,name,email', 'quiz:id,chapter_id,title', 'exercises:id,chapter_id'])
             ->orderByPosition()
             ->get();
 
@@ -152,7 +155,7 @@ class EducationalProgramController extends Controller
     public function chapterWriter(EducationLevelCategory $category, EducationLevel $level, EducationalSubject $subject, ?Chapter $chapter = null)
     {
         if ($chapter) {
-            $chapter->load('quiz:id,chapter_id,title');
+            $chapter->load(['quiz:id,chapter_id,title', 'exercises:id,chapter_id']);
         }
 
         return Inertia::render('admin/educational-programs/chapter-writer', [
@@ -358,5 +361,101 @@ class EducationalProgramController extends Controller
             'level' => $level->id,
             'subject' => $subject->id,
         ])->with('success', 'Quiz supprimé avec succès.');
+    }
+
+    public function manageExercises(EducationLevelCategory $category, EducationLevel $level, EducationalSubject $subject, Chapter $chapter)
+    {
+        $chapter->load(['exercises.images']);
+
+        return Inertia::render('admin/educational-programs/manage-exercises', [
+            'category' => $category,
+            'level' => $level,
+            'subject' => $subject,
+            'chapter' => $chapter,
+        ]);
+    }
+
+    public function storeExercise(Request $request, EducationLevelCategory $category, EducationLevel $level, EducationalSubject $subject, Chapter $chapter)
+    {
+        $validated = $request->validate([
+            'type' => 'required|string',
+            'title' => 'required|string|max:255',
+            'description' => 'nullable|string',
+        ]);
+
+        $position = $chapter->exercises()->max('position') + 1;
+
+        $exercise = $chapter->exercises()->create([
+            'type' => ExerciseTypeEnum::from($validated['type']),
+            'title' => $validated['title'],
+            'description' => $validated['description'] ?? null,
+            'position' => $position,
+        ]);
+
+        return back()->with('success', 'Exercice créé avec succès');
+    }
+
+    public function updateExercise(Request $request, EducationLevelCategory $category, EducationLevel $level, EducationalSubject $subject, Chapter $chapter, Exercise $exercise)
+    {
+        $validated = $request->validate([
+            'title' => 'required|string|max:255',
+            'description' => 'nullable|string',
+            'is_active' => 'boolean',
+        ]);
+
+        $exercise->update($validated);
+
+        return back()->with('success', 'Exercice mis à jour avec succès');
+    }
+
+    public function deleteExercise(EducationLevelCategory $category, EducationLevel $level, EducationalSubject $subject, Chapter $chapter, Exercise $exercise)
+    {
+        $exercise->delete();
+
+        return back()->with('success', 'Exercice supprimé avec succès');
+    }
+
+    public function storeExerciseImage(Request $request, EducationLevelCategory $category, EducationLevel $level, EducationalSubject $subject, Chapter $chapter, Exercise $exercise)
+    {
+        $validated = $request->validate([
+            'image' => 'required|image|max:2048',
+            'audio' => 'required|file|mimes:mp3,wav,ogg,webm|max:5120',
+            'is_correct' => 'required|boolean',
+        ]);
+
+        $imagePath = $request->file('image')->store('exercises/images', 'public');
+        $audioPath = $request->file('audio')->store('exercises/audio', 'public');
+
+        $position = $exercise->images()->max('position') + 1;
+
+        $exercise->images()->create([
+            'image_path' => $imagePath,
+            'audio_path' => $audioPath,
+            'is_correct' => $validated['is_correct'],
+            'position' => $position,
+        ]);
+
+        return back()->with('success', 'Image ajoutée avec succès');
+    }
+
+    public function updateExerciseImage(Request $request, EducationLevelCategory $category, EducationLevel $level, EducationalSubject $subject, Chapter $chapter, Exercise $exercise, ExerciseImage $image)
+    {
+        $validated = $request->validate([
+            'is_correct' => 'required|boolean',
+        ]);
+
+        $image->update($validated);
+
+        return back()->with('success', 'Image mise à jour avec succès');
+    }
+
+    public function deleteExerciseImage(EducationLevelCategory $category, EducationLevel $level, EducationalSubject $subject, Chapter $chapter, Exercise $exercise, ExerciseImage $image)
+    {
+        Storage::disk('public')->delete($image->image_path);
+        Storage::disk('public')->delete($image->audio_path);
+
+        $image->delete();
+
+        return back()->with('success', 'Image supprimée avec succès');
     }
 }

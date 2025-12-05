@@ -31,6 +31,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::get('child-sessions/{child}/{subject}/chapter/{chapter}/quiz/{quiz}', [ChildSessionController::class, 'startQuiz'])->name('child-sessions.start-quiz');
         Route::post('child-sessions/{child}/{subject}/chapter/{chapter}/quiz/{quiz}', [ChildSessionController::class, 'submitQuiz'])->name('child-sessions.submit-quiz');
         Route::get('child-sessions/{child}/{subject}/chapter/{chapter}/quiz/{quiz}/results/{attempt}', [ChildSessionController::class, 'quizResults'])->name('child-sessions.quiz-results');
+        Route::get('child-sessions/{child}/{subject}/chapter/{chapter}/exercise/{exercise}', [ChildSessionController::class, 'startExercise'])->name('child-sessions.start-exercise');
         Route::resource('child-sessions', ChildSessionController::class)->parameter('child-sessions', 'child');
     });
 
@@ -72,6 +73,15 @@ Route::middleware(['auth', 'verified'])->group(function () {
                 Route::post('education-level-categories/{category}/{level}/subjects/{subject}/chapter/{chapter}/quiz', 'storeQuiz')->name('chapter.quiz.store');
                 Route::put('education-level-categories/{category}/{level}/subjects/{subject}/chapter/{chapter}/quiz/{quiz}', 'updateQuiz')->name('chapter.quiz.update');
                 Route::delete('education-level-categories/{category}/{level}/subjects/{subject}/chapter/{chapter}/quiz/{quiz}', 'deleteQuiz')->name('chapter.quiz.delete');
+                
+                // Exercise routes
+                Route::get('education-level-categories/{category}/{level}/subjects/{subject}/chapter/{chapter}/exercises', 'manageExercises')->name('chapter.exercises');
+                Route::post('education-level-categories/{category}/{level}/subjects/{subject}/chapter/{chapter}/exercise', 'storeExercise')->name('chapter.exercise.store');
+                Route::put('education-level-categories/{category}/{level}/subjects/{subject}/chapter/{chapter}/exercise/{exercise}', 'updateExercise')->name('chapter.exercise.update');
+                Route::delete('education-level-categories/{category}/{level}/subjects/{subject}/chapter/{chapter}/exercise/{exercise}', 'deleteExercise')->name('chapter.exercise.delete');
+                Route::post('education-level-categories/{category}/{level}/subjects/{subject}/chapter/{chapter}/exercise/{exercise}/image', 'storeExerciseImage')->name('chapter.exercise.image.store');
+                Route::put('education-level-categories/{category}/{level}/subjects/{subject}/chapter/{chapter}/exercise/{exercise}/image/{image}', 'updateExerciseImage')->name('chapter.exercise.image.update');
+                Route::delete('education-level-categories/{category}/{level}/subjects/{subject}/chapter/{chapter}/exercise/{exercise}/image/{image}', 'deleteExerciseImage')->name('chapter.exercise.image.delete');
             });
     });
 });

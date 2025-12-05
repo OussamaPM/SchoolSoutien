@@ -40,6 +40,11 @@ class Chapter extends Model
         return $this->hasOne(Quiz::class);
     }
 
+    public function exercises()
+    {
+        return $this->hasMany(Exercise::class)->orderBy('position');
+    }
+
     public function scopeActive($query)
     {
         return $query->where('is_active', true);

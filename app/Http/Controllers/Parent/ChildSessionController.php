@@ -9,6 +9,7 @@ use App\Models\Chapter;
 use App\Models\EducationalSubject;
 use App\Models\Quiz;
 use App\Models\QuizAttempt;
+use App\Models\Exercise;
 use Inertia\Inertia;
 
 class ChildSessionController extends Controller
@@ -42,7 +43,8 @@ class ChildSessionController extends Controller
             'chapters' => function ($query) {
                 $query->active()->orderByPosition();
             },
-            'chapters.quiz'
+            'chapters.quiz',
+            'chapters.exercises'
         ]);
 
         return Inertia::render('parent/child-sessions/learn-subject', [
@@ -62,7 +64,7 @@ class ChildSessionController extends Controller
             'educationLevel.category'
         ]);
 
-        $chapter->load(['quiz.questions.answers']);
+        $chapter->load(['quiz.questions.answers', 'exercises.images']);
 
         return Inertia::render('parent/child-sessions/view-chapter', [
             'child' => $child,
@@ -186,6 +188,23 @@ class ChildSessionController extends Controller
             'attempt' => $attempt,
             'previousAttempt' => $previousAttempt,
             'questionResults' => $questionResults,
+        ]);
+    }
+
+    public function startExercise(ChildProfile $child, EducationalSubject $subject, Chapter $chapter, Exercise $exercise)
+    {
+        if ($exercise->chapter_id !== $chapter->id || !$chapter->is_active) {
+            return back()->withErrors(['message' => 'Exercice non disponible.']);
+        }
+
+        $child->load(['currentPlan.plan', 'educationLevel.category']);
+        $exercise->load(['images']);
+
+        return Inertia::render('parent/child-sessions/take-exercise', [
+            'child' => $child,
+            'subject' => $subject,
+            'chapter' => $chapter,
+            'exercise' => $exercise,
         ]);
     }
 }

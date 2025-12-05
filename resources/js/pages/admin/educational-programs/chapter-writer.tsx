@@ -27,6 +27,7 @@ import {
     Paperclip,
     Redo2Icon,
     SaveIcon,
+    Target,
     Undo2Icon,
     Video,
 } from 'lucide-react';
@@ -338,6 +339,26 @@ export default function Index({ category, level, subject, chapter }: Props) {
                                 {chapter?.quiz && (
                                     <span className="absolute -top-0.5 -right-0.5 h-2 w-2 rounded-full bg-green-500 ring-2 ring-white" />
                                 )}
+                            </button>
+
+                            <button
+                                type="button"
+                                className={`relative flex items-center justify-center rounded-xl p-2 transition-all ${
+                                    chapter?.exercises &&
+                                    chapter.exercises.length > 0
+                                        ? 'bg-green-100 text-green-700 hover:bg-green-200'
+                                        : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                                }`}
+                                title="Gérer les exercices"
+                                onClick={() => {
+                                    window.location.href = `/admin/educational-programs/education-level-categories/${category.id}/${level.id}/subjects/${subject.id}/chapter/${chapter?.id}/exercises`;
+                                }}
+                            >
+                                <Target className="h-5 w-5" />
+                                {chapter?.exercises &&
+                                    chapter.exercises.length > 0 && (
+                                        <span className="absolute -top-0.5 -right-0.5 h-2 w-2 rounded-full bg-green-500 ring-2 ring-white" />
+                                    )}
                             </button>
                         </>
                     )}

@@ -217,15 +217,37 @@ export default function LearnSubject({ child, subject }: Props) {
                                                                         Quiz
                                                                     </Button>
                                                                 )}
-                                                                <Button
-                                                                    size="sm"
-                                                                    variant="outline"
-                                                                    className="h-7 cursor-not-allowed gap-1.5 border-slate-200 bg-slate-100 text-slate-400"
-                                                                    disabled
-                                                                >
-                                                                    <Target className="h-3.5 w-3.5" />
-                                                                    Exercice
-                                                                </Button>
+                                                                {chapter.exercises &&
+                                                                    chapter
+                                                                        .exercises
+                                                                        .length >
+                                                                        0 && (
+                                                                        <Button
+                                                                            size="sm"
+                                                                            variant="outline"
+                                                                            className="h-7 gap-1.5 border-orange-200 bg-orange-50 text-orange-700 hover:bg-orange-100 hover:text-orange-800"
+                                                                            onClick={() =>
+                                                                                router.visit(
+                                                                                    parent.childSessions.startExercise.url(
+                                                                                        [
+                                                                                            child.id,
+                                                                                            subject.id,
+                                                                                            chapter.id,
+                                                                                            chapter
+                                                                                                .exercises![0]
+                                                                                                .id,
+                                                                                        ],
+                                                                                    ),
+                                                                                )
+                                                                            }
+                                                                            disabled={
+                                                                                isLocked
+                                                                            }
+                                                                        >
+                                                                            <Target className="h-3.5 w-3.5" />
+                                                                            Exercice
+                                                                        </Button>
+                                                                    )}
                                                             </div>
                                                         </div>
                                                     </CardContent>

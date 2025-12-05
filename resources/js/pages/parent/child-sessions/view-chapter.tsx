@@ -18,6 +18,7 @@ import {
     Paperclip,
     Play,
     Sparkles,
+    Target,
     Video,
 } from 'lucide-react';
 import { useEffect, useState } from 'react';
@@ -254,6 +255,59 @@ export default function ViewChapter({ child, subject, chapter }: Props) {
                                 </div>
                             </CardContent>
                         </Card>
+                    )}
+
+                    {/* Exercises Section */}
+                    {chapter.exercises && chapter.exercises.length > 0 && (
+                        <div className="mb-6 space-y-4">
+                            <h2 className="flex items-center gap-2 text-xl font-bold text-slate-900 dark:text-slate-100">
+                                <Target className="h-6 w-6 text-orange-600" />
+                                Exercices
+                            </h2>
+                            {chapter.exercises.map((exercise: any) => (
+                                <Card key={exercise.id} className="rounded-3xl border-2 border-orange-100 shadow-lg">
+                                    <CardHeader className="bg-linear-to-r from-orange-50 to-yellow-50 dark:from-orange-950/30 dark:to-yellow-950/30">
+                                        <CardTitle className="flex items-center gap-2 text-lg">
+                                            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-orange-500">
+                                                <Target className="h-4 w-4 text-white" />
+                                            </div>
+                                            {exercise.title}
+                                        </CardTitle>
+                                    </CardHeader>
+                                    <CardContent className="p-6">
+                                        <div className="rounded-2xl border-2 border-orange-200 bg-orange-50 p-6 text-center dark:border-orange-800 dark:bg-orange-950/20">
+                                            <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-linear-to-br from-orange-400 to-yellow-500">
+                                                <Sparkles className="h-8 w-8 text-white" />
+                                            </div>
+                                            <h3 className="mb-2 text-xl font-bold text-slate-900 dark:text-slate-100">
+                                                Entraîne-toi !
+                                            </h3>
+                                            {exercise.description && (
+                                                <p className="mb-4 text-slate-600 dark:text-slate-400">
+                                                    {exercise.description}
+                                                </p>
+                                            )}
+                                            <Button
+                                                onClick={() =>
+                                                    router.visit(
+                                                        parent.childSessions.startExercise.url([
+                                                            child.id,
+                                                            subject.id,
+                                                            chapter.id,
+                                                            exercise.id,
+                                                        ]),
+                                                    )
+                                                }
+                                                className="rounded-2xl bg-linear-to-r from-orange-500 to-yellow-600 px-6 py-3 font-bold shadow-lg hover:scale-105"
+                                            >
+                                                <Target className="mr-2 h-5 w-5" />
+                                                Commencer l'exercice
+                                            </Button>
+                                        </div>
+                                    </CardContent>
+                                </Card>
+                            ))}
+                        </div>
                     )}
 
                     {chapter.quiz && (

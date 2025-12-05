@@ -65,6 +65,7 @@ export interface Chapter {
     video_url?: string | null;
     attachment_url?: string | null;
     quiz?: { id: number; title: string; description: string } | null;
+    exercises?: { id: number }[];
     created_at: string;
     updated_at: string;
     preview_text: string;
@@ -306,7 +307,7 @@ export default function Index({
                                             className="max-w-xs truncate"
                                             onClick={(e) => e.stopPropagation()}
                                         >
-                                            -
+                                            {chapter.exercises?.length ?? 0}
                                         </TableCell>
                                         <TableCell
                                             className="max-w-xs truncate"
