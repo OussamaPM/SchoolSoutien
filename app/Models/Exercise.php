@@ -23,6 +23,21 @@ class Exercise extends Model
         'type' => ExerciseTypeEnum::class,
     ];
 
+    protected $appends = [
+        'type_label',
+        'type_description',
+    ];
+
+    public function getTypeLabelAttribute(): ?string
+    {
+        return $this->type?->label();
+    }
+
+    public function getTypeDescriptionAttribute(): ?string
+    {
+        return $this->type?->description();
+    }
+
     public function chapter(): BelongsTo
     {
         return $this->belongsTo(Chapter::class);
@@ -31,5 +46,10 @@ class Exercise extends Model
     public function images(): HasMany
     {
         return $this->hasMany(ExerciseImage::class)->orderBy('position');
+    }
+
+    public function scores(): HasMany
+    {
+        return $this->hasMany(ExerciseScore::class);
     }
 }

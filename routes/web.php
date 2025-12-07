@@ -32,6 +32,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::post('child-sessions/{child}/{subject}/chapter/{chapter}/quiz/{quiz}', [ChildSessionController::class, 'submitQuiz'])->name('child-sessions.submit-quiz');
         Route::get('child-sessions/{child}/{subject}/chapter/{chapter}/quiz/{quiz}/results/{attempt}', [ChildSessionController::class, 'quizResults'])->name('child-sessions.quiz-results');
         Route::get('child-sessions/{child}/{subject}/chapter/{chapter}/exercise/{exercise}', [ChildSessionController::class, 'startExercise'])->name('child-sessions.start-exercise');
+        Route::post('child-sessions/{child}/{subject}/chapter/{chapter}/exercise/{exercise}', [ChildSessionController::class, 'submitExercise'])->name('child-sessions.submit-exercise');
         Route::resource('child-sessions', ChildSessionController::class)->parameter('child-sessions', 'child');
     });
 

@@ -1,5 +1,6 @@
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Checkbox } from '@/components/ui/checkbox';
 import {
     Dialog,
     DialogContent,
@@ -17,7 +18,6 @@ import programs from '@/routes/admin/educational-programs';
 import { BreadcrumbItem } from '@/types';
 import { Head, router, useForm } from '@inertiajs/react';
 import {
-    ArrowLeft,
     Check,
     Mic,
     Plus,
@@ -53,11 +53,18 @@ interface ExerciseImage {
     position: number;
 }
 
+interface ExerciseType {
+    value: string;
+    label: string;
+    description: string;
+}
+
 interface Props {
     category: Category;
     level: EducationLevel;
     subject: Subject;
     chapter: Chapter & { exercises: Exercise[] };
+    exerciseTypes: ExerciseType[];
 }
 
 const breadcrumbs = (
@@ -83,8 +90,10 @@ export default function ManageExercises({
     level,
     subject,
     chapter,
+    exerciseTypes,
 }: Props) {
     const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
+    const [createStep, setCreateStep] = useState<'type' | 'details'>('type');
     const [selectedExercise, setSelectedExercise] = useState<Exercise | null>(
         null,
     );
@@ -101,8 +110,9 @@ export default function ManageExercises({
         setData: setNewExerciseData,
         post: createExercise,
         processing: isCreating,
+        reset: resetExerciseForm,
     } = useForm({
-        type: 'choose_when_hear',
+        type: '',
         title: '',
         description: '',
     });
@@ -113,6 +123,8 @@ export default function ManageExercises({
         post: postImage,
         processing: isAddingImage,
         reset: resetImageForm,
+        errors: imageErrors,
+        clearErrors: clearImageErrors,
     } = useForm<{
         image: File | null;
         audio: File | null;
@@ -169,11 +181,8 @@ export default function ManageExercises({
             {
                 onSuccess: () => {
                     setIsCreateDialogOpen(false);
-                    setNewExerciseData({
-                        type: 'choose_when_hear',
-                        title: '',
-                        description: '',
-                    });
+                    setCreateStep('type');
+                    resetExerciseForm();
                     toast.success('Exercice créé avec succès');
                 },
             },
@@ -197,6 +206,7 @@ export default function ManageExercises({
                     setSelectedAudio(null);
                     setAudioBlob(null);
                     resetImageForm();
+                    clearImageErrors();
                 },
                 onError: () => {
                     toast.error("Erreur lors de l'ajout de l'image");
@@ -270,22 +280,6 @@ export default function ManageExercises({
             <div className="mx-auto max-w-6xl p-6">
                 <div className="mb-6 flex items-center justify-between">
                     <div className="flex items-center gap-4">
-                        <Button
-                            variant="ghost"
-                            size="sm"
-                            onClick={() =>
-                                (window.location.href =
-                                    programs.chapterWriter.url([
-                                        category.id,
-                                        level.id,
-                                        subject.id,
-                                        chapter.id,
-                                    ]))
-                            }
-                        >
-                            <ArrowLeft className="mr-2 h-4 w-4" />
-                            Retour
-                        </Button>
                         <div>
                             <h1 className="text-2xl font-bold text-slate-900 dark:text-slate-100">
                                 Exercices - {chapter.title}
@@ -298,7 +292,13 @@ export default function ManageExercises({
 
                     <Dialog
                         open={isCreateDialogOpen}
-                        onOpenChange={setIsCreateDialogOpen}
+                        onOpenChange={(open) => {
+                            setIsCreateDialogOpen(open);
+                            if (!open) {
+                                setCreateStep('type');
+                                resetExerciseForm();
+                            }
+                        }}
                     >
                         <DialogTrigger asChild>
                             <Button className="bg-gradient-to-r from-purple-500 to-blue-500">
@@ -309,61 +309,115 @@ export default function ManageExercises({
                         <DialogContent>
                             <DialogHeader>
                                 <DialogTitle>
-                                    Créer un nouvel exercice
+                                    {createStep === 'type'
+                                        ? 'Choisir le type d\'exercice'
+                                        : 'Créer un nouvel exercice'}
                                 </DialogTitle>
                                 <DialogDescription>
-                                    Type: Je choisis quand j'entends
+                                    {createStep === 'type'
+                                        ? 'Sélectionnez le type d\'exercice que vous souhaitez créer'
+                                        : exerciseTypes.find(
+                                              (t) =>
+                                                  t.value ===
+                                                  newExerciseData.type,
+                                          )?.description}
                                 </DialogDescription>
                             </DialogHeader>
                             <div className="space-y-4 py-4">
-                                <div className="space-y-2">
-                                    <Label htmlFor="title">
-                                        Titre de l'exercice
-                                    </Label>
-                                    <Input
-                                        id="title"
-                                        placeholder="Je choisis quand j'entends i"
-                                        value={newExerciseData.title}
-                                        onChange={(e) =>
-                                            setNewExerciseData(
-                                                'title',
-                                                e.target.value,
-                                            )
-                                        }
-                                    />
-                                </div>
-                                <div className="space-y-2">
-                                    <Label htmlFor="description">
-                                        Description (optionnelle)
-                                    </Label>
-                                    <Textarea
-                                        id="description"
-                                        placeholder="Expliquer davantage l'exercice..."
-                                        value={newExerciseData.description}
-                                        onChange={(e) =>
-                                            setNewExerciseData(
-                                                'description',
-                                                e.target.value,
-                                            )
-                                        }
-                                    />
-                                </div>
+                                {createStep === 'type' ? (
+                                    <div className="space-y-3">
+                                        {exerciseTypes.map((type) => (
+                                            <button
+                                                key={type.value}
+                                                onClick={() => {
+                                                    setNewExerciseData(
+                                                        'type',
+                                                        type.value,
+                                                    );
+                                                    setCreateStep('details');
+                                                }}
+                                                className="flex w-full flex-col items-start rounded-lg border-2 border-slate-200 p-4 text-left transition-all hover:border-purple-500 hover:bg-purple-50 dark:border-slate-700 dark:hover:border-purple-500 dark:hover:bg-purple-950"
+                                            >
+                                                <div className="flex items-center gap-2">
+                                                    <Target className="h-5 w-5 text-purple-600" />
+                                                    <h4 className="font-semibold text-slate-900 dark:text-slate-100">
+                                                        {type.label}
+                                                    </h4>
+                                                </div>
+                                                <p className="mt-1 text-sm text-slate-600 dark:text-slate-400">
+                                                    {type.description}
+                                                </p>
+                                            </button>
+                                        ))}
+                                    </div>
+                                ) : (
+                                    <>
+                                        <div className="space-y-2">
+                                            <Label htmlFor="title">
+                                                Titre de l'exercice
+                                            </Label>
+                                            <Input
+                                                id="title"
+                                                placeholder="Ex: Je choisis quand j'entends i"
+                                                value={newExerciseData.title}
+                                                onChange={(e) =>
+                                                    setNewExerciseData(
+                                                        'title',
+                                                        e.target.value,
+                                                    )
+                                                }
+                                            />
+                                        </div>
+                                        <div className="space-y-2">
+                                            <Label htmlFor="description">
+                                                Description (optionnelle)
+                                            </Label>
+                                            <Textarea
+                                                id="description"
+                                                placeholder="Expliquer davantage l'exercice..."
+                                                value={
+                                                    newExerciseData.description
+                                                }
+                                                onChange={(e) =>
+                                                    setNewExerciseData(
+                                                        'description',
+                                                        e.target.value,
+                                                    )
+                                                }
+                                            />
+                                        </div>
+                                    </>
+                                )}
                             </div>
                             <DialogFooter>
+                                {createStep === 'details' && (
+                                    <Button
+                                        variant="outline"
+                                        onClick={() => setCreateStep('type')}
+                                    >
+                                        Retour
+                                    </Button>
+                                )}
                                 <Button
                                     variant="outline"
-                                    onClick={() => setIsCreateDialogOpen(false)}
+                                    onClick={() => {
+                                        setIsCreateDialogOpen(false);
+                                        setCreateStep('type');
+                                        resetExerciseForm();
+                                    }}
                                 >
                                     Annuler
                                 </Button>
-                                <Button
-                                    onClick={handleCreateExercise}
-                                    disabled={
-                                        !newExerciseData.title || isCreating
-                                    }
-                                >
-                                    Créer
-                                </Button>
+                                {createStep === 'details' && (
+                                    <Button
+                                        onClick={handleCreateExercise}
+                                        disabled={
+                                            !newExerciseData.title || isCreating
+                                        }
+                                    >
+                                        Créer
+                                    </Button>
+                                )}
                             </DialogFooter>
                         </DialogContent>
                     </Dialog>
@@ -371,14 +425,21 @@ export default function ManageExercises({
 
                 {chapter.exercises.length === 0 ? (
                     <Card className="border-2 border-dashed">
-                        <CardContent className="flex flex-col items-center justify-center py-12">
-                            <Target className="mb-4 h-12 w-12 text-slate-400" />
-                            <h3 className="mb-2 text-lg font-semibold text-slate-900 dark:text-slate-100">
+                        <CardContent className="flex min-h-[400px] flex-col items-center justify-center p-12">
+                            <Target className="mb-4 h-16 w-16 text-slate-400" />
+                            <h3 className="mb-2 text-xl font-semibold text-slate-900 dark:text-slate-100">
                                 Aucun exercice
                             </h3>
-                            <p className="text-sm text-slate-600 dark:text-slate-400">
+                            <p className="mb-6 text-center text-slate-600 dark:text-slate-400">
                                 Créez votre premier exercice pour ce chapitre
                             </p>
+                            <Button
+                                onClick={() => setIsCreateDialogOpen(true)}
+                                className="bg-gradient-to-r from-purple-500 to-blue-500"
+                            >
+                                <Plus className="mr-2 h-4 w-4" />
+                                Créer un exercice
+                            </Button>
                         </CardContent>
                     </Card>
                 ) : (
@@ -410,11 +471,14 @@ export default function ManageExercises({
                                     </div>
                                 </CardHeader>
                                 <CardContent>
-                                    <div className="mb-4 flex items-center justify-between">
-                                        <h4 className="font-semibold text-slate-700 dark:text-slate-300">
-                                            Images ({exercise.images.length})
-                                        </h4>
-                                        <Dialog
+                                    {/* Type-specific content management */}
+                                    {exercise.type === 'choose_when_hear' && (
+                                        <>
+                                            <div className="mb-4 flex items-center justify-between">
+                                                <h4 className="font-semibold text-slate-700 dark:text-slate-300">
+                                                    Images ({exercise.images.length})
+                                                </h4>
+                                                <Dialog
                                             open={
                                                 isAddImageDialogOpen &&
                                                 selectedExercise?.id ===
@@ -478,6 +542,13 @@ export default function ManageExercises({
                                                                 );
                                                             }}
                                                         />
+                                                        {imageErrors.image && (
+                                                            <p className="text-sm text-red-600">
+                                                                {
+                                                                    imageErrors.image
+                                                                }
+                                                            </p>
+                                                        )}
                                                     </div>
                                                     <div className="space-y-2">
                                                         <Label>Audio</Label>
@@ -534,6 +605,37 @@ export default function ManageExercises({
                                                                 );
                                                             }}
                                                         />
+                                                        {imageErrors.audio && (
+                                                            <p className="text-sm text-red-600">
+                                                                {
+                                                                    imageErrors.audio
+                                                                }
+                                                            </p>
+                                                        )}
+                                                    </div>
+                                                    <div className="flex items-center space-x-2">
+                                                        <Checkbox
+                                                            id="is_correct"
+                                                            checked={
+                                                                imageData.is_correct
+                                                            }
+                                                            onCheckedChange={(
+                                                                checked,
+                                                            ) =>
+                                                                setImageData(
+                                                                    'is_correct',
+                                                                    checked ===
+                                                                        true,
+                                                                )
+                                                            }
+                                                        />
+                                                        <Label
+                                                            htmlFor="is_correct"
+                                                            className="text-sm leading-none font-medium peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+                                                        >
+                                                            Cette image est
+                                                            correcte
+                                                        </Label>
                                                     </div>
                                                 </div>
                                                 <DialogFooter>
@@ -592,6 +694,8 @@ export default function ManageExercises({
                                                             src={`/storage/${image.image_path}`}
                                                             alt="Exercise"
                                                             className="h-full w-full object-cover"
+                                                            loading="lazy"
+                                                            decoding="async"
                                                         />
                                                         <button
                                                             onClick={() =>
@@ -637,6 +741,8 @@ export default function ManageExercises({
                                                 </div>
                                             ))}
                                         </div>
+                                    )}
+                                        </>
                                     )}
                                 </CardContent>
                             </Card>

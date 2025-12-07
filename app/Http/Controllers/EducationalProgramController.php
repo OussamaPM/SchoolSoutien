@@ -17,6 +17,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
 use Inertia\Inertia;
+use Spatie\Image\Image;
 
 class EducationalProgramController extends Controller
 {
@@ -140,7 +141,7 @@ class EducationalProgramController extends Controller
             ->when(auth()->user()->role == RoleEnum::TEACHER->value, function ($query) {
                 $query->where('created_by', auth()->id());
             })
-            ->with(['creator:id,name,email', 'lastUpdater:id,name,email', 'quiz:id,chapter_id,title', 'exercises:id,chapter_id'])
+            ->with(['creator:id,name,email', 'lastUpdater:id,name,email', 'quiz:id,chapter_id,title', 'exercises:id,chapter_id,type'])
             ->orderByPosition()
             ->get();
 
@@ -155,7 +156,7 @@ class EducationalProgramController extends Controller
     public function chapterWriter(EducationLevelCategory $category, EducationLevel $level, EducationalSubject $subject, ?Chapter $chapter = null)
     {
         if ($chapter) {
-            $chapter->load(['quiz:id,chapter_id,title', 'exercises:id,chapter_id']);
+            $chapter->load(['quiz:id,chapter_id,title', 'exercises:id,chapter_id,type']);
         }
 
         return Inertia::render('admin/educational-programs/chapter-writer', [
@@ -367,11 +368,18 @@ class EducationalProgramController extends Controller
     {
         $chapter->load(['exercises.images']);
 
+        $exerciseTypes = collect(ExerciseTypeEnum::cases())->map(fn($type) => [
+            'value' => $type->value,
+            'label' => $type->label(),
+            'description' => $type->description(),
+        ]);
+
         return Inertia::render('admin/educational-programs/manage-exercises', [
             'category' => $category,
             'level' => $level,
             'subject' => $subject,
             'chapter' => $chapter,
+            'exerciseTypes' => $exerciseTypes,
         ]);
     }
 
@@ -424,6 +432,19 @@ class EducationalProgramController extends Controller
         ]);
 
         $imagePath = $request->file('image')->store('exercises/images', 'public');
+        $fullImagePath = storage_path('app/public/' . $imagePath);
+
+        Image::load($fullImagePath)
+            ->optimize()
+            ->format('webp')
+            ->save();
+
+        $webpPath = str_replace(['.jpg', '.jpeg', '.png'], '.webp', $imagePath);
+        if ($imagePath !== $webpPath) {
+            Storage::disk('public')->move($imagePath, $webpPath);
+            $imagePath = $webpPath;
+        }
+
         $audioPath = $request->file('audio')->store('exercises/audio', 'public');
 
         $position = $exercise->images()->max('position') + 1;

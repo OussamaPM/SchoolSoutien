@@ -66,6 +66,13 @@ class ChildSessionController extends Controller
 
         $chapter->load(['quiz.questions.answers', 'exercises.images']);
 
+        $chapter->exercises->each(function ($exercise) use ($child) {
+            $exercise->latest_score = $exercise->scores()
+                ->where('child_profile_id', $child->id)
+                ->latest()
+                ->first();
+        });
+
         return Inertia::render('parent/child-sessions/view-chapter', [
             'child' => $child,
             'subject' => $subject,
@@ -200,11 +207,36 @@ class ChildSessionController extends Controller
         $child->load(['currentPlan.plan', 'educationLevel.category']);
         $exercise->load(['images']);
 
+        $latestScore = $exercise->scores()
+            ->where('child_profile_id', $child->id)
+            ->latest()
+            ->first();
+
         return Inertia::render('parent/child-sessions/take-exercise', [
             'child' => $child,
             'subject' => $subject,
             'chapter' => $chapter,
             'exercise' => $exercise,
+            'latestScore' => $latestScore,
         ]);
+    }
+
+    public function submitExercise(Request $request, ChildProfile $child, EducationalSubject $subject, Chapter $chapter, Exercise $exercise)
+    {
+        $validated = $request->validate([
+            'score' => 'required|integer|min:0',
+            'total' => 'required|integer|min:1',
+        ]);
+
+        $percentage = round(($validated['score'] / $validated['total']) * 100);
+
+        $exercise->scores()->create([
+            'child_profile_id' => $child->id,
+            'score' => $validated['score'],
+            'total' => $validated['total'],
+            'percentage' => $percentage,
+        ]);
+
+        return back()->with('success', 'Score enregistré avec succès!');
     }
 }
