@@ -1,6 +1,14 @@
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import {
+    Dialog,
+    DialogContent,
+    DialogDescription,
+    DialogHeader,
+    DialogTitle,
+    DialogTrigger,
+} from '@/components/ui/dialog';
 import AppLayout from '@/layouts/app-layout';
 import { ChapterPreviewIFrame } from '@/pages/admin/educational-programs/chapter-preview-iframe';
 import { Chapter } from '@/pages/admin/educational-programs/chapters';
@@ -12,9 +20,12 @@ import {
     ArrowLeft,
     Award,
     BookOpen,
+    CheckSquare,
     Download,
     FileQuestion,
     GraduationCap,
+    Headphones,
+    History,
     Loader2,
     Paperclip,
     Play,
@@ -24,6 +35,59 @@ import {
 } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { ChildProfile } from './index';
+
+const getExerciseTypeStyle = (type: string) => {
+    switch (type) {
+        case 'choose_when_hear':
+            return {
+                icon: Headphones,
+                borderColor: 'border-purple-100 dark:border-purple-900',
+                bgGradient:
+                    'from-purple-50 to-pink-50 dark:from-purple-950/30 dark:to-pink-950/30',
+                cardBg: 'bg-purple-50 dark:bg-purple-950/20',
+                cardBorder: 'border-purple-200 dark:border-purple-800',
+                iconBg: 'bg-purple-500',
+                textColor: 'text-purple-600 dark:text-purple-400',
+                buttonGradient: 'from-purple-500 to-pink-600',
+            };
+        case 'choose_when_read':
+            return {
+                icon: BookOpen,
+                borderColor: 'border-blue-100 dark:border-blue-900',
+                bgGradient:
+                    'from-blue-50 to-cyan-50 dark:from-blue-950/30 dark:to-cyan-950/30',
+                cardBg: 'bg-blue-50 dark:bg-blue-950/20',
+                cardBorder: 'border-blue-200 dark:border-blue-800',
+                iconBg: 'bg-blue-500',
+                textColor: 'text-blue-600 dark:text-blue-400',
+                buttonGradient: 'from-blue-500 to-cyan-600',
+            };
+        case 'select_image':
+            return {
+                icon: CheckSquare,
+                borderColor: 'border-green-100 dark:border-green-900',
+                bgGradient:
+                    'from-green-50 to-emerald-50 dark:from-green-950/30 dark:to-emerald-950/30',
+                cardBg: 'bg-green-50 dark:bg-green-950/20',
+                cardBorder: 'border-green-200 dark:border-green-800',
+                iconBg: 'bg-green-500',
+                textColor: 'text-green-600 dark:text-green-400',
+                buttonGradient: 'from-green-500 to-emerald-600',
+            };
+        default:
+            return {
+                icon: Target,
+                borderColor: 'border-orange-100 dark:border-orange-900',
+                bgGradient:
+                    'from-orange-50 to-yellow-50 dark:from-orange-950/30 dark:to-yellow-950/30',
+                cardBg: 'bg-orange-50 dark:bg-orange-950/20',
+                cardBorder: 'border-orange-200 dark:border-orange-800',
+                iconBg: 'bg-orange-500',
+                textColor: 'text-orange-600 dark:text-orange-400',
+                buttonGradient: 'from-orange-500 to-yellow-600',
+            };
+    }
+};
 
 interface Props {
     child: ChildProfile;
@@ -264,82 +328,219 @@ export default function ViewChapter({ child, subject, chapter }: Props) {
                                 <Target className="h-6 w-6 text-orange-600" />
                                 Exercices
                             </h2>
-                            {chapter.exercises.map((exercise: any) => (
-                                <Card
-                                    key={exercise.id}
-                                    className="rounded-3xl border-2 border-orange-100 shadow-lg"
-                                >
-                                    <CardHeader className="bg-linear-to-r from-orange-50 to-yellow-50 dark:from-orange-950/30 dark:to-yellow-950/30">
-                                        <CardTitle className="flex items-center gap-2 text-lg">
-                                            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-orange-500">
-                                                <Target className="h-4 w-4 text-white" />
-                                            </div>
-                                            {exercise.title}
-                                        </CardTitle>
-                                    </CardHeader>
-                                    <CardContent className="p-6">
-                                        <div className="rounded-2xl border-2 border-orange-200 bg-orange-50 p-6 text-center dark:border-orange-800 dark:bg-orange-950/20">
-                                            <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-linear-to-br from-orange-400 to-yellow-500">
-                                                <Sparkles className="h-8 w-8 text-white" />
-                                            </div>
-                                            <h3 className="mb-2 text-xl font-bold text-slate-900 dark:text-slate-100">
-                                                Entraîne-toi !
-                                            </h3>
-                                            {exercise.description && (
-                                                <p className="mb-4 text-slate-600 dark:text-slate-400">
-                                                    {exercise.description}
-                                                </p>
-                                            )}
-
-                                            {exercise.latest_score && (
-                                                <div className="mb-4 inline-flex items-center gap-2 rounded-full bg-blue-100 px-4 py-2 dark:bg-blue-900">
-                                                    <Award className="h-4 w-4 text-blue-600 dark:text-blue-400" />
-                                                    <span className="text-sm font-semibold text-blue-900 dark:text-blue-100">
-                                                        Dernier score:{' '}
-                                                        {
-                                                            exercise
-                                                                .latest_score
-                                                                .score
-                                                        }
-                                                        /
-                                                        {
-                                                            exercise
-                                                                .latest_score
-                                                                .total
-                                                        }{' '}
-                                                        (
-                                                        {
-                                                            exercise
-                                                                .latest_score
-                                                                .percentage
-                                                        }
-                                                        %)
-                                                    </span>
+                            {chapter.exercises.map((exercise: any) => {
+                                const style = getExerciseTypeStyle(
+                                    exercise.type,
+                                );
+                                const ExerciseIcon = style.icon;
+                                return (
+                                    <Card
+                                        key={exercise.id}
+                                        className={`rounded-3xl border-2 ${style.borderColor} shadow-lg`}
+                                    >
+                                        <CardHeader
+                                            className={`bg-linear-to-r ${style.bgGradient}`}
+                                        >
+                                            <CardTitle className="flex items-center gap-2 text-lg">
+                                                <div
+                                                    className={`flex h-8 w-8 items-center justify-center rounded-lg ${style.iconBg}`}
+                                                >
+                                                    <ExerciseIcon className="h-4 w-4 text-white" />
                                                 </div>
-                                            )}
-
-                                            <Button
-                                                onClick={() =>
-                                                    router.visit(
-                                                        parent.childSessions.startExercise.url(
-                                                            [
-                                                                child.id,
-                                                                subject.id,
-                                                                chapter.id,
-                                                                exercise.id,
-                                                            ],
-                                                        ),
-                                                    )
-                                                }
-                                                className="rounded-2xl bg-linear-to-r from-orange-500 to-yellow-600 px-6 py-3 font-bold shadow-lg hover:scale-105"
+                                                {exercise.title}
+                                            </CardTitle>
+                                        </CardHeader>
+                                        <CardContent className="p-6">
+                                            <div
+                                                className={`rounded-2xl border-2 ${style.cardBorder} ${style.cardBg} p-6 text-center`}
                                             >
-                                                <Target className="mr-2 h-5 w-5" />
-                                                Commencer l'exercice
-                                            </Button>
-                                        </div>
-                                    </CardContent>
-                                </Card>
-                            ))}
+                                                <div className="${style.buttonGradient} mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-linear-to-br">
+                                                    <Sparkles className="h-8 w-8 text-white" />
+                                                </div>
+                                                <h3 className="mb-2 text-xl font-bold text-slate-900 dark:text-slate-100">
+                                                    Entraîne-toi !
+                                                </h3>
+                                                {exercise.description && (
+                                                    <p className="mb-4 text-slate-600 dark:text-slate-400">
+                                                        {exercise.description}
+                                                    </p>
+                                                )}
+
+                                                {exercise.latest_score && (
+                                                    <div className="mb-4 flex items-center justify-center gap-2">
+                                                        <div className="inline-flex items-center gap-2 rounded-full bg-blue-100 px-4 py-2 dark:bg-blue-900">
+                                                            <Award className="h-4 w-4 text-blue-600 dark:text-blue-400" />
+                                                            <span className="text-sm font-semibold text-blue-900 dark:text-blue-100">
+                                                                Dernier score:{' '}
+                                                                {
+                                                                    exercise
+                                                                        .latest_score
+                                                                        .score
+                                                                }
+                                                                /
+                                                                {
+                                                                    exercise
+                                                                        .latest_score
+                                                                        .total
+                                                                }{' '}
+                                                                (
+                                                                {
+                                                                    exercise
+                                                                        .latest_score
+                                                                        .percentage
+                                                                }
+                                                                %)
+                                                            </span>
+                                                        </div>
+                                                        {exercise.score_history &&
+                                                            exercise
+                                                                .score_history
+                                                                .length > 0 && (
+                                                                <Dialog>
+                                                                    <DialogTrigger
+                                                                        asChild
+                                                                    >
+                                                                        <Button
+                                                                            variant="outline"
+                                                                            size="sm"
+                                                                            className="rounded-full"
+                                                                        >
+                                                                            <History className="h-4 w-4" />
+                                                                        </Button>
+                                                                    </DialogTrigger>
+                                                                    <DialogContent className="max-h-[80vh] overflow-y-auto">
+                                                                        <DialogHeader>
+                                                                            <DialogTitle>
+                                                                                Historique
+                                                                                des
+                                                                                scores
+                                                                            </DialogTitle>
+                                                                            <DialogDescription>
+                                                                                Vos
+                                                                                10
+                                                                                dernières
+                                                                                tentatives
+                                                                                pour
+                                                                                cet
+                                                                                exercice
+                                                                            </DialogDescription>
+                                                                        </DialogHeader>
+                                                                        <div className="space-y-3">
+                                                                            {exercise.score_history.map(
+                                                                                (
+                                                                                    score: any,
+                                                                                    index: number,
+                                                                                ) => (
+                                                                                    <div
+                                                                                        key={
+                                                                                            score.id
+                                                                                        }
+                                                                                        className={
+                                                                                            index ===
+                                                                                            0
+                                                                                                ? 'rounded-lg border-2 border-blue-200 bg-blue-50 p-4 dark:border-blue-800 dark:bg-blue-950/20'
+                                                                                                : 'rounded-lg border border-slate-200 bg-slate-50 p-4 dark:border-slate-700 dark:bg-slate-800/50'
+                                                                                        }
+                                                                                    >
+                                                                                        <div className="flex items-center justify-between">
+                                                                                            <div className="flex items-center gap-3">
+                                                                                                <div
+                                                                                                    className={
+                                                                                                        index ===
+                                                                                                        0
+                                                                                                            ? 'flex h-10 w-10 items-center justify-center rounded-full bg-blue-500 text-white'
+                                                                                                            : 'flex h-10 w-10 items-center justify-center rounded-full bg-slate-300 text-slate-700 dark:bg-slate-600 dark:text-slate-300'
+                                                                                                    }
+                                                                                                >
+                                                                                                    <Award className="h-5 w-5" />
+                                                                                                </div>
+                                                                                                <div>
+                                                                                                    <div className="flex items-center gap-2">
+                                                                                                        <span className="text-lg font-bold text-slate-900 dark:text-slate-100">
+                                                                                                            {
+                                                                                                                score.score
+                                                                                                            }
+
+                                                                                                            /
+                                                                                                            {
+                                                                                                                score.total
+                                                                                                            }
+                                                                                                        </span>
+                                                                                                        <Badge
+                                                                                                            variant={
+                                                                                                                score.percentage >=
+                                                                                                                80
+                                                                                                                    ? 'default'
+                                                                                                                    : score.percentage >=
+                                                                                                                        50
+                                                                                                                      ? 'secondary'
+                                                                                                                      : 'destructive'
+                                                                                                            }
+                                                                                                        >
+                                                                                                            {
+                                                                                                                score.percentage
+                                                                                                            }
+
+                                                                                                            %
+                                                                                                        </Badge>
+                                                                                                    </div>
+                                                                                                    <p className="text-xs text-slate-500 dark:text-slate-400">
+                                                                                                        {new Date(
+                                                                                                            score.created_at,
+                                                                                                        ).toLocaleDateString(
+                                                                                                            'fr-FR',
+                                                                                                            {
+                                                                                                                day: 'numeric',
+                                                                                                                month: 'long',
+                                                                                                                year: 'numeric',
+                                                                                                                hour: '2-digit',
+                                                                                                                minute: '2-digit',
+                                                                                                            },
+                                                                                                        )}
+                                                                                                    </p>
+                                                                                                </div>
+                                                                                            </div>
+                                                                                            {index ===
+                                                                                                0 && (
+                                                                                                <Badge className="bg-blue-500">
+                                                                                                    Plus
+                                                                                                    récent
+                                                                                                </Badge>
+                                                                                            )}
+                                                                                        </div>
+                                                                                    </div>
+                                                                                ),
+                                                                            )}
+                                                                        </div>
+                                                                    </DialogContent>
+                                                                </Dialog>
+                                                            )}
+                                                    </div>
+                                                )}
+
+                                                <Button
+                                                    onClick={() =>
+                                                        router.visit(
+                                                            parent.childSessions.startExercise.url(
+                                                                [
+                                                                    child.id,
+                                                                    subject.id,
+                                                                    chapter.id,
+                                                                    exercise.id,
+                                                                ],
+                                                            ),
+                                                        )
+                                                    }
+                                                    className={`rounded-2xl bg-linear-to-r ${style.buttonGradient} px-6 py-3 font-bold shadow-lg hover:scale-105`}
+                                                >
+                                                    <Target className="mr-2 h-5 w-5" />
+                                                    Commencer l'exercice
+                                                </Button>
+                                            </div>
+                                        </CardContent>
+                                    </Card>
+                                );
+                            })}
                         </div>
                     )}
 
@@ -365,6 +566,150 @@ export default function ViewChapter({ child, subject, chapter }: Props) {
                                         {chapter.quiz.description ||
                                             'Répondez aux questions pour valider ce chapitre'}
                                     </p>
+
+                                    {chapter.quiz.attempts_history &&
+                                        chapter.quiz.attempts_history.length >
+                                            0 && (
+                                            <div className="mb-4 flex items-center justify-center gap-2">
+                                                <div className="inline-flex items-center gap-2 rounded-full bg-purple-100 px-4 py-2 dark:bg-purple-900">
+                                                    <Award className="h-4 w-4 text-purple-600 dark:text-purple-400" />
+                                                    <span className="text-sm font-semibold text-purple-900 dark:text-purple-100">
+                                                        Meilleur score:{' '}
+                                                        {Math.max(
+                                                            ...chapter.quiz.attempts_history.map(
+                                                                (a: any) =>
+                                                                    a.score,
+                                                            ),
+                                                        )}
+                                                        %
+                                                    </span>
+                                                </div>
+                                                <Dialog>
+                                                    <DialogTrigger asChild>
+                                                        <Button
+                                                            variant="outline"
+                                                            size="sm"
+                                                            className="rounded-full"
+                                                        >
+                                                            <History className="h-4 w-4" />
+                                                        </Button>
+                                                    </DialogTrigger>
+                                                    <DialogContent className="max-h-[80vh] overflow-y-auto">
+                                                        <DialogHeader>
+                                                            <DialogTitle>
+                                                                Historique des
+                                                                tentatives
+                                                            </DialogTitle>
+                                                            <DialogDescription>
+                                                                Vos 10 dernières
+                                                                tentatives pour
+                                                                ce quiz
+                                                            </DialogDescription>
+                                                        </DialogHeader>
+                                                        <div className="space-y-3">
+                                                            {chapter.quiz.attempts_history.map(
+                                                                (
+                                                                    attempt: any,
+                                                                    index: number,
+                                                                ) => (
+                                                                    <div
+                                                                        key={
+                                                                            attempt.id
+                                                                        }
+                                                                        className={
+                                                                            index ===
+                                                                            0
+                                                                                ? 'rounded-lg border-2 border-purple-200 bg-purple-50 p-4 dark:border-purple-800 dark:bg-purple-950/20'
+                                                                                : 'rounded-lg border border-slate-200 bg-slate-50 p-4 dark:border-slate-700 dark:bg-slate-800/50'
+                                                                        }
+                                                                    >
+                                                                        <div className="flex items-center justify-between">
+                                                                            <div className="flex items-center gap-3">
+                                                                                <div
+                                                                                    className={
+                                                                                        index ===
+                                                                                        0
+                                                                                            ? 'flex h-10 w-10 items-center justify-center rounded-full bg-purple-500 text-white'
+                                                                                            : 'flex h-10 w-10 items-center justify-center rounded-full bg-slate-300 text-slate-700 dark:bg-slate-600 dark:text-slate-300'
+                                                                                    }
+                                                                                >
+                                                                                    <FileQuestion className="h-5 w-5" />
+                                                                                </div>
+                                                                                <div>
+                                                                                    <div className="flex items-center gap-2">
+                                                                                        <span className="text-lg font-bold text-slate-900 dark:text-slate-100">
+                                                                                            {
+                                                                                                attempt.correct_answers
+                                                                                            }
+
+                                                                                            /
+                                                                                            {
+                                                                                                attempt.total_questions
+                                                                                            }
+                                                                                        </span>
+                                                                                        <Badge
+                                                                                            variant={
+                                                                                                attempt.score >=
+                                                                                                80
+                                                                                                    ? 'default'
+                                                                                                    : attempt.score >=
+                                                                                                        50
+                                                                                                      ? 'secondary'
+                                                                                                      : 'destructive'
+                                                                                            }
+                                                                                        >
+                                                                                            {
+                                                                                                attempt.score
+                                                                                            }
+
+                                                                                            %
+                                                                                        </Badge>
+                                                                                    </div>
+                                                                                    <p className="text-xs text-slate-500 dark:text-slate-400">
+                                                                                        {new Date(
+                                                                                            attempt.completed_at,
+                                                                                        ).toLocaleDateString(
+                                                                                            'fr-FR',
+                                                                                            {
+                                                                                                day: 'numeric',
+                                                                                                month: 'long',
+                                                                                                year: 'numeric',
+                                                                                                hour: '2-digit',
+                                                                                                minute: '2-digit',
+                                                                                            },
+                                                                                        )}
+                                                                                    </p>
+                                                                                    <p className="mt-1 text-xs text-slate-500 dark:text-slate-400">
+                                                                                        Temps:{' '}
+                                                                                        {Math.floor(
+                                                                                            attempt.time_spent /
+                                                                                                60,
+                                                                                        )}
+                                                                                        min{' '}
+                                                                                        {attempt.time_spent %
+                                                                                            60}
+
+                                                                                        s
+                                                                                    </p>
+                                                                                </div>
+                                                                            </div>
+                                                                            {index ===
+                                                                                0 && (
+                                                                                <Badge className="bg-purple-500">
+                                                                                    Plus
+                                                                                    récent
+                                                                                </Badge>
+                                                                            )}
+                                                                        </div>
+                                                                    </div>
+                                                                ),
+                                                            )}
+                                                        </div>
+                                                    </DialogContent>
+                                                </Dialog>
+                                            </div>
+                                        )}
+
                                     <Button
                                         onClick={() =>
                                             router.visit(

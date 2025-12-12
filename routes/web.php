@@ -74,7 +74,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
                 Route::post('education-level-categories/{category}/{level}/subjects/{subject}/chapter/{chapter}/quiz', 'storeQuiz')->name('chapter.quiz.store');
                 Route::put('education-level-categories/{category}/{level}/subjects/{subject}/chapter/{chapter}/quiz/{quiz}', 'updateQuiz')->name('chapter.quiz.update');
                 Route::delete('education-level-categories/{category}/{level}/subjects/{subject}/chapter/{chapter}/quiz/{quiz}', 'deleteQuiz')->name('chapter.quiz.delete');
-                
+
                 // Exercise routes
                 Route::get('education-level-categories/{category}/{level}/subjects/{subject}/chapter/{chapter}/exercises', 'manageExercises')->name('chapter.exercises');
                 Route::post('education-level-categories/{category}/{level}/subjects/{subject}/chapter/{chapter}/exercise', 'storeExercise')->name('chapter.exercise.store');
@@ -83,6 +83,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
                 Route::post('education-level-categories/{category}/{level}/subjects/{subject}/chapter/{chapter}/exercise/{exercise}/image', 'storeExerciseImage')->name('chapter.exercise.image.store');
                 Route::put('education-level-categories/{category}/{level}/subjects/{subject}/chapter/{chapter}/exercise/{exercise}/image/{image}', 'updateExerciseImage')->name('chapter.exercise.image.update');
                 Route::delete('education-level-categories/{category}/{level}/subjects/{subject}/chapter/{chapter}/exercise/{exercise}/image/{image}', 'deleteExerciseImage')->name('chapter.exercise.image.delete');
+                Route::post('education-level-categories/{category}/{level}/subjects/{subject}/chapter/{chapter}/exercise/{exercise}/word', 'storeExerciseWord')->name('chapter.exercise.word.store');
+                Route::delete('education-level-categories/{category}/{level}/subjects/{subject}/chapter/{chapter}/exercise/{exercise}/word/{word}', 'deleteExerciseWord')->name('chapter.exercise.word.delete');
             });
     });
 });

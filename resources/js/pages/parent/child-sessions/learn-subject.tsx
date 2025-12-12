@@ -44,7 +44,7 @@ export default function LearnSubject({ child, subject }: Props) {
             <Head title={`${subject.name} - ${child.name}`} />
 
             <div className="min-h-screen bg-white dark:bg-slate-950">
-                <div className="mx-auto max-w-4xl px-6 py-6">
+                <div className="mx-auto max-w-4xl px-3 py-4 md:px-6 md:py-6">
                     <div className="mb-8">
                         <div className="flex items-center justify-between">
                             <Button
@@ -75,12 +75,12 @@ export default function LearnSubject({ child, subject }: Props) {
 
                         <div className="mt-4 text-center">
                             <div className="mb-2 flex items-center justify-center gap-2">
-                                <BookOpen className="h-6 w-6 text-purple-600" />
-                                <h1 className="text-2xl font-bold text-slate-900 dark:text-slate-100">
+                                <BookOpen className="h-5 w-5 text-purple-600 md:h-6 md:w-6" />
+                                <h1 className="text-xl font-bold text-slate-900 md:text-2xl dark:text-slate-100">
                                     {subject.name}
                                 </h1>
                             </div>
-                            <p className="text-sm text-slate-600 dark:text-slate-400">
+                            <p className="text-xs text-slate-600 md:text-sm dark:text-slate-400">
                                 {activeChapters.length}{' '}
                                 {activeChapters.length > 1
                                     ? 'chapitres'
@@ -107,7 +107,7 @@ export default function LearnSubject({ child, subject }: Props) {
                                 </CardContent>
                             </Card>
                         ) : (
-                            <div className="space-y-4">
+                            <div className="space-y-3 md:space-y-4">
                                 {activeChapters.map((chapter, index) => {
                                     const isFirst = index === 0;
                                     const isLast =
@@ -121,13 +121,13 @@ export default function LearnSubject({ child, subject }: Props) {
                                             className="relative"
                                         >
                                             {!isLast && (
-                                                <div className="absolute top-12 left-5 h-full w-0.5 bg-linear-to-b from-purple-300 to-blue-300 dark:from-purple-700 dark:to-blue-700" />
+                                                <div className="absolute top-10 left-4 h-full w-0.5 bg-linear-to-b from-purple-300 to-blue-300 md:top-12 md:left-5 dark:from-purple-700 dark:to-blue-700" />
                                             )}
 
-                                            <div className="flex gap-3">
+                                            <div className="flex gap-2 md:gap-3">
                                                 <div className="relative z-10 flex flex-col items-center">
                                                     <div
-                                                        className={`flex h-10 w-10 items-center justify-center rounded-full border-4 border-white shadow-lg transition-all duration-300 dark:border-slate-950 ${
+                                                        className={`flex h-8 w-8 items-center justify-center rounded-full border-4 border-white shadow-lg transition-all duration-300 md:h-10 md:w-10 dark:border-slate-950 ${
                                                             isCompleted
                                                                 ? 'bg-linear-to-br from-emerald-400 to-green-500'
                                                                 : isLocked
@@ -136,11 +136,11 @@ export default function LearnSubject({ child, subject }: Props) {
                                                         }`}
                                                     >
                                                         {isCompleted ? (
-                                                            <CheckCircle2 className="h-5 w-5 text-white" />
+                                                            <CheckCircle2 className="h-4 w-4 text-white md:h-5 md:w-5" />
                                                         ) : isLocked ? (
-                                                            <Lock className="h-4 w-4 text-white" />
+                                                            <Lock className="h-3 w-3 text-white md:h-4 md:w-4" />
                                                         ) : (
-                                                            <Circle className="h-4 w-4 text-white" />
+                                                            <Circle className="h-3 w-3 text-white md:h-4 md:w-4" />
                                                         )}
                                                     </div>
                                                 </div>
@@ -159,8 +159,8 @@ export default function LearnSubject({ child, subject }: Props) {
                                                             );
                                                     }}
                                                 >
-                                                    <CardContent className="p-3">
-                                                        <div className="flex items-center justify-between gap-3">
+                                                    <CardContent className="p-2 md:p-3">
+                                                        <div className="flex flex-col gap-2 md:flex-row md:items-center md:justify-between md:gap-3">
                                                             <div className="flex items-center gap-2">
                                                                 <Badge
                                                                     variant="outline"
@@ -176,16 +176,14 @@ export default function LearnSubject({ child, subject }: Props) {
                                                                         ici
                                                                     </Badge>
                                                                 )}
-
-                                                                <h3 className="text-sm font-semibold text-slate-900 dark:text-slate-100">
-                                                                    {
-                                                                        chapter.title
-                                                                    }
-                                                                </h3>
                                                             </div>
 
+                                                            <h3 className="line-clamp-2 text-xs font-semibold text-slate-900 md:line-clamp-1 md:text-sm dark:text-slate-100">
+                                                                {chapter.title}
+                                                            </h3>
+
                                                             <div
-                                                                className="flex items-center gap-2"
+                                                                className="flex flex-wrap items-center gap-1.5 md:gap-2"
                                                                 onClick={(e) =>
                                                                     e.stopPropagation()
                                                                 }
@@ -194,7 +192,7 @@ export default function LearnSubject({ child, subject }: Props) {
                                                                     <Button
                                                                         size="sm"
                                                                         variant="outline"
-                                                                        className="h-7 gap-1.5 border-purple-200 bg-purple-50 text-purple-700 hover:bg-purple-100 hover:text-purple-800"
+                                                                        className="h-6 gap-1 border-purple-200 bg-purple-50 px-2 text-[10px] text-purple-700 hover:bg-purple-100 hover:text-purple-800 md:h-7 md:gap-1.5 md:px-3 md:text-xs"
                                                                         onClick={() =>
                                                                             router.visit(
                                                                                 parent.childSessions.startQuiz.url(
@@ -213,7 +211,7 @@ export default function LearnSubject({ child, subject }: Props) {
                                                                             isLocked
                                                                         }
                                                                     >
-                                                                        <FileQuestion className="h-3.5 w-3.5" />
+                                                                        <FileQuestion className="h-3 w-3 md:h-3.5 md:w-3.5" />
                                                                         Quiz
                                                                     </Button>
                                                                 )}
@@ -225,7 +223,7 @@ export default function LearnSubject({ child, subject }: Props) {
                                                                         <Button
                                                                             size="sm"
                                                                             variant="outline"
-                                                                            className="h-7 gap-1.5 border-orange-200 bg-orange-50 text-orange-700 hover:bg-orange-100 hover:text-orange-800"
+                                                                            className="h-6 gap-1 border-orange-200 bg-orange-50 px-2 text-[10px] text-orange-700 hover:bg-orange-100 hover:text-orange-800 md:h-7 md:gap-1.5 md:px-3 md:text-xs"
                                                                             onClick={() =>
                                                                                 router.visit(
                                                                                     parent.childSessions.startExercise.url(
@@ -244,7 +242,7 @@ export default function LearnSubject({ child, subject }: Props) {
                                                                                 isLocked
                                                                             }
                                                                         >
-                                                                            <Target className="h-3.5 w-3.5" />
+                                                                            <Target className="h-3 w-3 md:h-3.5 md:w-3.5" />
                                                                             Exercice
                                                                         </Button>
                                                                     )}

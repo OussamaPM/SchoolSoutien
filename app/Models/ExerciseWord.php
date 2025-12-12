@@ -2,22 +2,20 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
-class ExerciseImage extends Model
+class ExerciseWord extends Model
 {
     protected $fillable = [
         'exercise_id',
-        'image_path',
-        'audio_path',
         'text',
-        'is_correct',
+        'audio_path',
         'position',
     ];
 
     protected $casts = [
-        'is_correct' => 'boolean',
+        'position' => 'integer',
     ];
 
     public function exercise(): BelongsTo

@@ -16,6 +16,7 @@ class Exercise extends Model
         'description',
         'is_active',
         'position',
+        'required_repetitions',
     ];
 
     protected $casts = [
@@ -46,6 +47,11 @@ class Exercise extends Model
     public function images(): HasMany
     {
         return $this->hasMany(ExerciseImage::class)->orderBy('position');
+    }
+
+    public function words(): HasMany
+    {
+        return $this->hasMany(ExerciseWord::class)->orderBy('position');
     }
 
     public function scores(): HasMany

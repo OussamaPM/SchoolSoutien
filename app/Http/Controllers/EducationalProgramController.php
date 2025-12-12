@@ -9,6 +9,7 @@ use App\Models\EducationLevelCategory;
 use App\Models\Quiz;
 use App\Models\Exercise;
 use App\Models\ExerciseImage;
+use App\Models\ExerciseWord;
 use App\Models\QuizQuestion;
 use App\Models\QuizAnswer;
 use App\RoleEnum;
@@ -366,7 +367,7 @@ class EducationalProgramController extends Controller
 
     public function manageExercises(EducationLevelCategory $category, EducationLevel $level, EducationalSubject $subject, Chapter $chapter)
     {
-        $chapter->load(['exercises.images']);
+        $chapter->load(['exercises.images', 'exercises.words']);
 
         $exerciseTypes = collect(ExerciseTypeEnum::cases())->map(fn($type) => [
             'value' => $type->value,
@@ -389,6 +390,7 @@ class EducationalProgramController extends Controller
             'type' => 'required|string',
             'title' => 'required|string|max:255',
             'description' => 'nullable|string',
+            'required_repetitions' => 'nullable|integer|min:1|max:20',
         ]);
 
         $position = $chapter->exercises()->max('position') + 1;
@@ -397,6 +399,7 @@ class EducationalProgramController extends Controller
             'type' => ExerciseTypeEnum::from($validated['type']),
             'title' => $validated['title'],
             'description' => $validated['description'] ?? null,
+            'required_repetitions' => $validated['required_repetitions'] ?? 1,
             'position' => $position,
         ]);
 
@@ -427,7 +430,8 @@ class EducationalProgramController extends Controller
     {
         $validated = $request->validate([
             'image' => 'required|image|max:2048',
-            'audio' => 'required|file|mimes:mp3,wav,ogg,webm|max:5120',
+            'audio' => 'nullable|file|mimes:mp3,wav,ogg,webm|max:5120',
+            'text' => 'nullable|string|max:255',
             'is_correct' => 'required|boolean',
         ]);
 
@@ -445,13 +449,17 @@ class EducationalProgramController extends Controller
             $imagePath = $webpPath;
         }
 
-        $audioPath = $request->file('audio')->store('exercises/audio', 'public');
+        $audioPath = null;
+        if ($request->hasFile('audio')) {
+            $audioPath = $request->file('audio')->store('exercises/audio', 'public');
+        }
 
         $position = $exercise->images()->max('position') + 1;
 
         $exercise->images()->create([
             'image_path' => $imagePath,
             'audio_path' => $audioPath,
+            'text' => $validated['text'] ?? null,
             'is_correct' => $validated['is_correct'],
             'position' => $position,
         ]);
@@ -462,6 +470,7 @@ class EducationalProgramController extends Controller
     public function updateExerciseImage(Request $request, EducationLevelCategory $category, EducationLevel $level, EducationalSubject $subject, Chapter $chapter, Exercise $exercise, ExerciseImage $image)
     {
         $validated = $request->validate([
+            'text' => 'nullable|string|max:255',
             'is_correct' => 'required|boolean',
         ]);
 
@@ -478,5 +487,33 @@ class EducationalProgramController extends Controller
         $image->delete();
 
         return back()->with('success', 'Image supprimée avec succès');
+    }
+
+    public function storeExerciseWord(Request $request, EducationLevelCategory $category, EducationLevel $level, EducationalSubject $subject, Chapter $chapter, Exercise $exercise)
+    {
+        $validated = $request->validate([
+            'text' => 'required|string|max:255',
+            'audio' => 'required|file|mimes:mp3,wav,ogg,webm|max:5120',
+        ]);
+
+        $audioPath = $request->file('audio')->store('exercises/words/audio', 'public');
+
+        $position = $exercise->words()->max('position') + 1;
+
+        $exercise->words()->create([
+            'text' => $validated['text'],
+            'audio_path' => $audioPath,
+            'position' => $position,
+        ]);
+
+        return back()->with('success', 'Mot ajouté avec succès');
+    }
+
+    public function deleteExerciseWord(EducationLevelCategory $category, EducationLevel $level, EducationalSubject $subject, Chapter $chapter, Exercise $exercise, ExerciseWord $word)
+    {
+        Storage::disk('public')->delete($word->audio_path);
+        $word->delete();
+
+        return back()->with('success', 'Mot supprimé avec succès');
     }
 }

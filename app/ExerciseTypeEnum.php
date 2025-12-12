@@ -5,11 +5,15 @@ namespace App;
 enum ExerciseTypeEnum: string
 {
     case CHOOSE_WHEN_HEAR = 'choose_when_hear';
+    case CHOOSE_WHEN_READ = 'choose_when_read';
+    case SELECT_IMAGE = 'select_image';
 
     public function label(): string
     {
         return match ($this) {
             self::CHOOSE_WHEN_HEAR => 'Je choisis quand j\'entends',
+            self::CHOOSE_WHEN_READ => 'Je choisis quand je lis',
+            self::SELECT_IMAGE => 'Je vois et je sélectionne',
         };
     }
 
@@ -17,6 +21,8 @@ enum ExerciseTypeEnum: string
     {
         return match ($this) {
             self::CHOOSE_WHEN_HEAR => 'L\'enfant sélectionne les images correspondant au son entendu',
+            self::CHOOSE_WHEN_READ => 'L\'enfant écoute et répète les mots pour s\'entraîner à la lecture',
+            self::SELECT_IMAGE => 'L\'enfant sélectionne les images selon un critère (ex: contient la lettre "i")',
         };
     }
 }

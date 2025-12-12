@@ -1,10 +1,19 @@
 import ChooseWhenHearExercise from './ChooseWhenHearExercise';
+import ChooseWhenReadExercise from './ChooseWhenReadExercise';
+import SelectImageExercise from './SelectImageExercise';
 
 interface ExerciseImage {
     id: number;
     image_path: string;
-    audio_path: string;
+    audio_path: string | null;
+    text?: string | null;
     is_correct: boolean;
+}
+
+interface ExerciseWord {
+    id: number;
+    text: string;
+    audio_path: string;
 }
 
 interface Exercise {
@@ -13,6 +22,8 @@ interface Exercise {
     title: string;
     description: string | null;
     images: ExerciseImage[];
+    words?: ExerciseWord[];
+    required_repetitions?: number;
 }
 
 interface Props {
@@ -33,6 +44,30 @@ export default function ExerciseRenderer({
             return (
                 <ChooseWhenHearExercise
                     images={exercise.images}
+                    onComplete={onComplete}
+                    onRetry={onRetry}
+                    onSubmitScore={onSubmitScore}
+                />
+            );
+
+        case 'choose_when_read':
+            return (
+                <ChooseWhenReadExercise
+                    words={exercise.words || []}
+                    requiredRepetitions={exercise.required_repetitions || 5}
+                    onComplete={onComplete}
+                    onRetry={onRetry}
+                    onSubmitScore={onSubmitScore}
+                />
+            );
+
+        case 'select_image':
+            return (
+                <SelectImageExercise
+                    images={exercise.images}
+                    instruction={
+                        exercise.description || 'Sélectionnez les bonnes images'
+                    }
                     onComplete={onComplete}
                     onRetry={onRetry}
                     onSubmitScore={onSubmitScore}

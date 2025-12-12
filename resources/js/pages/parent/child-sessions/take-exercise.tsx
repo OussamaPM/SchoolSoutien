@@ -53,6 +53,9 @@ export default function TakeExercise({
                 subject.id,
                 chapter.id,
             ]),
+            {
+                preserveScroll: true,
+            },
         );
     };
 
@@ -93,6 +96,9 @@ export default function TakeExercise({
                                             subject.id,
                                             chapter.id,
                                         ]),
+                                        {
+                                            preserveScroll: true,
+                                        },
                                     )
                                 }
                             >

@@ -153,6 +153,9 @@ export default function TakeQuiz({
                                 onClick={() =>
                                     router.visit(
                                         `/parent/child-sessions/${child.id}/${subject.id}/chapter/${chapter.id}`,
+                                        {
+                                            preserveScroll: true,
+                                        },
                                     )
                                 }
                                 className="w-fit"

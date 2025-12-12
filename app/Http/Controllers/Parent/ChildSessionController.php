@@ -64,14 +64,29 @@ class ChildSessionController extends Controller
             'educationLevel.category'
         ]);
 
-        $chapter->load(['quiz.questions.answers', 'exercises.images']);
+        $chapter->load(['quiz.questions.answers', 'exercises.images', 'exercises.words']);
 
         $chapter->exercises->each(function ($exercise) use ($child) {
             $exercise->latest_score = $exercise->scores()
                 ->where('child_profile_id', $child->id)
                 ->latest()
                 ->first();
+
+            $exercise->score_history = $exercise->scores()
+                ->where('child_profile_id', $child->id)
+                ->orderBy('created_at', 'desc')
+                ->limit(10)
+                ->get();
         });
+
+        if ($chapter->quiz) {
+            $chapter->quiz->attempts_history = QuizAttempt::where('child_profile_id', $child->id)
+                ->where('quiz_id', $chapter->quiz->id)
+                ->whereNotNull('completed_at')
+                ->orderBy('completed_at', 'desc')
+                ->limit(10)
+                ->get();
+        }
 
         return Inertia::render('parent/child-sessions/view-chapter', [
             'child' => $child,
@@ -205,7 +220,7 @@ class ChildSessionController extends Controller
         }
 
         $child->load(['currentPlan.plan', 'educationLevel.category']);
-        $exercise->load(['images']);
+        $exercise->load(['images', 'words']);
 
         $latestScore = $exercise->scores()
             ->where('child_profile_id', $child->id)
