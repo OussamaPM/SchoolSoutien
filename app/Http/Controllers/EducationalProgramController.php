@@ -391,6 +391,8 @@ class EducationalProgramController extends Controller
             'title' => 'required|string|max:255',
             'description' => 'nullable|string',
             'required_repetitions' => 'nullable|integer|min:1|max:20',
+            'letter_options' => 'nullable|array',
+            'letter_options.*' => 'string|max:5',
         ]);
 
         $position = $chapter->exercises()->max('position') + 1;
@@ -400,6 +402,7 @@ class EducationalProgramController extends Controller
             'title' => $validated['title'],
             'description' => $validated['description'] ?? null,
             'required_repetitions' => $validated['required_repetitions'] ?? 1,
+            'letter_options' => $validated['letter_options'] ?? null,
             'position' => $position,
         ]);
 
@@ -412,6 +415,8 @@ class EducationalProgramController extends Controller
             'title' => 'required|string|max:255',
             'description' => 'nullable|string',
             'is_active' => 'boolean',
+            'letter_options' => 'nullable|array',
+            'letter_options.*' => 'string|max:5',
         ]);
 
         $exercise->update($validated);
@@ -432,6 +437,11 @@ class EducationalProgramController extends Controller
             'image' => 'required|image|max:2048',
             'audio' => 'nullable|file|mimes:mp3,wav,ogg,webm|max:5120',
             'text' => 'nullable|string|max:255',
+            'full_text' => 'nullable|string|max:255',
+            'masked_position' => 'nullable|integer|min:0',
+            'correct_letter' => 'nullable|string|max:5',
+            'decoy_letters' => 'nullable|array',
+            'decoy_letters.*' => 'string|max:5',
             'is_correct' => 'required|boolean',
         ]);
 
@@ -460,6 +470,10 @@ class EducationalProgramController extends Controller
             'image_path' => $imagePath,
             'audio_path' => $audioPath,
             'text' => $validated['text'] ?? null,
+            'full_text' => $validated['full_text'] ?? null,
+            'masked_position' => $validated['masked_position'] ?? null,
+            'correct_letter' => $validated['correct_letter'] ?? null,
+            'decoy_letters' => $validated['decoy_letters'] ?? null,
             'is_correct' => $validated['is_correct'],
             'position' => $position,
         ]);
@@ -481,8 +495,12 @@ class EducationalProgramController extends Controller
 
     public function deleteExerciseImage(EducationLevelCategory $category, EducationLevel $level, EducationalSubject $subject, Chapter $chapter, Exercise $exercise, ExerciseImage $image)
     {
-        Storage::disk('public')->delete($image->image_path);
-        Storage::disk('public')->delete($image->audio_path);
+        if ($image->image_path && Storage::disk('public')->exists($image->image_path)) {
+            Storage::disk('public')->delete($image->image_path);
+        }
+        if ($image->audio_path && Storage::disk('public')->exists($image->audio_path)) {
+            Storage::disk('public')->delete($image->audio_path);
+        }
 
         $image->delete();
 

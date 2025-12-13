@@ -1,3 +1,4 @@
+import ChooseLetterExercise from './ChooseLetterExercise';
 import ChooseWhenHearExercise from './ChooseWhenHearExercise';
 import ChooseWhenReadExercise from './ChooseWhenReadExercise';
 import SelectImageExercise from './SelectImageExercise';
@@ -7,6 +8,10 @@ interface ExerciseImage {
     image_path: string;
     audio_path: string | null;
     text?: string | null;
+    full_text?: string;
+    masked_position?: number;
+    correct_letter?: string;
+    decoy_letters?: string[];
     is_correct: boolean;
 }
 
@@ -24,6 +29,7 @@ interface Exercise {
     images: ExerciseImage[];
     words?: ExerciseWord[];
     required_repetitions?: number;
+    letter_options?: string[];
 }
 
 interface Props {
@@ -67,6 +73,32 @@ export default function ExerciseRenderer({
                     images={exercise.images}
                     instruction={
                         exercise.description || 'Sélectionnez les bonnes images'
+                    }
+                    onComplete={onComplete}
+                    onRetry={onRetry}
+                    onSubmitScore={onSubmitScore}
+                />
+            );
+
+        case 'choose_letter':
+            return (
+                <ChooseLetterExercise
+                    images={exercise.images.map((img) => ({
+                        id: img.id,
+                        image_path: img.image_path,
+                        full_text: img.full_text || '',
+                        masked_position: img.masked_position || 0,
+                        correct_letter: img.correct_letter || '',
+                        decoy_letters: img.decoy_letters || [
+                            'a',
+                            'e',
+                            'i',
+                            'o',
+                            'u',
+                        ],
+                    }))}
+                    instruction={
+                        exercise.description || 'Écris la bonne lettre'
                     }
                     onComplete={onComplete}
                     onRetry={onRetry}

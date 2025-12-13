@@ -17,11 +17,13 @@ class Exercise extends Model
         'is_active',
         'position',
         'required_repetitions',
+        'letter_options',
     ];
 
     protected $casts = [
         'is_active' => 'boolean',
         'type' => ExerciseTypeEnum::class,
+        'letter_options' => 'array',
     ];
 
     protected $appends = [

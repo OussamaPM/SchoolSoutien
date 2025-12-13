@@ -12,12 +12,17 @@ class ExerciseImage extends Model
         'image_path',
         'audio_path',
         'text',
+        'full_text',
+        'masked_position',
+        'correct_letter',
+        'decoy_letters',
         'is_correct',
         'position',
     ];
 
     protected $casts = [
         'is_correct' => 'boolean',
+        'decoy_letters' => 'array',
     ];
 
     public function exercise(): BelongsTo

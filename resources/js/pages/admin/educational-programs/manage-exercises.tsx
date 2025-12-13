@@ -42,6 +42,7 @@ interface Exercise {
     description: string | null;
     is_active: boolean;
     position: number;
+    letter_options?: string[];
     images?: ExerciseImage[];
 }
 
@@ -51,6 +52,10 @@ interface ExerciseImage {
     image_path: string;
     audio_path: string;
     text?: string | null;
+    full_text?: string | null;
+    masked_position?: number | null;
+    correct_letter?: string | null;
+    decoy_letters?: string[] | null;
     is_correct: boolean;
     position: number;
 }
@@ -127,6 +132,7 @@ export default function ManageExercises({
         title: '',
         description: '',
         required_repetitions: 5,
+        letter_options: [] as string[],
     });
 
     const {
@@ -152,11 +158,19 @@ export default function ManageExercises({
         image: File | null;
         audio: File | null;
         text: string;
+        full_text: string;
+        masked_position: number | null;
+        correct_letter: string;
+        decoy_letters: string[];
         is_correct: boolean;
     }>({
         image: null,
         audio: null,
         text: '',
+        full_text: '',
+        masked_position: null,
+        correct_letter: '',
+        decoy_letters: [],
         is_correct: false,
     });
 
@@ -276,10 +290,31 @@ export default function ManageExercises({
             return;
         }
 
-        // For non-select_image exercises, audio is required
-        if (exercise.type !== 'select_image' && !imageData.audio) {
+        // For choose_when_hear exercises, audio is required
+        if (exercise.type === 'choose_when_hear' && !imageData.audio) {
             toast.error('Veuillez sélectionner un audio');
             return;
+        }
+
+        // For choose_letter exercises, validate required fields
+        if (exercise.type === 'choose_letter') {
+            if (!imageData.full_text) {
+                toast.error('Veuillez entrer le mot complet');
+                return;
+            }
+            if (imageData.masked_position === null) {
+                toast.error(
+                    'Veuillez entrer la position de la lettre à masquer',
+                );
+                return;
+            }
+            // Auto-calculate correct_letter
+            if (imageData.full_text && imageData.masked_position !== null) {
+                const letter = imageData.full_text[imageData.masked_position];
+                if (letter) {
+                    imageData.correct_letter = letter;
+                }
+            }
         }
 
         postImage(
@@ -1502,6 +1537,375 @@ export default function ManageExercises({
                                                                             {
                                                                                 image.text
                                                                             }
+                                                                        </p>
+                                                                    </div>
+                                                                )}
+                                                                <Button
+                                                                    variant="destructive"
+                                                                    size="sm"
+                                                                    className="mt-3 w-full opacity-0 transition-opacity group-hover:opacity-100"
+                                                                    onClick={() =>
+                                                                        deleteImage(
+                                                                            exercise,
+                                                                            image,
+                                                                        )
+                                                                    }
+                                                                >
+                                                                    <Trash2 className="mr-2 h-3 w-3" />
+                                                                    Supprimer
+                                                                </Button>
+                                                            </div>
+                                                        ),
+                                                    )}
+                                                </div>
+                                            )}
+                                        </>
+                                    )}
+
+                                    {exercise.type === 'choose_letter' && (
+                                        <>
+                                            <div className="flex items-center justify-between">
+                                                <h4 className="font-semibold text-slate-700 dark:text-slate-300">
+                                                    Images (
+                                                    {exercise.images?.length ||
+                                                        0}
+                                                    )
+                                                </h4>
+                                                <Dialog
+                                                    open={
+                                                        isAddImageDialogOpen &&
+                                                        selectedExercise?.id ===
+                                                            exercise.id
+                                                    }
+                                                    onOpenChange={(open) => {
+                                                        setIsAddImageDialogOpen(
+                                                            open,
+                                                        );
+                                                        if (open) {
+                                                            setSelectedExercise(
+                                                                exercise,
+                                                            );
+                                                        } else {
+                                                            setSelectedExercise(
+                                                                null,
+                                                            );
+                                                            setSelectedImage(
+                                                                null,
+                                                            );
+                                                        }
+                                                    }}
+                                                >
+                                                    <DialogTrigger asChild>
+                                                        <Button
+                                                            size="sm"
+                                                            variant="outline"
+                                                        >
+                                                            <Plus className="mr-2 h-4 w-4" />
+                                                            Ajouter une image
+                                                        </Button>
+                                                    </DialogTrigger>
+                                                    <DialogContent>
+                                                        <DialogHeader>
+                                                            <DialogTitle>
+                                                                Ajouter une
+                                                                image avec mot
+                                                            </DialogTitle>
+                                                            <DialogDescription>
+                                                                Téléversez une
+                                                                image, entrez le
+                                                                mot complet et
+                                                                choisissez la
+                                                                lettre à
+                                                                masquer.
+                                                            </DialogDescription>
+                                                        </DialogHeader>
+                                                        <div className="space-y-4 py-4">
+                                                            <div className="space-y-2">
+                                                                <Label htmlFor="image">
+                                                                    Image
+                                                                </Label>
+                                                                <Input
+                                                                    id="image"
+                                                                    type="file"
+                                                                    accept="image/*"
+                                                                    onChange={(
+                                                                        e,
+                                                                    ) => {
+                                                                        const file =
+                                                                            e
+                                                                                .target
+                                                                                .files?.[0] ||
+                                                                            null;
+                                                                        setSelectedImage(
+                                                                            file,
+                                                                        );
+                                                                        setImageData(
+                                                                            'image',
+                                                                            file,
+                                                                        );
+                                                                    }}
+                                                                />
+                                                                {imageErrors.image && (
+                                                                    <p className="text-sm text-red-600">
+                                                                        {
+                                                                            imageErrors.image
+                                                                        }
+                                                                    </p>
+                                                                )}
+                                                            </div>
+                                                            <div className="space-y-2">
+                                                                <Label htmlFor="full_text">
+                                                                    Mot complet
+                                                                </Label>
+                                                                <Input
+                                                                    id="full_text"
+                                                                    type="text"
+                                                                    placeholder="Ex: maman, tableau, tomate"
+                                                                    value={
+                                                                        imageData.full_text
+                                                                    }
+                                                                    onChange={(
+                                                                        e,
+                                                                    ) =>
+                                                                        setImageData(
+                                                                            'full_text',
+                                                                            e
+                                                                                .target
+                                                                                .value,
+                                                                        )
+                                                                    }
+                                                                />
+                                                                {imageErrors.full_text && (
+                                                                    <p className="text-sm text-red-600">
+                                                                        {
+                                                                            imageErrors.full_text
+                                                                        }
+                                                                    </p>
+                                                                )}
+                                                            </div>
+                                                            <div className="space-y-2">
+                                                                <Label htmlFor="masked_position">
+                                                                    Position de
+                                                                    la lettre à
+                                                                    masquer (0 =
+                                                                    première
+                                                                    lettre)
+                                                                </Label>
+                                                                <Input
+                                                                    id="masked_position"
+                                                                    type="number"
+                                                                    min="0"
+                                                                    placeholder="Ex: 0, 1, 2..."
+                                                                    value={
+                                                                        imageData.masked_position ??
+                                                                        ''
+                                                                    }
+                                                                    onChange={(
+                                                                        e,
+                                                                    ) =>
+                                                                        setImageData(
+                                                                            'masked_position',
+                                                                            e
+                                                                                .target
+                                                                                .value
+                                                                                ? parseInt(
+                                                                                      e
+                                                                                          .target
+                                                                                          .value,
+                                                                                  )
+                                                                                : null,
+                                                                        )
+                                                                    }
+                                                                />
+                                                                {imageErrors.masked_position && (
+                                                                    <p className="text-sm text-red-600">
+                                                                        {
+                                                                            imageErrors.masked_position
+                                                                        }
+                                                                    </p>
+                                                                )}
+                                                            </div>
+                                                            <div className="space-y-2">
+                                                                <Label htmlFor="correct_letter">
+                                                                    Lettre
+                                                                    correcte
+                                                                    (sera
+                                                                    calculée
+                                                                    automatiquement)
+                                                                </Label>
+                                                                <Input
+                                                                    id="correct_letter"
+                                                                    type="text"
+                                                                    placeholder="Ex: a, m"
+                                                                    value={
+                                                                        imageData.masked_position !==
+                                                                            null &&
+                                                                        imageData.full_text
+                                                                            ? imageData
+                                                                                  .full_text[
+                                                                                  imageData
+                                                                                      .masked_position
+                                                                              ] ||
+                                                                              ''
+                                                                            : imageData.correct_letter
+                                                                    }
+                                                                    onChange={(
+                                                                        e,
+                                                                    ) =>
+                                                                        setImageData(
+                                                                            'correct_letter',
+                                                                            e
+                                                                                .target
+                                                                                .value,
+                                                                        )
+                                                                    }
+                                                                    readOnly={
+                                                                        imageData.masked_position !==
+                                                                            null &&
+                                                                        !!imageData.full_text
+                                                                    }
+                                                                />
+                                                            </div>
+                                                            <div className="space-y-2">
+                                                                <Label htmlFor="decoy_letters">
+                                                                    Lettres
+                                                                    incorrectes
+                                                                    (decoys)
+                                                                </Label>
+                                                                <Input
+                                                                    id="decoy_letters"
+                                                                    type="text"
+                                                                    placeholder="Ex: a, i, o, u"
+                                                                    defaultValue={imageData.decoy_letters.join(
+                                                                        ', ',
+                                                                    )}
+                                                                    onBlur={(
+                                                                        e,
+                                                                    ) => {
+                                                                        const letters =
+                                                                            e.target.value
+                                                                                .split(
+                                                                                    ',',
+                                                                                )
+                                                                                .map(
+                                                                                    (
+                                                                                        l,
+                                                                                    ) =>
+                                                                                        l.trim(),
+                                                                                )
+                                                                                .filter(
+                                                                                    (
+                                                                                        l,
+                                                                                    ) =>
+                                                                                        l !==
+                                                                                        '',
+                                                                                );
+                                                                        setImageData(
+                                                                            'decoy_letters',
+                                                                            letters,
+                                                                        );
+                                                                    }}
+                                                                />
+                                                                <p className="text-xs text-slate-500">
+                                                                    Séparez les
+                                                                    lettres par
+                                                                    des
+                                                                    virgules.
+                                                                    Ces lettres
+                                                                    seront
+                                                                    affichées
+                                                                    avec la
+                                                                    lettre
+                                                                    correcte
+                                                                    pour cette
+                                                                    image.
+                                                                </p>
+                                                            </div>
+                                                        </div>
+                                                        <DialogFooter>
+                                                            <Button
+                                                                variant="outline"
+                                                                onClick={() => {
+                                                                    setIsAddImageDialogOpen(
+                                                                        false,
+                                                                    );
+                                                                    setSelectedExercise(
+                                                                        null,
+                                                                    );
+                                                                    setSelectedImage(
+                                                                        null,
+                                                                    );
+                                                                }}
+                                                            >
+                                                                Annuler
+                                                            </Button>
+                                                            <Button
+                                                                onClick={() =>
+                                                                    handleAddImage(
+                                                                        exercise,
+                                                                    )
+                                                                }
+                                                                disabled={
+                                                                    !selectedImage ||
+                                                                    !imageData.full_text ||
+                                                                    imageData.masked_position ===
+                                                                        null
+                                                                }
+                                                            >
+                                                                Ajouter
+                                                            </Button>
+                                                        </DialogFooter>
+                                                    </DialogContent>
+                                                </Dialog>
+                                            </div>
+
+                                            {!exercise.images ||
+                                            exercise.images.length === 0 ? (
+                                                <div className="rounded-lg border-2 border-dashed border-slate-200 p-12 text-center">
+                                                    <Upload className="mx-auto mb-3 h-12 w-12 text-slate-400" />
+                                                    <p className="text-sm text-slate-600">
+                                                        Aucune image ajoutée
+                                                    </p>
+                                                    <p className="mt-1 text-xs text-slate-400">
+                                                        Cliquez sur "Ajouter une
+                                                        image" pour commencer
+                                                    </p>
+                                                </div>
+                                            ) : (
+                                                <div className="grid grid-cols-2 gap-4 md:grid-cols-3 lg:grid-cols-4">
+                                                    {exercise.images.map(
+                                                        (image) => (
+                                                            <div
+                                                                key={image.id}
+                                                                className="group relative rounded-lg border-2 border-slate-200 bg-white p-3 transition-all hover:shadow-lg"
+                                                            >
+                                                                <div className="relative aspect-square overflow-hidden rounded-md">
+                                                                    <img
+                                                                        src={`/storage/${image.image_path}`}
+                                                                        alt="Exercise"
+                                                                        className="h-full w-full object-cover"
+                                                                        loading="lazy"
+                                                                        decoding="async"
+                                                                    />
+                                                                </div>
+                                                                {image.full_text && (
+                                                                    <div className="mt-2 text-center">
+                                                                        <p className="text-sm font-medium text-slate-700">
+                                                                            {
+                                                                                image.full_text
+                                                                            }
+                                                                        </p>
+                                                                        <p className="text-xs text-slate-500">
+                                                                            Lettre
+                                                                            masquée:{' '}
+                                                                            {
+                                                                                image.correct_letter
+                                                                            }{' '}
+                                                                            (position{' '}
+                                                                            {
+                                                                                image.masked_position
+                                                                            }
+                                                                            )
                                                                         </p>
                                                                     </div>
                                                                 )}
