@@ -1,4 +1,3 @@
-import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { CheckCircle2, XCircle } from 'lucide-react';
 import { useEffect, useState } from 'react';
@@ -37,7 +36,6 @@ export default function ChooseLetterExercise({
 
     const currentImage = images[currentImageIndex];
 
-    // Shuffle letters when current image changes
     useEffect(() => {
         if (currentImage && !showResults) {
             const letters = [
@@ -49,7 +47,6 @@ export default function ChooseLetterExercise({
         }
     }, [currentImageIndex, currentImage, showResults]);
 
-    // Generate masked text for display
     const getMaskedText = (fullText: string, position: number) => {
         return (
             fullText.substring(0, position) +
@@ -66,11 +63,24 @@ export default function ChooseLetterExercise({
             [currentImage.id]: letter,
         }));
 
-        // Move to next image if not the last one
+        // Don't auto-advance, let user navigate manually
+    };
+
+    const handleNext = () => {
         if (currentImageIndex < images.length - 1) {
-            setTimeout(() => {
-                setCurrentImageIndex(currentImageIndex + 1);
-            }, 300);
+            setCurrentImageIndex(currentImageIndex + 1);
+        }
+    };
+
+    const handlePrevious = () => {
+        if (currentImageIndex > 0) {
+            setCurrentImageIndex(currentImageIndex - 1);
+        }
+    };
+
+    const handleImageClick = (index: number) => {
+        if (!showResults) {
+            setCurrentImageIndex(index);
         }
     };
 
@@ -97,7 +107,6 @@ export default function ChooseLetterExercise({
         setScore(finalScore);
         setShowResults(true);
 
-        // Submit score immediately when validation happens
         onSubmitScore(finalScore, totalScore);
     };
 
@@ -125,67 +134,99 @@ export default function ChooseLetterExercise({
     };
 
     return (
-        <div className="mx-auto max-w-5xl space-y-6 p-6">
-            <Card className="p-6">
-                <h2 className="mb-6 text-center text-2xl font-bold text-slate-800">
+        <div className="mx-auto max-w-6xl space-y-4 p-4">
+            <Card className="overflow-hidden rounded-3xl border-0 bg-gradient-to-br from-purple-50 via-blue-50 to-pink-50 p-5 shadow-xl">
+                <h2 className="mb-4 bg-gradient-to-r from-purple-600 to-blue-600 bg-clip-text text-center text-2xl font-bold text-transparent">
                     {instruction}
                 </h2>
 
-                {/* Images Grid */}
-                <div className="mb-6 grid grid-cols-2 gap-6 md:grid-cols-3 lg:grid-cols-4">
-                    {images.map((image) => (
+                {!showResults && (
+                    <div className="mb-4 text-center">
+                        <div className="inline-block rounded-full bg-white px-5 py-2 shadow-lg">
+                            <p className="text-lg font-bold text-slate-800">
+                                Image {currentImageIndex + 1} sur{' '}
+                                {images.length}
+                            </p>
+                        </div>
+                        <div className="mx-auto mt-3 flex justify-center gap-2">
+                            {images.map((_, index) => (
+                                <div
+                                    key={index}
+                                    className={`h-3 w-3 rounded-full transition-all duration-300 ${
+                                        index === currentImageIndex
+                                            ? 'w-10 bg-gradient-to-r from-purple-500 to-blue-500 shadow-lg'
+                                            : selectedLetters[images[index].id]
+                                              ? 'bg-green-500 shadow-md'
+                                              : 'bg-slate-300'
+                                    }`}
+                                />
+                            ))}
+                        </div>
+                    </div>
+                )}
+
+                <div className="mb-5 grid grid-cols-2 gap-4 md:grid-cols-3 lg:grid-cols-4">
+                    {images.map((image, index) => (
                         <div
                             key={image.id}
-                            className="relative flex flex-col items-center"
+                            className={`group relative flex cursor-pointer flex-col items-center transition-all duration-300 ${
+                                !showResults && index === currentImageIndex
+                                    ? 'scale-105'
+                                    : 'hover:scale-105'
+                            }`}
+                            onClick={() => handleImageClick(index)}
                         >
-                            {/* Image */}
-                            <div className="relative mb-2 h-32 w-32 overflow-hidden rounded-lg border-2 border-slate-200">
+                            <div
+                                className={`relative mb-2 h-28 w-28 overflow-hidden rounded-2xl bg-white shadow-lg transition-all duration-300 ${
+                                    !showResults && index === currentImageIndex
+                                        ? 'shadow-2xl ring-3 ring-purple-500 ring-offset-2'
+                                        : ''
+                                }`}
+                            >
                                 <img
                                     src={`/storage/${image.image_path}`}
                                     alt="Exercise"
-                                    className="h-full w-full object-cover"
+                                    className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-110"
                                 />
                                 {showResults && (
                                     <div
-                                        className={`absolute inset-0 flex items-center justify-center ${
+                                        className={`absolute inset-0 flex items-center justify-center backdrop-blur-sm ${
                                             isCorrect(image.id)
-                                                ? 'bg-green-500/20'
-                                                : 'bg-red-500/20'
+                                                ? 'bg-green-500/30'
+                                                : 'bg-red-500/30'
                                         }`}
                                     >
                                         {isCorrect(image.id) ? (
-                                            <CheckCircle2 className="h-12 w-12 text-green-600" />
+                                            <CheckCircle2 className="h-16 w-16 text-green-600 drop-shadow-lg" />
                                         ) : (
-                                            <XCircle className="h-12 w-12 text-red-600" />
+                                            <XCircle className="h-16 w-16 text-red-600 drop-shadow-lg" />
                                         )}
                                     </div>
                                 )}
                             </div>
 
-                            {/* Masked Text */}
                             <div className="text-center">
-                                <p className="text-lg font-semibold text-slate-800">
+                                <p className="text-lg font-bold text-slate-800">
                                     {getMaskedText(
                                         image.full_text,
                                         image.masked_position,
                                     )}
                                 </p>
                                 {showResults && (
-                                    <p className="mt-1 text-sm text-slate-600">
-                                        Correct: {image.correct_letter}
+                                    <p className="mt-1 text-xs font-medium text-green-600">
+                                        ✓ {image.correct_letter}
                                     </p>
                                 )}
                             </div>
 
-                            {/* Selected Letter Display */}
                             {selectedLetters[image.id] && (
                                 <div
-                                    className={`mt-2 rounded-md px-3 py-1 text-lg font-bold ${
+                                    className={`mt-2 rounded-xl px-3 py-1 text-lg font-bold shadow-md ${
                                         showResults
                                             ? isCorrect(image.id)
-                                                ? 'bg-green-100 text-green-700'
-                                                : 'bg-red-100 text-red-700'
-                                            : 'bg-blue-100 text-blue-700'
+                                                ? 'bg-gradient-to-r from-green-400 to-green-500 text-white'
+                                                : 'bg-gradient-to-r from-red-400 to-red-500 text-white'
+                                            : 'bg-gradient-to-r from-blue-400 to-purple-500 text-white'
                                     }`}
                                 >
                                     {selectedLetters[image.id]}
@@ -197,35 +238,64 @@ export default function ChooseLetterExercise({
 
                 {/* Keyboard - Letter Options for Current Image */}
                 {!showResults && currentImage && shuffledLetters.length > 0 && (
-                    <div className="mb-6">
-                        <h3 className="mb-3 text-center text-lg font-semibold text-slate-700">
-                            Image {currentImageIndex + 1} sur {images.length} -
-                            Choisis la bonne lettre:
+                    <div className="mb-4 rounded-3xl bg-white p-5 shadow-xl">
+                        <h3 className="mb-4 bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-center text-xl font-bold text-transparent">
+                            Choisis la lettre manquante pour cette image:
                         </h3>
                         <div className="flex flex-wrap justify-center gap-3">
                             {shuffledLetters.map((letter) => (
-                                <Button
+                                <button
                                     key={letter}
-                                    variant="outline"
-                                    size="lg"
-                                    className="h-16 w-16 text-2xl font-bold"
                                     onClick={() => handleLetterSelect(letter)}
+                                    className={`group relative h-16 w-16 overflow-hidden rounded-xl text-2xl font-bold uppercase shadow-lg transition-all duration-300 hover:shadow-2xl active:scale-95 ${
+                                        selectedLetters[currentImage.id] ===
+                                        letter
+                                            ? 'scale-105 bg-gradient-to-br from-purple-500 to-blue-600 text-white ring-4 ring-purple-400 ring-offset-2'
+                                            : 'bg-gradient-to-br from-yellow-300 via-pink-300 to-purple-300 text-slate-800 hover:scale-105'
+                                    }`}
                                 >
-                                    {letter}
-                                </Button>
+                                    <span className="relative z-10">
+                                        {letter}
+                                    </span>
+                                    <div className="absolute inset-0 bg-gradient-to-br from-white/20 to-transparent opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
+                                </button>
                             ))}
+                        </div>
+
+                        <div className="mt-5 flex justify-center gap-4">
+                            <button
+                                onClick={handlePrevious}
+                                disabled={currentImageIndex === 0}
+                                className="group flex items-center gap-2 rounded-full bg-gradient-to-r from-slate-500 to-slate-600 px-6 py-2 text-sm font-bold text-white shadow-lg transition-all duration-300 hover:scale-105 hover:shadow-xl disabled:cursor-not-allowed disabled:from-slate-300 disabled:to-slate-400 disabled:opacity-50"
+                            >
+                                <span className="transition-transform group-hover:-translate-x-1">
+                                    ←
+                                </span>
+                                Précédent
+                            </button>
+                            <button
+                                onClick={handleNext}
+                                disabled={
+                                    currentImageIndex === images.length - 1
+                                }
+                                className="group flex items-center gap-2 rounded-full bg-gradient-to-r from-slate-500 to-slate-600 px-6 py-2 text-sm font-bold text-white shadow-lg transition-all duration-300 hover:scale-105 hover:shadow-xl disabled:cursor-not-allowed disabled:from-slate-300 disabled:to-slate-400 disabled:opacity-50"
+                            >
+                                Suivant
+                                <span className="transition-transform group-hover:translate-x-1">
+                                    →
+                                </span>
+                            </button>
                         </div>
                     </div>
                 )}
 
-                {/* Score Display */}
                 {showResults && (
-                    <div className="mb-6 rounded-lg bg-slate-100 p-4 text-center">
-                        <p className="text-xl font-bold text-slate-800">
+                    <div className="mb-5 rounded-3xl bg-gradient-to-br from-purple-100 via-blue-100 to-pink-100 p-5 text-center shadow-xl">
+                        <p className="bg-gradient-to-r from-purple-600 to-blue-600 bg-clip-text text-3xl font-bold text-transparent">
                             Score: {score} / {images.length}
                         </p>
                         <p
-                            className={`mt-1 text-lg ${
+                            className={`mt-3 text-xl font-bold ${
                                 score === images.length
                                     ? 'text-green-600'
                                     : 'text-orange-600'
@@ -238,34 +308,29 @@ export default function ChooseLetterExercise({
                     </div>
                 )}
 
-                {/* Action Buttons */}
                 <div className="flex justify-center gap-4">
                     {!showResults ? (
-                        <Button
+                        <button
                             onClick={handleValidate}
-                            size="lg"
                             disabled={!allLettersSelected}
-                            className="px-8"
+                            className="rounded-full bg-gradient-to-r from-green-500 to-emerald-600 px-10 py-3 text-lg font-bold text-white shadow-xl transition-all duration-300 hover:scale-105 hover:shadow-2xl active:scale-95 disabled:cursor-not-allowed disabled:from-slate-300 disabled:to-slate-400 disabled:opacity-50"
                         >
                             Valider
-                        </Button>
+                        </button>
                     ) : (
                         <>
-                            <Button
+                            <button
                                 onClick={handleRetry}
-                                variant="outline"
-                                size="lg"
-                                className="px-8"
+                                className="rounded-full bg-gradient-to-r from-orange-400 to-orange-500 px-8 py-3 text-lg font-bold text-white shadow-xl transition-all duration-300 hover:scale-105 hover:shadow-2xl active:scale-95"
                             >
                                 Réessayer
-                            </Button>
-                            <Button
+                            </button>
+                            <button
                                 onClick={handleFinish}
-                                size="lg"
-                                className="px-8"
+                                className="rounded-full bg-gradient-to-r from-blue-500 to-purple-600 px-8 py-3 text-lg font-bold text-white shadow-xl transition-all duration-300 hover:scale-105 hover:shadow-2xl active:scale-95"
                             >
                                 Terminer
-                            </Button>
+                            </button>
                         </>
                     )}
                 </div>

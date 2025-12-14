@@ -529,7 +529,9 @@ class EducationalProgramController extends Controller
 
     public function deleteExerciseWord(EducationLevelCategory $category, EducationLevel $level, EducationalSubject $subject, Chapter $chapter, Exercise $exercise, ExerciseWord $word)
     {
-        Storage::disk('public')->delete($word->audio_path);
+        if ($word->audio_path && Storage::disk('public')->exists($word->audio_path)) {
+            Storage::disk('public')->delete($word->audio_path);
+        }
         $word->delete();
 
         return back()->with('success', 'Mot supprimé avec succès');
