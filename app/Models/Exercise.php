@@ -18,12 +18,14 @@ class Exercise extends Model
         'position',
         'required_repetitions',
         'letter_options',
+        'word_sequences',
     ];
 
     protected $casts = [
         'is_active' => 'boolean',
         'type' => ExerciseTypeEnum::class,
         'letter_options' => 'array',
+        'word_sequences' => 'array',
     ];
 
     protected $appends = [

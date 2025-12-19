@@ -1,6 +1,7 @@
 import ChooseLetterExercise from './ChooseLetterExercise';
 import ChooseWhenHearExercise from './ChooseWhenHearExercise';
 import ChooseWhenReadExercise from './ChooseWhenReadExercise';
+import CircleIdenticalExercise from './CircleIdenticalExercise';
 import SelectImageExercise from './SelectImageExercise';
 
 interface ExerciseImage {
@@ -30,6 +31,10 @@ interface Exercise {
     words?: ExerciseWord[];
     required_repetitions?: number;
     letter_options?: string[];
+    word_sequences?: {
+        model_word: string;
+        other_words: { word: string; is_valid: boolean }[];
+    }[];
 }
 
 interface Props {
@@ -102,6 +107,19 @@ export default function ExerciseRenderer({
                     }
                     onComplete={onComplete}
                     onRetry={onRetry}
+                    onSubmitScore={onSubmitScore}
+                />
+            );
+
+        case 'circle_identical':
+            return (
+                <CircleIdenticalExercise
+                    wordSequences={exercise.word_sequences || []}
+                    instruction={
+                        exercise.description ||
+                        "J'entoure les mots identiques au mot modèle"
+                    }
+                    onNext={onComplete}
                     onSubmitScore={onSubmitScore}
                 />
             );

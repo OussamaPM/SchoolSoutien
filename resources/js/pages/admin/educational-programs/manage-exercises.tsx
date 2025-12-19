@@ -19,6 +19,8 @@ import { BreadcrumbItem } from '@/types';
 import { Head, router, useForm } from '@inertiajs/react';
 import {
     Check,
+    CheckCircle2,
+    CircleDot,
     Mic,
     Pencil,
     Plus,
@@ -43,6 +45,12 @@ interface Exercise {
     is_active: boolean;
     position: number;
     letter_options?: string[];
+    word_sequences?:
+        | {
+              model_word: string;
+              other_words: { word: string; is_valid: boolean }[];
+          }[]
+        | null;
     images?: ExerciseImage[];
 }
 
@@ -92,6 +100,40 @@ const breadcrumbs = (
     { title: 'Exercices', href: '#' },
 ];
 
+const getExerciseTypeIcon = (type: string) => {
+    switch (type) {
+        case 'choose_when_hear':
+            return Volume2;
+        case 'choose_when_read':
+            return Mic;
+        case 'select_image':
+            return CheckCircle2;
+        case 'choose_letter':
+            return Pencil;
+        case 'circle_identical':
+            return CircleDot;
+        default:
+            return Target;
+    }
+};
+
+const getExerciseTypeColor = (type: string) => {
+    switch (type) {
+        case 'choose_when_hear':
+            return 'text-blue-600';
+        case 'choose_when_read':
+            return 'text-green-600';
+        case 'select_image':
+            return 'text-purple-600';
+        case 'choose_letter':
+            return 'text-orange-600';
+        case 'circle_identical':
+            return 'text-pink-600';
+        default:
+            return 'text-slate-600';
+    }
+};
+
 export default function ManageExercises({
     category,
     level,
@@ -133,6 +175,10 @@ export default function ManageExercises({
         description: '',
         required_repetitions: 5,
         letter_options: [] as string[],
+        word_sequences: [] as {
+            model_word: string;
+            other_words: { word: string; is_valid: boolean }[];
+        }[],
     });
 
     const {
@@ -144,6 +190,10 @@ export default function ManageExercises({
     } = useForm({
         title: '',
         description: '',
+        word_sequences: [] as {
+            model_word: string;
+            other_words: { word: string; is_valid: boolean }[];
+        }[],
     });
 
     const {
@@ -416,6 +466,7 @@ export default function ManageExercises({
         setEditExerciseData({
             title: exercise.title,
             description: exercise.description,
+            word_sequences: exercise.word_sequences || [],
         });
         setIsEditDialogOpen(true);
     };
@@ -500,7 +551,7 @@ export default function ManageExercises({
                                 Nouvel exercice
                             </Button>
                         </DialogTrigger>
-                        <DialogContent>
+                        <DialogContent className="flex max-h-[90vh] flex-col">
                             <DialogHeader>
                                 <DialogTitle>
                                     {createStep === 'type'
@@ -517,32 +568,45 @@ export default function ManageExercises({
                                           )?.description}
                                 </DialogDescription>
                             </DialogHeader>
-                            <div className="space-y-4 py-4">
+                            <div className="flex-1 space-y-4 overflow-y-auto py-4">
                                 {createStep === 'type' ? (
                                     <div className="space-y-3">
-                                        {exerciseTypes.map((type) => (
-                                            <button
-                                                key={type.value}
-                                                onClick={() => {
-                                                    setNewExerciseData(
-                                                        'type',
-                                                        type.value,
-                                                    );
-                                                    setCreateStep('details');
-                                                }}
-                                                className="flex w-full flex-col items-start rounded-lg border-2 border-slate-200 p-4 text-left transition-all hover:border-purple-500 hover:bg-purple-50 dark:border-slate-700 dark:hover:border-purple-500 dark:hover:bg-purple-950"
-                                            >
-                                                <div className="flex items-center gap-2">
-                                                    <Target className="h-5 w-5 text-purple-600" />
-                                                    <h4 className="font-semibold text-slate-900 dark:text-slate-100">
-                                                        {type.label}
-                                                    </h4>
-                                                </div>
-                                                <p className="mt-1 text-sm text-slate-600 dark:text-slate-400">
-                                                    {type.description}
-                                                </p>
-                                            </button>
-                                        ))}
+                                        {exerciseTypes.map((type) => {
+                                            const TypeIcon =
+                                                getExerciseTypeIcon(type.value);
+                                            const iconColor =
+                                                getExerciseTypeColor(
+                                                    type.value,
+                                                );
+
+                                            return (
+                                                <button
+                                                    key={type.value}
+                                                    onClick={() => {
+                                                        setNewExerciseData(
+                                                            'type',
+                                                            type.value,
+                                                        );
+                                                        setCreateStep(
+                                                            'details',
+                                                        );
+                                                    }}
+                                                    className="flex w-full flex-col items-start rounded-lg border-2 border-slate-200 p-4 text-left transition-all hover:border-purple-500 hover:bg-purple-50 dark:border-slate-700 dark:hover:border-purple-500 dark:hover:bg-purple-950"
+                                                >
+                                                    <div className="flex items-center gap-2">
+                                                        <TypeIcon
+                                                            className={`h-5 w-5 ${iconColor}`}
+                                                        />
+                                                        <h4 className="font-semibold text-slate-900 dark:text-slate-100">
+                                                            {type.label}
+                                                        </h4>
+                                                    </div>
+                                                    <p className="mt-1 text-sm text-slate-600 dark:text-slate-400">
+                                                        {type.description}
+                                                    </p>
+                                                </button>
+                                            );
+                                        })}
                                     </div>
                                 ) : (
                                     <>
@@ -611,6 +675,256 @@ export default function ManageExercises({
                                                 </p>
                                             </div>
                                         )}
+                                        {newExerciseData.type ===
+                                            'circle_identical' && (
+                                            <div className="space-y-4">
+                                                <Label>Séquences de mots</Label>
+                                                <div className="space-y-4">
+                                                    {newExerciseData.word_sequences.map(
+                                                        (
+                                                            sequence,
+                                                            seqIndex,
+                                                        ) => (
+                                                            <div
+                                                                key={seqIndex}
+                                                                className="space-y-3 rounded-lg border-2 border-slate-200 p-4"
+                                                            >
+                                                                <div className="flex items-center justify-between">
+                                                                    <Label className="text-sm font-semibold text-purple-600">
+                                                                        Séquence{' '}
+                                                                        {seqIndex +
+                                                                            1}
+                                                                    </Label>
+                                                                    <Button
+                                                                        variant="outline"
+                                                                        size="sm"
+                                                                        onClick={() => {
+                                                                            const newSequences =
+                                                                                newExerciseData.word_sequences.filter(
+                                                                                    (
+                                                                                        _,
+                                                                                        i,
+                                                                                    ) =>
+                                                                                        i !==
+                                                                                        seqIndex,
+                                                                                );
+                                                                            setNewExerciseData(
+                                                                                'word_sequences',
+                                                                                newSequences,
+                                                                            );
+                                                                        }}
+                                                                    >
+                                                                        Supprimer
+                                                                        séquence
+                                                                    </Button>
+                                                                </div>
+                                                                <div className="space-y-2">
+                                                                    <Label
+                                                                        htmlFor={`model_word_${seqIndex}`}
+                                                                    >
+                                                                        Mot
+                                                                        modèle
+                                                                    </Label>
+                                                                    <Input
+                                                                        id={`model_word_${seqIndex}`}
+                                                                        placeholder="Ex: lama"
+                                                                        value={
+                                                                            sequence.model_word
+                                                                        }
+                                                                        onChange={(
+                                                                            e,
+                                                                        ) => {
+                                                                            const newSequences =
+                                                                                [
+                                                                                    ...newExerciseData.word_sequences,
+                                                                                ];
+                                                                            newSequences[
+                                                                                seqIndex
+                                                                            ].model_word =
+                                                                                e.target.value;
+                                                                            // Auto-recalculate is_valid for all words in this sequence
+                                                                            newSequences[
+                                                                                seqIndex
+                                                                            ].other_words =
+                                                                                newSequences[
+                                                                                    seqIndex
+                                                                                ].other_words.map(
+                                                                                    (
+                                                                                        w,
+                                                                                    ) => ({
+                                                                                        ...w,
+                                                                                        is_valid:
+                                                                                            w.word
+                                                                                                .trim()
+                                                                                                .toLowerCase() ===
+                                                                                            e.target.value
+                                                                                                .trim()
+                                                                                                .toLowerCase(),
+                                                                                    }),
+                                                                                );
+                                                                            setNewExerciseData(
+                                                                                'word_sequences',
+                                                                                newSequences,
+                                                                            );
+                                                                        }}
+                                                                    />
+                                                                </div>
+                                                                <div className="space-y-2">
+                                                                    <Label>
+                                                                        Autres
+                                                                        mots
+                                                                    </Label>
+                                                                    <div className="space-y-2">
+                                                                        {sequence.other_words.map(
+                                                                            (
+                                                                                wordItem,
+                                                                                wordIndex,
+                                                                            ) => (
+                                                                                <div
+                                                                                    key={
+                                                                                        wordIndex
+                                                                                    }
+                                                                                    className="flex items-center gap-2"
+                                                                                >
+                                                                                    <Input
+                                                                                        placeholder="Mot"
+                                                                                        value={
+                                                                                            wordItem.word
+                                                                                        }
+                                                                                        onChange={(
+                                                                                            e,
+                                                                                        ) => {
+                                                                                            const newSequences =
+                                                                                                [
+                                                                                                    ...newExerciseData.word_sequences,
+                                                                                                ];
+                                                                                            newSequences[
+                                                                                                seqIndex
+                                                                                            ].other_words[
+                                                                                                wordIndex
+                                                                                            ].word =
+                                                                                                e.target.value;
+                                                                                            newSequences[
+                                                                                                seqIndex
+                                                                                            ].other_words[
+                                                                                                wordIndex
+                                                                                            ].is_valid =
+                                                                                                e.target.value
+                                                                                                    .trim()
+                                                                                                    .toLowerCase() ===
+                                                                                                sequence.model_word
+                                                                                                    .trim()
+                                                                                                    .toLowerCase();
+                                                                                            setNewExerciseData(
+                                                                                                'word_sequences',
+                                                                                                newSequences,
+                                                                                            );
+                                                                                        }}
+                                                                                    />
+                                                                                    <span
+                                                                                        className={`text-sm font-medium whitespace-nowrap ${
+                                                                                            wordItem.is_valid
+                                                                                                ? 'text-green-600'
+                                                                                                : 'text-slate-500'
+                                                                                        }`}
+                                                                                    >
+                                                                                        {wordItem.is_valid
+                                                                                            ? '✓ Correct'
+                                                                                            : '○ Décoy'}
+                                                                                    </span>
+                                                                                    <Button
+                                                                                        variant="outline"
+                                                                                        size="sm"
+                                                                                        onClick={() => {
+                                                                                            const newSequences =
+                                                                                                [
+                                                                                                    ...newExerciseData.word_sequences,
+                                                                                                ];
+                                                                                            newSequences[
+                                                                                                seqIndex
+                                                                                            ].other_words =
+                                                                                                newSequences[
+                                                                                                    seqIndex
+                                                                                                ].other_words.filter(
+                                                                                                    (
+                                                                                                        _,
+                                                                                                        i,
+                                                                                                    ) =>
+                                                                                                        i !==
+                                                                                                        wordIndex,
+                                                                                                );
+                                                                                            setNewExerciseData(
+                                                                                                'word_sequences',
+                                                                                                newSequences,
+                                                                                            );
+                                                                                        }}
+                                                                                    >
+                                                                                        X
+                                                                                    </Button>
+                                                                                </div>
+                                                                            ),
+                                                                        )}
+                                                                    </div>
+                                                                    <Button
+                                                                        variant="outline"
+                                                                        size="sm"
+                                                                        onClick={() => {
+                                                                            const newSequences =
+                                                                                [
+                                                                                    ...newExerciseData.word_sequences,
+                                                                                ];
+                                                                            newSequences[
+                                                                                seqIndex
+                                                                            ].other_words.push(
+                                                                                {
+                                                                                    word: '',
+                                                                                    is_valid: false,
+                                                                                },
+                                                                            );
+                                                                            setNewExerciseData(
+                                                                                'word_sequences',
+                                                                                newSequences,
+                                                                            );
+                                                                        }}
+                                                                    >
+                                                                        <Plus className="mr-2 h-4 w-4" />
+                                                                        Ajouter
+                                                                        un mot
+                                                                    </Button>
+                                                                </div>
+                                                            </div>
+                                                        ),
+                                                    )}
+                                                </div>
+                                                <Button
+                                                    variant="outline"
+                                                    onClick={() => {
+                                                        setNewExerciseData(
+                                                            'word_sequences',
+                                                            [
+                                                                ...newExerciseData.word_sequences,
+                                                                {
+                                                                    model_word:
+                                                                        '',
+                                                                    other_words:
+                                                                        [],
+                                                                },
+                                                            ],
+                                                        );
+                                                    }}
+                                                >
+                                                    <Plus className="mr-2 h-4 w-4" />
+                                                    Ajouter une séquence
+                                                </Button>
+                                                <p className="text-xs text-slate-500">
+                                                    Ajoutez plusieurs séquences
+                                                    avec un mot modèle et
+                                                    d'autres mots (certains
+                                                    identiques, d'autres
+                                                    différents)
+                                                </p>
+                                            </div>
+                                        )}
                                     </>
                                 )}
                             </div>
@@ -669,143 +983,766 @@ export default function ManageExercises({
                     </Card>
                 ) : (
                     <div className="space-y-6">
-                        {chapter.exercises.map((exercise) => (
-                            <Card key={exercise.id}>
-                                <CardHeader>
-                                    <div className="flex items-start justify-between">
-                                        <div className="flex-1">
-                                            <CardTitle className="flex items-center gap-2">
-                                                <Target className="h-5 w-5 text-purple-600" />
-                                                {exercise.title}
-                                            </CardTitle>
-                                            {exercise.description && (
-                                                <p className="mt-2 text-sm text-slate-600 dark:text-slate-400">
-                                                    {exercise.description}
-                                                </p>
-                                            )}
-                                        </div>
-                                        <div className="flex gap-2">
-                                            <Button
-                                                variant="outline"
-                                                size="sm"
-                                                onClick={() =>
-                                                    handleEditExercise(exercise)
-                                                }
-                                            >
-                                                <Pencil className="h-4 w-4" />
-                                            </Button>
-                                            <Button
-                                                variant="destructive"
-                                                size="sm"
-                                                onClick={() =>
-                                                    deleteExercise(exercise)
-                                                }
-                                            >
-                                                <Trash2 className="h-4 w-4" />
-                                            </Button>
-                                        </div>
-                                    </div>
-                                </CardHeader>
-                                <CardContent className="space-y-4">
-                                    {exercise.type === 'choose_when_hear' && (
-                                        <>
-                                            <div className="flex items-center justify-between">
-                                                <h4 className="font-semibold text-slate-700 dark:text-slate-300">
-                                                    Images (
-                                                    {exercise.images?.length ||
-                                                        0}
-                                                    )
-                                                </h4>
-                                                <Dialog
-                                                    open={
-                                                        isAddImageDialogOpen &&
-                                                        selectedExercise?.id ===
-                                                            exercise.id
+                        {chapter.exercises.map((exercise) => {
+                            const ExerciseIcon = getExerciseTypeIcon(
+                                exercise.type,
+                            );
+                            const iconColor = getExerciseTypeColor(
+                                exercise.type,
+                            );
+
+                            return (
+                                <Card key={exercise.id}>
+                                    <CardHeader>
+                                        <div className="flex items-start justify-between">
+                                            <div className="flex-1">
+                                                <CardTitle className="flex items-center gap-2">
+                                                    <ExerciseIcon
+                                                        className={`h-5 w-5 ${iconColor}`}
+                                                    />
+                                                    {exercise.title}
+                                                </CardTitle>
+                                                {exercise.description && (
+                                                    <p className="mt-2 text-sm text-slate-600 dark:text-slate-400">
+                                                        {exercise.description}
+                                                    </p>
+                                                )}
+                                            </div>
+                                            <div className="flex gap-2">
+                                                <Button
+                                                    variant="outline"
+                                                    size="sm"
+                                                    onClick={() =>
+                                                        handleEditExercise(
+                                                            exercise,
+                                                        )
                                                     }
-                                                    onOpenChange={(open) => {
-                                                        setIsAddImageDialogOpen(
-                                                            open,
-                                                        );
-                                                        if (open) {
-                                                            setSelectedExercise(
-                                                                exercise,
-                                                            );
-                                                        } else {
-                                                            setSelectedExercise(
-                                                                null,
-                                                            );
-                                                            setSelectedImage(
-                                                                null,
-                                                            );
-                                                            setSelectedAudio(
-                                                                null,
-                                                            );
-                                                            setAudioBlob(null);
-                                                            setIsRecording(
-                                                                false,
-                                                            );
-                                                        }
-                                                    }}
                                                 >
-                                                    <DialogTrigger asChild>
-                                                        <Button
-                                                            size="sm"
-                                                            variant="outline"
-                                                        >
-                                                            <Plus className="mr-2 h-4 w-4" />
-                                                            Ajouter une image
-                                                        </Button>
-                                                    </DialogTrigger>
-                                                    <DialogContent>
-                                                        <DialogHeader>
-                                                            <DialogTitle>
+                                                    <Pencil className="h-4 w-4" />
+                                                </Button>
+                                                <Button
+                                                    variant="destructive"
+                                                    size="sm"
+                                                    onClick={() =>
+                                                        deleteExercise(exercise)
+                                                    }
+                                                >
+                                                    <Trash2 className="h-4 w-4" />
+                                                </Button>
+                                            </div>
+                                        </div>
+                                    </CardHeader>
+                                    <CardContent className="space-y-4">
+                                        {exercise.type ===
+                                            'choose_when_hear' && (
+                                            <>
+                                                <div className="flex items-center justify-between">
+                                                    <h4 className="font-semibold text-slate-700 dark:text-slate-300">
+                                                        Images (
+                                                        {exercise.images
+                                                            ?.length || 0}
+                                                        )
+                                                    </h4>
+                                                    <Dialog
+                                                        open={
+                                                            isAddImageDialogOpen &&
+                                                            selectedExercise?.id ===
+                                                                exercise.id
+                                                        }
+                                                        onOpenChange={(
+                                                            open,
+                                                        ) => {
+                                                            setIsAddImageDialogOpen(
+                                                                open,
+                                                            );
+                                                            if (open) {
+                                                                setSelectedExercise(
+                                                                    exercise,
+                                                                );
+                                                            } else {
+                                                                setSelectedExercise(
+                                                                    null,
+                                                                );
+                                                                setSelectedImage(
+                                                                    null,
+                                                                );
+                                                                setSelectedAudio(
+                                                                    null,
+                                                                );
+                                                                setAudioBlob(
+                                                                    null,
+                                                                );
+                                                                setIsRecording(
+                                                                    false,
+                                                                );
+                                                            }
+                                                        }}
+                                                    >
+                                                        <DialogTrigger asChild>
+                                                            <Button
+                                                                size="sm"
+                                                                variant="outline"
+                                                            >
+                                                                <Plus className="mr-2 h-4 w-4" />
                                                                 Ajouter une
                                                                 image
-                                                            </DialogTitle>
-                                                            <DialogDescription>
-                                                                Téléversez une
-                                                                image et
-                                                                enregistrez
-                                                                l'audio
-                                                                correspondant
-                                                            </DialogDescription>
-                                                        </DialogHeader>
-                                                        <div className="space-y-4 py-4">
-                                                            <div className="space-y-2">
-                                                                <Label htmlFor="image">
-                                                                    Image
-                                                                </Label>
-                                                                <Input
-                                                                    id="image"
-                                                                    type="file"
-                                                                    accept="image/*"
-                                                                    onChange={(
-                                                                        e,
-                                                                    ) => {
-                                                                        const file =
-                                                                            e
-                                                                                .target
-                                                                                .files?.[0] ||
-                                                                            null;
-                                                                        setSelectedImage(
-                                                                            file,
+                                                            </Button>
+                                                        </DialogTrigger>
+                                                        <DialogContent>
+                                                            <DialogHeader>
+                                                                <DialogTitle>
+                                                                    Ajouter une
+                                                                    image
+                                                                </DialogTitle>
+                                                                <DialogDescription>
+                                                                    Téléversez
+                                                                    une image et
+                                                                    enregistrez
+                                                                    l'audio
+                                                                    correspondant
+                                                                </DialogDescription>
+                                                            </DialogHeader>
+                                                            <div className="space-y-4 py-4">
+                                                                <div className="space-y-2">
+                                                                    <Label htmlFor="image">
+                                                                        Image
+                                                                    </Label>
+                                                                    <Input
+                                                                        id="image"
+                                                                        type="file"
+                                                                        accept="image/*"
+                                                                        onChange={(
+                                                                            e,
+                                                                        ) => {
+                                                                            const file =
+                                                                                e
+                                                                                    .target
+                                                                                    .files?.[0] ||
+                                                                                null;
+                                                                            setSelectedImage(
+                                                                                file,
+                                                                            );
+                                                                            setImageData(
+                                                                                'image',
+                                                                                file,
+                                                                            );
+                                                                        }}
+                                                                    />
+                                                                    {imageErrors.image && (
+                                                                        <p className="text-sm text-red-600">
+                                                                            {
+                                                                                imageErrors.image
+                                                                            }
+                                                                        </p>
+                                                                    )}
+                                                                </div>
+                                                                {selectedExercise?.type ===
+                                                                    'select_image' && (
+                                                                    <div className="space-y-2">
+                                                                        <Label htmlFor="text">
+                                                                            Texte
+                                                                        </Label>
+                                                                        <Input
+                                                                            id="text"
+                                                                            type="text"
+                                                                            placeholder="Ex: chat, lune, etc."
+                                                                            value={
+                                                                                imageData.text
+                                                                            }
+                                                                            onChange={(
+                                                                                e,
+                                                                            ) =>
+                                                                                setImageData(
+                                                                                    'text',
+                                                                                    e
+                                                                                        .target
+                                                                                        .value,
+                                                                                )
+                                                                            }
+                                                                        />
+                                                                        {imageErrors.text && (
+                                                                            <p className="text-sm text-red-600">
+                                                                                {
+                                                                                    imageErrors.text
+                                                                                }
+                                                                            </p>
+                                                                        )}
+                                                                    </div>
+                                                                )}
+                                                                <div className="space-y-2">
+                                                                    <Label>
+                                                                        Audio
+                                                                    </Label>
+                                                                    <div className="flex gap-2">
+                                                                        <Button
+                                                                            type="button"
+                                                                            variant={
+                                                                                isRecording
+                                                                                    ? 'destructive'
+                                                                                    : 'outline'
+                                                                            }
+                                                                            className="flex-1"
+                                                                            onClick={
+                                                                                isRecording
+                                                                                    ? stopRecording
+                                                                                    : startRecording
+                                                                            }
+                                                                        >
+                                                                            <Mic className="mr-2 h-4 w-4" />
+                                                                            {isRecording
+                                                                                ? "Arrêter l'enregistrement"
+                                                                                : 'Enregistrer'}
+                                                                        </Button>
+                                                                    </div>
+                                                                    {audioBlob && (
+                                                                        <div className="flex items-center gap-2 rounded-md border border-green-200 bg-green-50 p-2">
+                                                                            <Volume2 className="h-4 w-4 text-green-700" />
+                                                                            <span className="text-sm text-green-700">
+                                                                                Audio
+                                                                                enregistré
+                                                                            </span>
+                                                                        </div>
+                                                                    )}
+                                                                    <div className="text-center text-sm text-slate-600">
+                                                                        ou
+                                                                    </div>
+                                                                    <Input
+                                                                        type="file"
+                                                                        accept="audio/*"
+                                                                        onChange={(
+                                                                            e,
+                                                                        ) => {
+                                                                            const file =
+                                                                                e
+                                                                                    .target
+                                                                                    .files?.[0] ||
+                                                                                null;
+                                                                            setSelectedAudio(
+                                                                                file,
+                                                                            );
+                                                                            setImageData(
+                                                                                'audio',
+                                                                                file,
+                                                                            );
+                                                                            setAudioBlob(
+                                                                                null,
+                                                                            );
+                                                                        }}
+                                                                    />
+                                                                    {imageErrors.audio && (
+                                                                        <p className="text-sm text-red-600">
+                                                                            {
+                                                                                imageErrors.audio
+                                                                            }
+                                                                        </p>
+                                                                    )}
+                                                                </div>
+                                                                <div className="flex items-center space-x-2">
+                                                                    <Checkbox
+                                                                        id="is_correct"
+                                                                        checked={
+                                                                            imageData.is_correct
+                                                                        }
+                                                                        onCheckedChange={(
+                                                                            checked,
+                                                                        ) =>
+                                                                            setImageData(
+                                                                                'is_correct',
+                                                                                checked ===
+                                                                                    true,
+                                                                            )
+                                                                        }
+                                                                    />
+                                                                    <Label
+                                                                        htmlFor="is_correct"
+                                                                        className="text-sm leading-none font-medium peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+                                                                    >
+                                                                        Cette
+                                                                        image
+                                                                        est
+                                                                        correcte
+                                                                    </Label>
+                                                                </div>
+                                                            </div>
+                                                            <DialogFooter>
+                                                                <Button
+                                                                    variant="outline"
+                                                                    onClick={() => {
+                                                                        setIsAddImageDialogOpen(
+                                                                            false,
                                                                         );
-                                                                        setImageData(
-                                                                            'image',
-                                                                            file,
+                                                                        setSelectedImage(
+                                                                            null,
+                                                                        );
+                                                                        setSelectedAudio(
+                                                                            null,
+                                                                        );
+                                                                        setAudioBlob(
+                                                                            null,
                                                                         );
                                                                     }}
-                                                                />
-                                                                {imageErrors.image && (
-                                                                    <p className="text-sm text-red-600">
-                                                                        {
-                                                                            imageErrors.image
+                                                                >
+                                                                    Annuler
+                                                                </Button>
+                                                                <Button
+                                                                    onClick={() =>
+                                                                        handleAddImage(
+                                                                            exercise,
+                                                                        )
+                                                                    }
+                                                                    disabled={
+                                                                        !selectedImage ||
+                                                                        (!selectedAudio &&
+                                                                            !audioBlob)
+                                                                    }
+                                                                >
+                                                                    Ajouter
+                                                                </Button>
+                                                            </DialogFooter>
+                                                        </DialogContent>
+                                                    </Dialog>
+                                                </div>
+
+                                                {!exercise.images ||
+                                                exercise.images.length === 0 ? (
+                                                    <div className="rounded-lg border-2 border-dashed border-slate-200 p-12 text-center">
+                                                        <Upload className="mx-auto mb-3 h-12 w-12 text-slate-400" />
+                                                        <p className="text-sm text-slate-600">
+                                                            Aucune image ajoutée
+                                                        </p>
+                                                        <p className="mt-1 text-xs text-slate-400">
+                                                            Cliquez sur "Ajouter
+                                                            une image" pour
+                                                            commencer
+                                                        </p>
+                                                    </div>
+                                                ) : (
+                                                    <div className="grid grid-cols-2 gap-4 md:grid-cols-3 lg:grid-cols-4">
+                                                        {exercise.images.map(
+                                                            (image) => (
+                                                                <div
+                                                                    key={
+                                                                        image.id
+                                                                    }
+                                                                    className="group relative rounded-lg border-2 border-slate-200 bg-white p-3 transition-all hover:shadow-lg"
+                                                                >
+                                                                    <div className="relative aspect-square overflow-hidden rounded-md">
+                                                                        <img
+                                                                            src={`/storage/${image.image_path}`}
+                                                                            alt="Exercise"
+                                                                            className="h-full w-full object-cover"
+                                                                            loading="lazy"
+                                                                            decoding="async"
+                                                                        />
+                                                                        <button
+                                                                            onClick={() =>
+                                                                                toggleCorrect(
+                                                                                    exercise,
+                                                                                    image,
+                                                                                )
+                                                                            }
+                                                                            className={`absolute top-2 right-2 rounded-full p-1.5 shadow-lg transition-all ${
+                                                                                image.is_correct
+                                                                                    ? 'bg-green-500 text-white'
+                                                                                    : 'bg-red-500 text-white'
+                                                                            }`}
+                                                                        >
+                                                                            {image.is_correct ? (
+                                                                                <Check className="h-4 w-4" />
+                                                                            ) : (
+                                                                                <X className="h-4 w-4" />
+                                                                            )}
+                                                                        </button>
+                                                                    </div>
+                                                                    {image.text && (
+                                                                        <div className="mt-2 text-center">
+                                                                            <p className="text-sm font-medium text-slate-700">
+                                                                                {
+                                                                                    image.text
+                                                                                }
+                                                                            </p>
+                                                                        </div>
+                                                                    )}
+                                                                    <div className="mt-3">
+                                                                        <audio
+                                                                            controls
+                                                                            className="h-8 w-full"
+                                                                            src={`/storage/${image.audio_path}`}
+                                                                        />
+                                                                    </div>
+                                                                    <Button
+                                                                        variant="destructive"
+                                                                        size="sm"
+                                                                        className="mt-3 w-full opacity-0 transition-opacity group-hover:opacity-100"
+                                                                        onClick={() =>
+                                                                            deleteImage(
+                                                                                exercise,
+                                                                                image,
+                                                                            )
                                                                         }
-                                                                    </p>
-                                                                )}
+                                                                    >
+                                                                        <Trash2 className="mr-2 h-3 w-3" />
+                                                                        Supprimer
+                                                                    </Button>
+                                                                </div>
+                                                            ),
+                                                        )}
+                                                    </div>
+                                                )}
+                                            </>
+                                        )}
+
+                                        {exercise.type ===
+                                            'choose_when_read' && (
+                                            <>
+                                                <div className="mb-2 rounded-lg bg-blue-50 p-3 dark:bg-blue-950/20">
+                                                    <p className="text-sm font-medium text-blue-900 dark:text-blue-100">
+                                                        Répétitions requises:{' '}
+                                                        {exercise.required_repetitions ||
+                                                            5}{' '}
+                                                        fois
+                                                    </p>
+                                                </div>
+                                                <div className="flex items-center justify-between">
+                                                    <h4 className="font-semibold text-slate-700 dark:text-slate-300">
+                                                        Mots (
+                                                        {exercise.words
+                                                            ?.length || 0}
+                                                        )
+                                                    </h4>
+                                                    <Dialog
+                                                        open={
+                                                            isAddWordDialogOpen &&
+                                                            selectedExercise?.id ===
+                                                                exercise.id
+                                                        }
+                                                        onOpenChange={(
+                                                            open,
+                                                        ) => {
+                                                            setIsAddWordDialogOpen(
+                                                                open,
+                                                            );
+                                                            if (open) {
+                                                                setSelectedExercise(
+                                                                    exercise,
+                                                                );
+                                                            } else {
+                                                                setSelectedExercise(
+                                                                    null,
+                                                                );
+                                                                setSelectedWordAudio(
+                                                                    null,
+                                                                );
+                                                                setWordAudioBlob(
+                                                                    null,
+                                                                );
+                                                                setIsRecordingWord(
+                                                                    false,
+                                                                );
+                                                                resetWordForm();
+                                                            }
+                                                        }}
+                                                    >
+                                                        <DialogTrigger asChild>
+                                                            <Button
+                                                                size="sm"
+                                                                variant="outline"
+                                                            >
+                                                                <Plus className="mr-2 h-4 w-4" />
+                                                                Ajouter un mot
+                                                            </Button>
+                                                        </DialogTrigger>
+                                                        <DialogContent>
+                                                            <DialogHeader>
+                                                                <DialogTitle>
+                                                                    Ajouter un
+                                                                    mot
+                                                                </DialogTitle>
+                                                                <DialogDescription>
+                                                                    Ajoutez un
+                                                                    texte et un
+                                                                    audio
+                                                                </DialogDescription>
+                                                            </DialogHeader>
+                                                            <div className="space-y-4">
+                                                                <div>
+                                                                    <Label>
+                                                                        Texte
+                                                                        (mot)
+                                                                    </Label>
+                                                                    <Input
+                                                                        placeholder="Ex: maison"
+                                                                        value={
+                                                                            wordData.text
+                                                                        }
+                                                                        onChange={(
+                                                                            e,
+                                                                        ) =>
+                                                                            setWordData(
+                                                                                'text',
+                                                                                e
+                                                                                    .target
+                                                                                    .value,
+                                                                            )
+                                                                        }
+                                                                    />
+                                                                </div>
+                                                                <div>
+                                                                    <Label>
+                                                                        Audio
+                                                                    </Label>
+                                                                    <div className="flex gap-2">
+                                                                        <Button
+                                                                            type="button"
+                                                                            variant={
+                                                                                isRecordingWord
+                                                                                    ? 'destructive'
+                                                                                    : 'outline'
+                                                                            }
+                                                                            className="flex-1"
+                                                                            onClick={
+                                                                                isRecordingWord
+                                                                                    ? stopWordRecording
+                                                                                    : startWordRecording
+                                                                            }
+                                                                        >
+                                                                            <Mic className="mr-2 h-4 w-4" />
+                                                                            {isRecordingWord
+                                                                                ? "Arrêter l'enregistrement"
+                                                                                : 'Enregistrer'}
+                                                                        </Button>
+                                                                    </div>
+                                                                    {wordAudioBlob && (
+                                                                        <div className="flex items-center gap-2 rounded-md border border-green-200 bg-green-50 p-2">
+                                                                            <Volume2 className="h-4 w-4 text-green-700" />
+                                                                            <span className="text-sm text-green-700">
+                                                                                Audio
+                                                                                enregistré
+                                                                            </span>
+                                                                        </div>
+                                                                    )}
+                                                                    <div className="text-center text-sm text-slate-600">
+                                                                        ou
+                                                                    </div>
+                                                                    <Input
+                                                                        type="file"
+                                                                        accept="audio/*"
+                                                                        onChange={(
+                                                                            e,
+                                                                        ) => {
+                                                                            const file =
+                                                                                e
+                                                                                    .target
+                                                                                    .files?.[0] ||
+                                                                                null;
+                                                                            if (
+                                                                                file
+                                                                            ) {
+                                                                                setWordData(
+                                                                                    'audio',
+                                                                                    file,
+                                                                                );
+                                                                                setSelectedWordAudio(
+                                                                                    file,
+                                                                                );
+                                                                                setWordAudioBlob(
+                                                                                    null,
+                                                                                );
+                                                                            }
+                                                                        }}
+                                                                    />
+                                                                    {selectedWordAudio &&
+                                                                        !wordAudioBlob && (
+                                                                            <p className="mt-2 text-sm text-green-600">
+                                                                                {
+                                                                                    selectedWordAudio.name
+                                                                                }
+                                                                            </p>
+                                                                        )}
+                                                                    {wordErrors.audio && (
+                                                                        <p className="text-sm text-red-600">
+                                                                            {
+                                                                                wordErrors.audio
+                                                                            }
+                                                                        </p>
+                                                                    )}
+                                                                </div>
                                                             </div>
-                                                            {selectedExercise?.type ===
-                                                                'select_image' && (
+                                                            <DialogFooter>
+                                                                <Button
+                                                                    onClick={() =>
+                                                                        handleAddWord(
+                                                                            exercise,
+                                                                        )
+                                                                    }
+                                                                    disabled={
+                                                                        isAddingWord
+                                                                    }
+                                                                >
+                                                                    Ajouter
+                                                                </Button>
+                                                            </DialogFooter>
+                                                        </DialogContent>
+                                                    </Dialog>
+                                                </div>
+
+                                                {!exercise.words ||
+                                                exercise.words.length === 0 ? (
+                                                    <div className="rounded-lg border-2 border-dashed border-slate-200 p-12 text-center">
+                                                        <Upload className="mx-auto mb-3 h-12 w-12 text-slate-400" />
+                                                        <p className="text-sm text-slate-600">
+                                                            Aucun mot ajouté
+                                                        </p>
+                                                        <p className="mt-1 text-xs text-slate-400">
+                                                            Cliquez sur "Ajouter
+                                                            un mot" pour
+                                                            commencer
+                                                        </p>
+                                                    </div>
+                                                ) : (
+                                                    <div className="space-y-2">
+                                                        {exercise.words.map(
+                                                            (word: any) => (
+                                                                <div
+                                                                    key={
+                                                                        word.id
+                                                                    }
+                                                                    className="group flex items-center justify-between rounded-lg border-2 border-slate-200 bg-white p-3 transition-all hover:shadow-md"
+                                                                >
+                                                                    <div className="flex-1">
+                                                                        <p className="font-semibold text-slate-900">
+                                                                            {
+                                                                                word.text
+                                                                            }
+                                                                        </p>
+                                                                        <audio
+                                                                            controls
+                                                                            className="mt-2 h-8 w-full"
+                                                                            src={`/storage/${word.audio_path}`}
+                                                                        />
+                                                                    </div>
+                                                                    <Button
+                                                                        variant="destructive"
+                                                                        size="sm"
+                                                                        className="ml-3"
+                                                                        onClick={() =>
+                                                                            deleteWord(
+                                                                                exercise,
+                                                                                word,
+                                                                            )
+                                                                        }
+                                                                    >
+                                                                        <Trash2 className="h-4 w-4" />
+                                                                    </Button>
+                                                                </div>
+                                                            ),
+                                                        )}
+                                                    </div>
+                                                )}
+                                            </>
+                                        )}
+
+                                        {exercise.type === 'select_image' && (
+                                            <>
+                                                <div className="flex items-center justify-between">
+                                                    <h4 className="font-semibold text-slate-700 dark:text-slate-300">
+                                                        Images (
+                                                        {exercise.images
+                                                            ?.length || 0}
+                                                        )
+                                                    </h4>
+                                                    <Dialog
+                                                        open={
+                                                            isAddImageDialogOpen &&
+                                                            selectedExercise?.id ===
+                                                                exercise.id
+                                                        }
+                                                        onOpenChange={(
+                                                            open,
+                                                        ) => {
+                                                            setIsAddImageDialogOpen(
+                                                                open,
+                                                            );
+                                                            if (open) {
+                                                                setSelectedExercise(
+                                                                    exercise,
+                                                                );
+                                                            } else {
+                                                                setSelectedExercise(
+                                                                    null,
+                                                                );
+                                                                setSelectedImage(
+                                                                    null,
+                                                                );
+                                                                setSelectedAudio(
+                                                                    null,
+                                                                );
+                                                                setAudioBlob(
+                                                                    null,
+                                                                );
+                                                                setIsRecording(
+                                                                    false,
+                                                                );
+                                                            }
+                                                        }}
+                                                    >
+                                                        <DialogTrigger asChild>
+                                                            <Button
+                                                                size="sm"
+                                                                variant="outline"
+                                                            >
+                                                                <Plus className="mr-2 h-4 w-4" />
+                                                                Ajouter une
+                                                                image
+                                                            </Button>
+                                                        </DialogTrigger>
+                                                        <DialogContent>
+                                                            <DialogHeader>
+                                                                <DialogTitle>
+                                                                    Ajouter une
+                                                                    image
+                                                                </DialogTitle>
+                                                                <DialogDescription>
+                                                                    Téléversez
+                                                                    une image et
+                                                                    ajoutez le
+                                                                    texte.
+                                                                </DialogDescription>
+                                                            </DialogHeader>
+                                                            <div className="space-y-4 py-4">
+                                                                <div className="space-y-2">
+                                                                    <Label htmlFor="image">
+                                                                        Image
+                                                                    </Label>
+                                                                    <Input
+                                                                        id="image"
+                                                                        type="file"
+                                                                        accept="image/*"
+                                                                        onChange={(
+                                                                            e,
+                                                                        ) => {
+                                                                            const file =
+                                                                                e
+                                                                                    .target
+                                                                                    .files?.[0] ||
+                                                                                null;
+                                                                            setSelectedImage(
+                                                                                file,
+                                                                            );
+                                                                            setImageData(
+                                                                                'image',
+                                                                                file,
+                                                                            );
+                                                                        }}
+                                                                    />
+                                                                    {imageErrors.image && (
+                                                                        <p className="text-sm text-red-600">
+                                                                            {
+                                                                                imageErrors.image
+                                                                            }
+                                                                        </p>
+                                                                    )}
+                                                                </div>
                                                                 <div className="space-y-2">
                                                                     <Label htmlFor="text">
                                                                         Texte
@@ -836,1103 +1773,623 @@ export default function ManageExercises({
                                                                         </p>
                                                                     )}
                                                                 </div>
-                                                            )}
-                                                            <div className="space-y-2">
-                                                                <Label>
-                                                                    Audio
-                                                                </Label>
-                                                                <div className="flex gap-2">
-                                                                    <Button
-                                                                        type="button"
-                                                                        variant={
-                                                                            isRecording
-                                                                                ? 'destructive'
-                                                                                : 'outline'
+                                                                <div className="flex items-center space-x-2">
+                                                                    <Checkbox
+                                                                        id="is_correct"
+                                                                        checked={
+                                                                            imageData.is_correct
                                                                         }
-                                                                        className="flex-1"
-                                                                        onClick={
-                                                                            isRecording
-                                                                                ? stopRecording
-                                                                                : startRecording
+                                                                        onCheckedChange={(
+                                                                            checked,
+                                                                        ) =>
+                                                                            setImageData(
+                                                                                'is_correct',
+                                                                                checked ===
+                                                                                    true,
+                                                                            )
                                                                         }
+                                                                    />
+                                                                    <Label
+                                                                        htmlFor="is_correct"
+                                                                        className="text-sm leading-none font-medium peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
                                                                     >
-                                                                        <Mic className="mr-2 h-4 w-4" />
-                                                                        {isRecording
-                                                                            ? "Arrêter l'enregistrement"
-                                                                            : 'Enregistrer'}
-                                                                    </Button>
+                                                                        Cette
+                                                                        image
+                                                                        est
+                                                                        correcte
+                                                                    </Label>
                                                                 </div>
-                                                                {audioBlob && (
-                                                                    <div className="flex items-center gap-2 rounded-md border border-green-200 bg-green-50 p-2">
-                                                                        <Volume2 className="h-4 w-4 text-green-700" />
-                                                                        <span className="text-sm text-green-700">
-                                                                            Audio
-                                                                            enregistré
-                                                                        </span>
-                                                                    </div>
-                                                                )}
-                                                                <div className="text-center text-sm text-slate-600">
-                                                                    ou
-                                                                </div>
-                                                                <Input
-                                                                    type="file"
-                                                                    accept="audio/*"
-                                                                    onChange={(
-                                                                        e,
-                                                                    ) => {
-                                                                        const file =
-                                                                            e
-                                                                                .target
-                                                                                .files?.[0] ||
-                                                                            null;
-                                                                        setSelectedAudio(
-                                                                            file,
+                                                            </div>
+                                                            <DialogFooter>
+                                                                <Button
+                                                                    variant="outline"
+                                                                    onClick={() => {
+                                                                        setIsAddImageDialogOpen(
+                                                                            false,
                                                                         );
-                                                                        setImageData(
-                                                                            'audio',
-                                                                            file,
+                                                                        setSelectedImage(
+                                                                            null,
+                                                                        );
+                                                                        setSelectedAudio(
+                                                                            null,
                                                                         );
                                                                         setAudioBlob(
                                                                             null,
                                                                         );
                                                                     }}
-                                                                />
-                                                                {imageErrors.audio && (
-                                                                    <p className="text-sm text-red-600">
-                                                                        {
-                                                                            imageErrors.audio
-                                                                        }
-                                                                    </p>
-                                                                )}
-                                                            </div>
-                                                            <div className="flex items-center space-x-2">
-                                                                <Checkbox
-                                                                    id="is_correct"
-                                                                    checked={
-                                                                        imageData.is_correct
-                                                                    }
-                                                                    onCheckedChange={(
-                                                                        checked,
-                                                                    ) =>
-                                                                        setImageData(
-                                                                            'is_correct',
-                                                                            checked ===
-                                                                                true,
+                                                                >
+                                                                    Annuler
+                                                                </Button>
+                                                                <Button
+                                                                    onClick={() =>
+                                                                        handleAddImage(
+                                                                            exercise,
                                                                         )
                                                                     }
-                                                                />
-                                                                <Label
-                                                                    htmlFor="is_correct"
-                                                                    className="text-sm leading-none font-medium peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+                                                                    disabled={
+                                                                        !selectedImage
+                                                                    }
                                                                 >
-                                                                    Cette image
-                                                                    est correcte
-                                                                </Label>
-                                                            </div>
-                                                        </div>
-                                                        <DialogFooter>
-                                                            <Button
-                                                                variant="outline"
-                                                                onClick={() => {
-                                                                    setIsAddImageDialogOpen(
-                                                                        false,
-                                                                    );
-                                                                    setSelectedImage(
-                                                                        null,
-                                                                    );
-                                                                    setSelectedAudio(
-                                                                        null,
-                                                                    );
-                                                                    setAudioBlob(
-                                                                        null,
-                                                                    );
-                                                                }}
-                                                            >
-                                                                Annuler
-                                                            </Button>
-                                                            <Button
-                                                                onClick={() =>
-                                                                    handleAddImage(
-                                                                        exercise,
-                                                                    )
-                                                                }
-                                                                disabled={
-                                                                    !selectedImage ||
-                                                                    (!selectedAudio &&
-                                                                        !audioBlob)
-                                                                }
-                                                            >
-                                                                Ajouter
-                                                            </Button>
-                                                        </DialogFooter>
-                                                    </DialogContent>
-                                                </Dialog>
-                                            </div>
-
-                                            {!exercise.images ||
-                                            exercise.images.length === 0 ? (
-                                                <div className="rounded-lg border-2 border-dashed border-slate-200 p-12 text-center">
-                                                    <Upload className="mx-auto mb-3 h-12 w-12 text-slate-400" />
-                                                    <p className="text-sm text-slate-600">
-                                                        Aucune image ajoutée
-                                                    </p>
-                                                    <p className="mt-1 text-xs text-slate-400">
-                                                        Cliquez sur "Ajouter une
-                                                        image" pour commencer
-                                                    </p>
+                                                                    Ajouter
+                                                                </Button>
+                                                            </DialogFooter>
+                                                        </DialogContent>
+                                                    </Dialog>
                                                 </div>
-                                            ) : (
-                                                <div className="grid grid-cols-2 gap-4 md:grid-cols-3 lg:grid-cols-4">
-                                                    {exercise.images.map(
-                                                        (image) => (
-                                                            <div
-                                                                key={image.id}
-                                                                className="group relative rounded-lg border-2 border-slate-200 bg-white p-3 transition-all hover:shadow-lg"
-                                                            >
-                                                                <div className="relative aspect-square overflow-hidden rounded-md">
-                                                                    <img
-                                                                        src={`/storage/${image.image_path}`}
-                                                                        alt="Exercise"
-                                                                        className="h-full w-full object-cover"
-                                                                        loading="lazy"
-                                                                        decoding="async"
-                                                                    />
-                                                                    <button
+
+                                                {!exercise.images ||
+                                                exercise.images.length === 0 ? (
+                                                    <div className="rounded-lg border-2 border-dashed border-slate-200 p-12 text-center">
+                                                        <Upload className="mx-auto mb-3 h-12 w-12 text-slate-400" />
+                                                        <p className="text-sm text-slate-600">
+                                                            Aucune image ajoutée
+                                                        </p>
+                                                        <p className="mt-1 text-xs text-slate-400">
+                                                            Cliquez sur "Ajouter
+                                                            une image" pour
+                                                            commencer
+                                                        </p>
+                                                    </div>
+                                                ) : (
+                                                    <div className="grid grid-cols-2 gap-4 md:grid-cols-3 lg:grid-cols-4">
+                                                        {exercise.images.map(
+                                                            (image) => (
+                                                                <div
+                                                                    key={
+                                                                        image.id
+                                                                    }
+                                                                    className="group relative rounded-lg border-2 border-slate-200 bg-white p-3 transition-all hover:shadow-lg"
+                                                                >
+                                                                    <div className="relative aspect-square overflow-hidden rounded-md">
+                                                                        <img
+                                                                            src={`/storage/${image.image_path}`}
+                                                                            alt="Exercise"
+                                                                            className="h-full w-full object-cover"
+                                                                            loading="lazy"
+                                                                            decoding="async"
+                                                                        />
+                                                                        <button
+                                                                            onClick={() =>
+                                                                                toggleCorrect(
+                                                                                    exercise,
+                                                                                    image,
+                                                                                )
+                                                                            }
+                                                                            className={`absolute top-2 right-2 rounded-full p-1.5 shadow-lg transition-all ${
+                                                                                image.is_correct
+                                                                                    ? 'bg-green-500 text-white'
+                                                                                    : 'bg-red-500 text-white'
+                                                                            }`}
+                                                                        >
+                                                                            {image.is_correct ? (
+                                                                                <Check className="h-4 w-4" />
+                                                                            ) : (
+                                                                                <X className="h-4 w-4" />
+                                                                            )}
+                                                                        </button>
+                                                                    </div>
+                                                                    {image.text && (
+                                                                        <div className="mt-2 text-center">
+                                                                            <p className="text-sm font-medium text-slate-700">
+                                                                                {
+                                                                                    image.text
+                                                                                }
+                                                                            </p>
+                                                                        </div>
+                                                                    )}
+                                                                    <Button
+                                                                        variant="destructive"
+                                                                        size="sm"
+                                                                        className="mt-3 w-full opacity-0 transition-opacity group-hover:opacity-100"
                                                                         onClick={() =>
-                                                                            toggleCorrect(
+                                                                            deleteImage(
                                                                                 exercise,
                                                                                 image,
                                                                             )
                                                                         }
-                                                                        className={`absolute top-2 right-2 rounded-full p-1.5 shadow-lg transition-all ${
-                                                                            image.is_correct
-                                                                                ? 'bg-green-500 text-white'
-                                                                                : 'bg-red-500 text-white'
-                                                                        }`}
                                                                     >
-                                                                        {image.is_correct ? (
-                                                                            <Check className="h-4 w-4" />
-                                                                        ) : (
-                                                                            <X className="h-4 w-4" />
-                                                                        )}
-                                                                    </button>
-                                                                </div>
-                                                                {image.text && (
-                                                                    <div className="mt-2 text-center">
-                                                                        <p className="text-sm font-medium text-slate-700">
-                                                                            {
-                                                                                image.text
-                                                                            }
-                                                                        </p>
-                                                                    </div>
-                                                                )}
-                                                                <div className="mt-3">
-                                                                    <audio
-                                                                        controls
-                                                                        className="h-8 w-full"
-                                                                        src={`/storage/${image.audio_path}`}
-                                                                    />
-                                                                </div>
-                                                                <Button
-                                                                    variant="destructive"
-                                                                    size="sm"
-                                                                    className="mt-3 w-full opacity-0 transition-opacity group-hover:opacity-100"
-                                                                    onClick={() =>
-                                                                        deleteImage(
-                                                                            exercise,
-                                                                            image,
-                                                                        )
-                                                                    }
-                                                                >
-                                                                    <Trash2 className="mr-2 h-3 w-3" />
-                                                                    Supprimer
-                                                                </Button>
-                                                            </div>
-                                                        ),
-                                                    )}
-                                                </div>
-                                            )}
-                                        </>
-                                    )}
-
-                                    {exercise.type === 'choose_when_read' && (
-                                        <>
-                                            <div className="mb-2 rounded-lg bg-blue-50 p-3 dark:bg-blue-950/20">
-                                                <p className="text-sm font-medium text-blue-900 dark:text-blue-100">
-                                                    Répétitions requises:{' '}
-                                                    {exercise.required_repetitions ||
-                                                        5}{' '}
-                                                    fois
-                                                </p>
-                                            </div>
-                                            <div className="flex items-center justify-between">
-                                                <h4 className="font-semibold text-slate-700 dark:text-slate-300">
-                                                    Mots (
-                                                    {exercise.words?.length ||
-                                                        0}
-                                                    )
-                                                </h4>
-                                                <Dialog
-                                                    open={
-                                                        isAddWordDialogOpen &&
-                                                        selectedExercise?.id ===
-                                                            exercise.id
-                                                    }
-                                                    onOpenChange={(open) => {
-                                                        setIsAddWordDialogOpen(
-                                                            open,
-                                                        );
-                                                        if (open) {
-                                                            setSelectedExercise(
-                                                                exercise,
-                                                            );
-                                                        } else {
-                                                            setSelectedExercise(
-                                                                null,
-                                                            );
-                                                            setSelectedWordAudio(
-                                                                null,
-                                                            );
-                                                            setWordAudioBlob(
-                                                                null,
-                                                            );
-                                                            setIsRecordingWord(
-                                                                false,
-                                                            );
-                                                            resetWordForm();
-                                                        }
-                                                    }}
-                                                >
-                                                    <DialogTrigger asChild>
-                                                        <Button
-                                                            size="sm"
-                                                            variant="outline"
-                                                        >
-                                                            <Plus className="mr-2 h-4 w-4" />
-                                                            Ajouter un mot
-                                                        </Button>
-                                                    </DialogTrigger>
-                                                    <DialogContent>
-                                                        <DialogHeader>
-                                                            <DialogTitle>
-                                                                Ajouter un mot
-                                                            </DialogTitle>
-                                                            <DialogDescription>
-                                                                Ajoutez un texte
-                                                                et un audio
-                                                            </DialogDescription>
-                                                        </DialogHeader>
-                                                        <div className="space-y-4">
-                                                            <div>
-                                                                <Label>
-                                                                    Texte (mot)
-                                                                </Label>
-                                                                <Input
-                                                                    placeholder="Ex: maison"
-                                                                    value={
-                                                                        wordData.text
-                                                                    }
-                                                                    onChange={(
-                                                                        e,
-                                                                    ) =>
-                                                                        setWordData(
-                                                                            'text',
-                                                                            e
-                                                                                .target
-                                                                                .value,
-                                                                        )
-                                                                    }
-                                                                />
-                                                            </div>
-                                                            <div>
-                                                                <Label>
-                                                                    Audio
-                                                                </Label>
-                                                                <div className="flex gap-2">
-                                                                    <Button
-                                                                        type="button"
-                                                                        variant={
-                                                                            isRecordingWord
-                                                                                ? 'destructive'
-                                                                                : 'outline'
-                                                                        }
-                                                                        className="flex-1"
-                                                                        onClick={
-                                                                            isRecordingWord
-                                                                                ? stopWordRecording
-                                                                                : startWordRecording
-                                                                        }
-                                                                    >
-                                                                        <Mic className="mr-2 h-4 w-4" />
-                                                                        {isRecordingWord
-                                                                            ? "Arrêter l'enregistrement"
-                                                                            : 'Enregistrer'}
+                                                                        <Trash2 className="mr-2 h-3 w-3" />
+                                                                        Supprimer
                                                                     </Button>
                                                                 </div>
-                                                                {wordAudioBlob && (
-                                                                    <div className="flex items-center gap-2 rounded-md border border-green-200 bg-green-50 p-2">
-                                                                        <Volume2 className="h-4 w-4 text-green-700" />
-                                                                        <span className="text-sm text-green-700">
-                                                                            Audio
-                                                                            enregistré
-                                                                        </span>
-                                                                    </div>
-                                                                )}
-                                                                <div className="text-center text-sm text-slate-600">
-                                                                    ou
-                                                                </div>
-                                                                <Input
-                                                                    type="file"
-                                                                    accept="audio/*"
-                                                                    onChange={(
-                                                                        e,
-                                                                    ) => {
-                                                                        const file =
-                                                                            e
-                                                                                .target
-                                                                                .files?.[0] ||
-                                                                            null;
-                                                                        if (
-                                                                            file
-                                                                        ) {
-                                                                            setWordData(
-                                                                                'audio',
+                                                            ),
+                                                        )}
+                                                    </div>
+                                                )}
+                                            </>
+                                        )}
+
+                                        {exercise.type === 'choose_letter' && (
+                                            <>
+                                                <div className="flex items-center justify-between">
+                                                    <h4 className="font-semibold text-slate-700 dark:text-slate-300">
+                                                        Images (
+                                                        {exercise.images
+                                                            ?.length || 0}
+                                                        )
+                                                    </h4>
+                                                    <Dialog
+                                                        open={
+                                                            isAddImageDialogOpen &&
+                                                            selectedExercise?.id ===
+                                                                exercise.id
+                                                        }
+                                                        onOpenChange={(
+                                                            open,
+                                                        ) => {
+                                                            setIsAddImageDialogOpen(
+                                                                open,
+                                                            );
+                                                            if (open) {
+                                                                setSelectedExercise(
+                                                                    exercise,
+                                                                );
+                                                            } else {
+                                                                setSelectedExercise(
+                                                                    null,
+                                                                );
+                                                                setSelectedImage(
+                                                                    null,
+                                                                );
+                                                            }
+                                                        }}
+                                                    >
+                                                        <DialogTrigger asChild>
+                                                            <Button
+                                                                size="sm"
+                                                                variant="outline"
+                                                            >
+                                                                <Plus className="mr-2 h-4 w-4" />
+                                                                Ajouter une
+                                                                image
+                                                            </Button>
+                                                        </DialogTrigger>
+                                                        <DialogContent>
+                                                            <DialogHeader>
+                                                                <DialogTitle>
+                                                                    Ajouter une
+                                                                    image avec
+                                                                    mot
+                                                                </DialogTitle>
+                                                                <DialogDescription>
+                                                                    Téléversez
+                                                                    une image,
+                                                                    entrez le
+                                                                    mot complet
+                                                                    et
+                                                                    choisissez
+                                                                    la lettre à
+                                                                    masquer.
+                                                                </DialogDescription>
+                                                            </DialogHeader>
+                                                            <div className="space-y-4 py-4">
+                                                                <div className="space-y-2">
+                                                                    <Label htmlFor="image">
+                                                                        Image
+                                                                    </Label>
+                                                                    <Input
+                                                                        id="image"
+                                                                        type="file"
+                                                                        accept="image/*"
+                                                                        onChange={(
+                                                                            e,
+                                                                        ) => {
+                                                                            const file =
+                                                                                e
+                                                                                    .target
+                                                                                    .files?.[0] ||
+                                                                                null;
+                                                                            setSelectedImage(
                                                                                 file,
                                                                             );
-                                                                            setSelectedWordAudio(
+                                                                            setImageData(
+                                                                                'image',
                                                                                 file,
                                                                             );
-                                                                            setWordAudioBlob(
-                                                                                null,
-                                                                            );
-                                                                        }
-                                                                    }}
-                                                                />
-                                                                {selectedWordAudio &&
-                                                                    !wordAudioBlob && (
-                                                                        <p className="mt-2 text-sm text-green-600">
+                                                                        }}
+                                                                    />
+                                                                    {imageErrors.image && (
+                                                                        <p className="text-sm text-red-600">
                                                                             {
-                                                                                selectedWordAudio.name
+                                                                                imageErrors.image
                                                                             }
                                                                         </p>
                                                                     )}
-                                                                {wordErrors.audio && (
-                                                                    <p className="text-sm text-red-600">
-                                                                        {
-                                                                            wordErrors.audio
+                                                                </div>
+                                                                <div className="space-y-2">
+                                                                    <Label htmlFor="full_text">
+                                                                        Mot
+                                                                        complet
+                                                                    </Label>
+                                                                    <Input
+                                                                        id="full_text"
+                                                                        type="text"
+                                                                        placeholder="Ex: maman, tableau, tomate"
+                                                                        value={
+                                                                            imageData.full_text
                                                                         }
-                                                                    </p>
-                                                                )}
-                                                            </div>
-                                                        </div>
-                                                        <DialogFooter>
-                                                            <Button
-                                                                onClick={() =>
-                                                                    handleAddWord(
-                                                                        exercise,
-                                                                    )
-                                                                }
-                                                                disabled={
-                                                                    isAddingWord
-                                                                }
-                                                            >
-                                                                Ajouter
-                                                            </Button>
-                                                        </DialogFooter>
-                                                    </DialogContent>
-                                                </Dialog>
-                                            </div>
-
-                                            {!exercise.words ||
-                                            exercise.words.length === 0 ? (
-                                                <div className="rounded-lg border-2 border-dashed border-slate-200 p-12 text-center">
-                                                    <Upload className="mx-auto mb-3 h-12 w-12 text-slate-400" />
-                                                    <p className="text-sm text-slate-600">
-                                                        Aucun mot ajouté
-                                                    </p>
-                                                    <p className="mt-1 text-xs text-slate-400">
-                                                        Cliquez sur "Ajouter un
-                                                        mot" pour commencer
-                                                    </p>
-                                                </div>
-                                            ) : (
-                                                <div className="space-y-2">
-                                                    {exercise.words.map(
-                                                        (word: any) => (
-                                                            <div
-                                                                key={word.id}
-                                                                className="group flex items-center justify-between rounded-lg border-2 border-slate-200 bg-white p-3 transition-all hover:shadow-md"
-                                                            >
-                                                                <div className="flex-1">
-                                                                    <p className="font-semibold text-slate-900">
-                                                                        {
-                                                                            word.text
+                                                                        onChange={(
+                                                                            e,
+                                                                        ) =>
+                                                                            setImageData(
+                                                                                'full_text',
+                                                                                e
+                                                                                    .target
+                                                                                    .value,
+                                                                            )
                                                                         }
-                                                                    </p>
-                                                                    <audio
-                                                                        controls
-                                                                        className="mt-2 h-8 w-full"
-                                                                        src={`/storage/${word.audio_path}`}
+                                                                    />
+                                                                    {imageErrors.full_text && (
+                                                                        <p className="text-sm text-red-600">
+                                                                            {
+                                                                                imageErrors.full_text
+                                                                            }
+                                                                        </p>
+                                                                    )}
+                                                                </div>
+                                                                <div className="space-y-2">
+                                                                    <Label htmlFor="masked_position">
+                                                                        Position
+                                                                        de la
+                                                                        lettre à
+                                                                        masquer
+                                                                        (0 =
+                                                                        première
+                                                                        lettre)
+                                                                    </Label>
+                                                                    <Input
+                                                                        id="masked_position"
+                                                                        type="number"
+                                                                        min="0"
+                                                                        placeholder="Ex: 0, 1, 2..."
+                                                                        value={
+                                                                            imageData.masked_position ??
+                                                                            ''
+                                                                        }
+                                                                        onChange={(
+                                                                            e,
+                                                                        ) =>
+                                                                            setImageData(
+                                                                                'masked_position',
+                                                                                e
+                                                                                    .target
+                                                                                    .value
+                                                                                    ? parseInt(
+                                                                                          e
+                                                                                              .target
+                                                                                              .value,
+                                                                                      )
+                                                                                    : null,
+                                                                            )
+                                                                        }
+                                                                    />
+                                                                    {imageErrors.masked_position && (
+                                                                        <p className="text-sm text-red-600">
+                                                                            {
+                                                                                imageErrors.masked_position
+                                                                            }
+                                                                        </p>
+                                                                    )}
+                                                                </div>
+                                                                <div className="space-y-2">
+                                                                    <Label htmlFor="correct_letter">
+                                                                        Lettre
+                                                                        correcte
+                                                                        (sera
+                                                                        calculée
+                                                                        automatiquement)
+                                                                    </Label>
+                                                                    <Input
+                                                                        id="correct_letter"
+                                                                        type="text"
+                                                                        placeholder="Ex: a, m"
+                                                                        value={
+                                                                            imageData.masked_position !==
+                                                                                null &&
+                                                                            imageData.full_text
+                                                                                ? imageData
+                                                                                      .full_text[
+                                                                                      imageData
+                                                                                          .masked_position
+                                                                                  ] ||
+                                                                                  ''
+                                                                                : imageData.correct_letter
+                                                                        }
+                                                                        onChange={(
+                                                                            e,
+                                                                        ) =>
+                                                                            setImageData(
+                                                                                'correct_letter',
+                                                                                e
+                                                                                    .target
+                                                                                    .value,
+                                                                            )
+                                                                        }
+                                                                        readOnly={
+                                                                            imageData.masked_position !==
+                                                                                null &&
+                                                                            !!imageData.full_text
+                                                                        }
                                                                     />
                                                                 </div>
-                                                                <Button
-                                                                    variant="destructive"
-                                                                    size="sm"
-                                                                    className="ml-3"
-                                                                    onClick={() =>
-                                                                        deleteWord(
-                                                                            exercise,
-                                                                            word,
-                                                                        )
-                                                                    }
-                                                                >
-                                                                    <Trash2 className="h-4 w-4" />
-                                                                </Button>
+                                                                <div className="space-y-2">
+                                                                    <Label htmlFor="decoy_letters">
+                                                                        Lettres
+                                                                        incorrectes
+                                                                        (decoys)
+                                                                    </Label>
+                                                                    <Input
+                                                                        id="decoy_letters"
+                                                                        type="text"
+                                                                        placeholder="Ex: a, i, o, u"
+                                                                        defaultValue={imageData.decoy_letters.join(
+                                                                            ', ',
+                                                                        )}
+                                                                        onBlur={(
+                                                                            e,
+                                                                        ) => {
+                                                                            const letters =
+                                                                                e.target.value
+                                                                                    .split(
+                                                                                        ',',
+                                                                                    )
+                                                                                    .map(
+                                                                                        (
+                                                                                            l,
+                                                                                        ) =>
+                                                                                            l.trim(),
+                                                                                    )
+                                                                                    .filter(
+                                                                                        (
+                                                                                            l,
+                                                                                        ) =>
+                                                                                            l !==
+                                                                                            '',
+                                                                                    );
+                                                                            setImageData(
+                                                                                'decoy_letters',
+                                                                                letters,
+                                                                            );
+                                                                        }}
+                                                                    />
+                                                                    <p className="text-xs text-slate-500">
+                                                                        Séparez
+                                                                        les
+                                                                        lettres
+                                                                        par des
+                                                                        virgules.
+                                                                        Ces
+                                                                        lettres
+                                                                        seront
+                                                                        affichées
+                                                                        avec la
+                                                                        lettre
+                                                                        correcte
+                                                                        pour
+                                                                        cette
+                                                                        image.
+                                                                    </p>
+                                                                </div>
                                                             </div>
-                                                        ),
-                                                    )}
-                                                </div>
-                                            )}
-                                        </>
-                                    )}
-
-                                    {exercise.type === 'select_image' && (
-                                        <>
-                                            <div className="flex items-center justify-between">
-                                                <h4 className="font-semibold text-slate-700 dark:text-slate-300">
-                                                    Images (
-                                                    {exercise.images?.length ||
-                                                        0}
-                                                    )
-                                                </h4>
-                                                <Dialog
-                                                    open={
-                                                        isAddImageDialogOpen &&
-                                                        selectedExercise?.id ===
-                                                            exercise.id
-                                                    }
-                                                    onOpenChange={(open) => {
-                                                        setIsAddImageDialogOpen(
-                                                            open,
-                                                        );
-                                                        if (open) {
-                                                            setSelectedExercise(
-                                                                exercise,
-                                                            );
-                                                        } else {
-                                                            setSelectedExercise(
-                                                                null,
-                                                            );
-                                                            setSelectedImage(
-                                                                null,
-                                                            );
-                                                            setSelectedAudio(
-                                                                null,
-                                                            );
-                                                            setAudioBlob(null);
-                                                            setIsRecording(
-                                                                false,
-                                                            );
-                                                        }
-                                                    }}
-                                                >
-                                                    <DialogTrigger asChild>
-                                                        <Button
-                                                            size="sm"
-                                                            variant="outline"
-                                                        >
-                                                            <Plus className="mr-2 h-4 w-4" />
-                                                            Ajouter une image
-                                                        </Button>
-                                                    </DialogTrigger>
-                                                    <DialogContent>
-                                                        <DialogHeader>
-                                                            <DialogTitle>
-                                                                Ajouter une
-                                                                image
-                                                            </DialogTitle>
-                                                            <DialogDescription>
-                                                                Téléversez une
-                                                                image et ajoutez
-                                                                le texte.
-                                                            </DialogDescription>
-                                                        </DialogHeader>
-                                                        <div className="space-y-4 py-4">
-                                                            <div className="space-y-2">
-                                                                <Label htmlFor="image">
-                                                                    Image
-                                                                </Label>
-                                                                <Input
-                                                                    id="image"
-                                                                    type="file"
-                                                                    accept="image/*"
-                                                                    onChange={(
-                                                                        e,
-                                                                    ) => {
-                                                                        const file =
-                                                                            e
-                                                                                .target
-                                                                                .files?.[0] ||
-                                                                            null;
-                                                                        setSelectedImage(
-                                                                            file,
+                                                            <DialogFooter>
+                                                                <Button
+                                                                    variant="outline"
+                                                                    onClick={() => {
+                                                                        setIsAddImageDialogOpen(
+                                                                            false,
                                                                         );
-                                                                        setImageData(
-                                                                            'image',
-                                                                            file,
+                                                                        setSelectedExercise(
+                                                                            null,
+                                                                        );
+                                                                        setSelectedImage(
+                                                                            null,
                                                                         );
                                                                     }}
-                                                                />
-                                                                {imageErrors.image && (
-                                                                    <p className="text-sm text-red-600">
-                                                                        {
-                                                                            imageErrors.image
-                                                                        }
-                                                                    </p>
-                                                                )}
-                                                            </div>
-                                                            <div className="space-y-2">
-                                                                <Label htmlFor="text">
-                                                                    Texte
-                                                                </Label>
-                                                                <Input
-                                                                    id="text"
-                                                                    type="text"
-                                                                    placeholder="Ex: chat, lune, etc."
-                                                                    value={
-                                                                        imageData.text
-                                                                    }
-                                                                    onChange={(
-                                                                        e,
-                                                                    ) =>
-                                                                        setImageData(
-                                                                            'text',
-                                                                            e
-                                                                                .target
-                                                                                .value,
-                                                                        )
-                                                                    }
-                                                                />
-                                                                {imageErrors.text && (
-                                                                    <p className="text-sm text-red-600">
-                                                                        {
-                                                                            imageErrors.text
-                                                                        }
-                                                                    </p>
-                                                                )}
-                                                            </div>
-                                                            <div className="flex items-center space-x-2">
-                                                                <Checkbox
-                                                                    id="is_correct"
-                                                                    checked={
-                                                                        imageData.is_correct
-                                                                    }
-                                                                    onCheckedChange={(
-                                                                        checked,
-                                                                    ) =>
-                                                                        setImageData(
-                                                                            'is_correct',
-                                                                            checked ===
-                                                                                true,
-                                                                        )
-                                                                    }
-                                                                />
-                                                                <Label
-                                                                    htmlFor="is_correct"
-                                                                    className="text-sm leading-none font-medium peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
                                                                 >
-                                                                    Cette image
-                                                                    est correcte
-                                                                </Label>
-                                                            </div>
-                                                        </div>
-                                                        <DialogFooter>
-                                                            <Button
-                                                                variant="outline"
-                                                                onClick={() => {
-                                                                    setIsAddImageDialogOpen(
-                                                                        false,
-                                                                    );
-                                                                    setSelectedImage(
-                                                                        null,
-                                                                    );
-                                                                    setSelectedAudio(
-                                                                        null,
-                                                                    );
-                                                                    setAudioBlob(
-                                                                        null,
-                                                                    );
-                                                                }}
-                                                            >
-                                                                Annuler
-                                                            </Button>
-                                                            <Button
-                                                                onClick={() =>
-                                                                    handleAddImage(
-                                                                        exercise,
-                                                                    )
-                                                                }
-                                                                disabled={
-                                                                    !selectedImage
-                                                                }
-                                                            >
-                                                                Ajouter
-                                                            </Button>
-                                                        </DialogFooter>
-                                                    </DialogContent>
-                                                </Dialog>
-                                            </div>
-
-                                            {!exercise.images ||
-                                            exercise.images.length === 0 ? (
-                                                <div className="rounded-lg border-2 border-dashed border-slate-200 p-12 text-center">
-                                                    <Upload className="mx-auto mb-3 h-12 w-12 text-slate-400" />
-                                                    <p className="text-sm text-slate-600">
-                                                        Aucune image ajoutée
-                                                    </p>
-                                                    <p className="mt-1 text-xs text-slate-400">
-                                                        Cliquez sur "Ajouter une
-                                                        image" pour commencer
-                                                    </p>
+                                                                    Annuler
+                                                                </Button>
+                                                                <Button
+                                                                    onClick={() =>
+                                                                        handleAddImage(
+                                                                            exercise,
+                                                                        )
+                                                                    }
+                                                                    disabled={
+                                                                        !selectedImage ||
+                                                                        !imageData.full_text ||
+                                                                        imageData.masked_position ===
+                                                                            null
+                                                                    }
+                                                                >
+                                                                    Ajouter
+                                                                </Button>
+                                                            </DialogFooter>
+                                                        </DialogContent>
+                                                    </Dialog>
                                                 </div>
-                                            ) : (
-                                                <div className="grid grid-cols-2 gap-4 md:grid-cols-3 lg:grid-cols-4">
-                                                    {exercise.images.map(
-                                                        (image) => (
-                                                            <div
-                                                                key={image.id}
-                                                                className="group relative rounded-lg border-2 border-slate-200 bg-white p-3 transition-all hover:shadow-lg"
-                                                            >
-                                                                <div className="relative aspect-square overflow-hidden rounded-md">
-                                                                    <img
-                                                                        src={`/storage/${image.image_path}`}
-                                                                        alt="Exercise"
-                                                                        className="h-full w-full object-cover"
-                                                                        loading="lazy"
-                                                                        decoding="async"
-                                                                    />
-                                                                    <button
+
+                                                {!exercise.images ||
+                                                exercise.images.length === 0 ? (
+                                                    <div className="rounded-lg border-2 border-dashed border-slate-200 p-12 text-center">
+                                                        <Upload className="mx-auto mb-3 h-12 w-12 text-slate-400" />
+                                                        <p className="text-sm text-slate-600">
+                                                            Aucune image ajoutée
+                                                        </p>
+                                                        <p className="mt-1 text-xs text-slate-400">
+                                                            Cliquez sur "Ajouter
+                                                            une image" pour
+                                                            commencer
+                                                        </p>
+                                                    </div>
+                                                ) : (
+                                                    <div className="grid grid-cols-2 gap-4 md:grid-cols-3 lg:grid-cols-4">
+                                                        {exercise.images.map(
+                                                            (image) => (
+                                                                <div
+                                                                    key={
+                                                                        image.id
+                                                                    }
+                                                                    className="group relative rounded-lg border-2 border-slate-200 bg-white p-3 transition-all hover:shadow-lg"
+                                                                >
+                                                                    <div className="relative aspect-square overflow-hidden rounded-md">
+                                                                        <img
+                                                                            src={`/storage/${image.image_path}`}
+                                                                            alt="Exercise"
+                                                                            className="h-full w-full object-cover"
+                                                                            loading="lazy"
+                                                                            decoding="async"
+                                                                        />
+                                                                    </div>
+                                                                    {image.full_text && (
+                                                                        <div className="mt-2 text-center">
+                                                                            <p className="text-sm font-medium text-slate-700">
+                                                                                {
+                                                                                    image.full_text
+                                                                                }
+                                                                            </p>
+                                                                            <p className="text-xs text-slate-500">
+                                                                                Lettre
+                                                                                masquée:{' '}
+                                                                                {
+                                                                                    image.correct_letter
+                                                                                }{' '}
+                                                                                (position{' '}
+                                                                                {
+                                                                                    image.masked_position
+                                                                                }
+
+                                                                                )
+                                                                            </p>
+                                                                        </div>
+                                                                    )}
+                                                                    <Button
+                                                                        variant="destructive"
+                                                                        size="sm"
+                                                                        className="mt-3 w-full opacity-0 transition-opacity group-hover:opacity-100"
                                                                         onClick={() =>
-                                                                            toggleCorrect(
+                                                                            deleteImage(
                                                                                 exercise,
                                                                                 image,
                                                                             )
                                                                         }
-                                                                        className={`absolute top-2 right-2 rounded-full p-1.5 shadow-lg transition-all ${
-                                                                            image.is_correct
-                                                                                ? 'bg-green-500 text-white'
-                                                                                : 'bg-red-500 text-white'
-                                                                        }`}
                                                                     >
-                                                                        {image.is_correct ? (
-                                                                            <Check className="h-4 w-4" />
-                                                                        ) : (
-                                                                            <X className="h-4 w-4" />
-                                                                        )}
-                                                                    </button>
+                                                                        <Trash2 className="mr-2 h-3 w-3" />
+                                                                        Supprimer
+                                                                    </Button>
                                                                 </div>
-                                                                {image.text && (
-                                                                    <div className="mt-2 text-center">
-                                                                        <p className="text-sm font-medium text-slate-700">
-                                                                            {
-                                                                                image.text
-                                                                            }
-                                                                        </p>
-                                                                    </div>
-                                                                )}
-                                                                <Button
-                                                                    variant="destructive"
-                                                                    size="sm"
-                                                                    className="mt-3 w-full opacity-0 transition-opacity group-hover:opacity-100"
-                                                                    onClick={() =>
-                                                                        deleteImage(
-                                                                            exercise,
-                                                                            image,
-                                                                        )
-                                                                    }
-                                                                >
-                                                                    <Trash2 className="mr-2 h-3 w-3" />
-                                                                    Supprimer
-                                                                </Button>
-                                                            </div>
-                                                        ),
-                                                    )}
-                                                </div>
-                                            )}
-                                        </>
-                                    )}
+                                                            ),
+                                                        )}
+                                                    </div>
+                                                )}
+                                            </>
+                                        )}
 
-                                    {exercise.type === 'choose_letter' && (
-                                        <>
-                                            <div className="flex items-center justify-between">
-                                                <h4 className="font-semibold text-slate-700 dark:text-slate-300">
-                                                    Images (
-                                                    {exercise.images?.length ||
-                                                        0}
-                                                    )
-                                                </h4>
-                                                <Dialog
-                                                    open={
-                                                        isAddImageDialogOpen &&
-                                                        selectedExercise?.id ===
-                                                            exercise.id
-                                                    }
-                                                    onOpenChange={(open) => {
-                                                        setIsAddImageDialogOpen(
-                                                            open,
-                                                        );
-                                                        if (open) {
-                                                            setSelectedExercise(
-                                                                exercise,
-                                                            );
-                                                        } else {
-                                                            setSelectedExercise(
-                                                                null,
-                                                            );
-                                                            setSelectedImage(
-                                                                null,
-                                                            );
-                                                        }
-                                                    }}
-                                                >
-                                                    <DialogTrigger asChild>
-                                                        <Button
-                                                            size="sm"
-                                                            variant="outline"
-                                                        >
-                                                            <Plus className="mr-2 h-4 w-4" />
-                                                            Ajouter une image
-                                                        </Button>
-                                                    </DialogTrigger>
-                                                    <DialogContent>
-                                                        <DialogHeader>
-                                                            <DialogTitle>
-                                                                Ajouter une
-                                                                image avec mot
-                                                            </DialogTitle>
-                                                            <DialogDescription>
-                                                                Téléversez une
-                                                                image, entrez le
-                                                                mot complet et
-                                                                choisissez la
-                                                                lettre à
-                                                                masquer.
-                                                            </DialogDescription>
-                                                        </DialogHeader>
-                                                        <div className="space-y-4 py-4">
-                                                            <div className="space-y-2">
-                                                                <Label htmlFor="image">
-                                                                    Image
-                                                                </Label>
-                                                                <Input
-                                                                    id="image"
-                                                                    type="file"
-                                                                    accept="image/*"
-                                                                    onChange={(
-                                                                        e,
-                                                                    ) => {
-                                                                        const file =
-                                                                            e
-                                                                                .target
-                                                                                .files?.[0] ||
-                                                                            null;
-                                                                        setSelectedImage(
-                                                                            file,
-                                                                        );
-                                                                        setImageData(
-                                                                            'image',
-                                                                            file,
-                                                                        );
-                                                                    }}
-                                                                />
-                                                                {imageErrors.image && (
-                                                                    <p className="text-sm text-red-600">
-                                                                        {
-                                                                            imageErrors.image
-                                                                        }
-                                                                    </p>
-                                                                )}
-                                                            </div>
-                                                            <div className="space-y-2">
-                                                                <Label htmlFor="full_text">
-                                                                    Mot complet
-                                                                </Label>
-                                                                <Input
-                                                                    id="full_text"
-                                                                    type="text"
-                                                                    placeholder="Ex: maman, tableau, tomate"
-                                                                    value={
-                                                                        imageData.full_text
-                                                                    }
-                                                                    onChange={(
-                                                                        e,
-                                                                    ) =>
-                                                                        setImageData(
-                                                                            'full_text',
-                                                                            e
-                                                                                .target
-                                                                                .value,
-                                                                        )
-                                                                    }
-                                                                />
-                                                                {imageErrors.full_text && (
-                                                                    <p className="text-sm text-red-600">
-                                                                        {
-                                                                            imageErrors.full_text
-                                                                        }
-                                                                    </p>
-                                                                )}
-                                                            </div>
-                                                            <div className="space-y-2">
-                                                                <Label htmlFor="masked_position">
-                                                                    Position de
-                                                                    la lettre à
-                                                                    masquer (0 =
-                                                                    première
-                                                                    lettre)
-                                                                </Label>
-                                                                <Input
-                                                                    id="masked_position"
-                                                                    type="number"
-                                                                    min="0"
-                                                                    placeholder="Ex: 0, 1, 2..."
-                                                                    value={
-                                                                        imageData.masked_position ??
-                                                                        ''
-                                                                    }
-                                                                    onChange={(
-                                                                        e,
-                                                                    ) =>
-                                                                        setImageData(
-                                                                            'masked_position',
-                                                                            e
-                                                                                .target
-                                                                                .value
-                                                                                ? parseInt(
-                                                                                      e
-                                                                                          .target
-                                                                                          .value,
-                                                                                  )
-                                                                                : null,
-                                                                        )
-                                                                    }
-                                                                />
-                                                                {imageErrors.masked_position && (
-                                                                    <p className="text-sm text-red-600">
-                                                                        {
-                                                                            imageErrors.masked_position
-                                                                        }
-                                                                    </p>
-                                                                )}
-                                                            </div>
-                                                            <div className="space-y-2">
-                                                                <Label htmlFor="correct_letter">
-                                                                    Lettre
-                                                                    correcte
-                                                                    (sera
-                                                                    calculée
-                                                                    automatiquement)
-                                                                </Label>
-                                                                <Input
-                                                                    id="correct_letter"
-                                                                    type="text"
-                                                                    placeholder="Ex: a, m"
-                                                                    value={
-                                                                        imageData.masked_position !==
-                                                                            null &&
-                                                                        imageData.full_text
-                                                                            ? imageData
-                                                                                  .full_text[
-                                                                                  imageData
-                                                                                      .masked_position
-                                                                              ] ||
-                                                                              ''
-                                                                            : imageData.correct_letter
-                                                                    }
-                                                                    onChange={(
-                                                                        e,
-                                                                    ) =>
-                                                                        setImageData(
-                                                                            'correct_letter',
-                                                                            e
-                                                                                .target
-                                                                                .value,
-                                                                        )
-                                                                    }
-                                                                    readOnly={
-                                                                        imageData.masked_position !==
-                                                                            null &&
-                                                                        !!imageData.full_text
-                                                                    }
-                                                                />
-                                                            </div>
-                                                            <div className="space-y-2">
-                                                                <Label htmlFor="decoy_letters">
-                                                                    Lettres
-                                                                    incorrectes
-                                                                    (decoys)
-                                                                </Label>
-                                                                <Input
-                                                                    id="decoy_letters"
-                                                                    type="text"
-                                                                    placeholder="Ex: a, i, o, u"
-                                                                    defaultValue={imageData.decoy_letters.join(
-                                                                        ', ',
-                                                                    )}
-                                                                    onBlur={(
-                                                                        e,
-                                                                    ) => {
-                                                                        const letters =
-                                                                            e.target.value
-                                                                                .split(
-                                                                                    ',',
-                                                                                )
-                                                                                .map(
-                                                                                    (
-                                                                                        l,
-                                                                                    ) =>
-                                                                                        l.trim(),
-                                                                                )
-                                                                                .filter(
-                                                                                    (
-                                                                                        l,
-                                                                                    ) =>
-                                                                                        l !==
-                                                                                        '',
-                                                                                );
-                                                                        setImageData(
-                                                                            'decoy_letters',
-                                                                            letters,
-                                                                        );
-                                                                    }}
-                                                                />
-                                                                <p className="text-xs text-slate-500">
-                                                                    Séparez les
-                                                                    lettres par
-                                                                    des
-                                                                    virgules.
-                                                                    Ces lettres
-                                                                    seront
-                                                                    affichées
-                                                                    avec la
-                                                                    lettre
-                                                                    correcte
-                                                                    pour cette
-                                                                    image.
-                                                                </p>
-                                                            </div>
+                                        {exercise.type ===
+                                            'circle_identical' && (
+                                            <>
+                                                <div className="mt-4">
+                                                    <h4 className="mb-3 font-semibold text-slate-700 dark:text-slate-300">
+                                                        Séquences de mots (
+                                                        {exercise.word_sequences
+                                                            ?.length || 0}
+                                                        )
+                                                    </h4>
+                                                    {!exercise.word_sequences ||
+                                                    exercise.word_sequences
+                                                        .length === 0 ? (
+                                                        <div className="rounded-lg border-2 border-dashed border-slate-200 p-8 text-center">
+                                                            <p className="text-sm text-slate-600">
+                                                                Aucune séquence
+                                                                ajoutée
+                                                            </p>
                                                         </div>
-                                                        <DialogFooter>
-                                                            <Button
-                                                                variant="outline"
-                                                                onClick={() => {
-                                                                    setIsAddImageDialogOpen(
-                                                                        false,
-                                                                    );
-                                                                    setSelectedExercise(
-                                                                        null,
-                                                                    );
-                                                                    setSelectedImage(
-                                                                        null,
-                                                                    );
-                                                                }}
-                                                            >
-                                                                Annuler
-                                                            </Button>
-                                                            <Button
-                                                                onClick={() =>
-                                                                    handleAddImage(
-                                                                        exercise,
-                                                                    )
-                                                                }
-                                                                disabled={
-                                                                    !selectedImage ||
-                                                                    !imageData.full_text ||
-                                                                    imageData.masked_position ===
-                                                                        null
-                                                                }
-                                                            >
-                                                                Ajouter
-                                                            </Button>
-                                                        </DialogFooter>
-                                                    </DialogContent>
-                                                </Dialog>
-                                            </div>
+                                                    ) : (
+                                                        <div className="space-y-3">
+                                                            {exercise.word_sequences.map(
+                                                                (
+                                                                    sequence,
+                                                                    index,
+                                                                ) => (
+                                                                    <div
+                                                                        key={
+                                                                            index
+                                                                        }
+                                                                        className="rounded-lg border-2 border-slate-200 bg-slate-50 p-4"
+                                                                    >
+                                                                        <div className="mb-2">
+                                                                            <span className="text-sm font-semibold text-purple-600">
+                                                                                Séquence{' '}
+                                                                                {index +
+                                                                                    1}
 
-                                            {!exercise.images ||
-                                            exercise.images.length === 0 ? (
-                                                <div className="rounded-lg border-2 border-dashed border-slate-200 p-12 text-center">
-                                                    <Upload className="mx-auto mb-3 h-12 w-12 text-slate-400" />
-                                                    <p className="text-sm text-slate-600">
-                                                        Aucune image ajoutée
-                                                    </p>
-                                                    <p className="mt-1 text-xs text-slate-400">
-                                                        Cliquez sur "Ajouter une
-                                                        image" pour commencer
-                                                    </p>
-                                                </div>
-                                            ) : (
-                                                <div className="grid grid-cols-2 gap-4 md:grid-cols-3 lg:grid-cols-4">
-                                                    {exercise.images.map(
-                                                        (image) => (
-                                                            <div
-                                                                key={image.id}
-                                                                className="group relative rounded-lg border-2 border-slate-200 bg-white p-3 transition-all hover:shadow-lg"
-                                                            >
-                                                                <div className="relative aspect-square overflow-hidden rounded-md">
-                                                                    <img
-                                                                        src={`/storage/${image.image_path}`}
-                                                                        alt="Exercise"
-                                                                        className="h-full w-full object-cover"
-                                                                        loading="lazy"
-                                                                        decoding="async"
-                                                                    />
-                                                                </div>
-                                                                {image.full_text && (
-                                                                    <div className="mt-2 text-center">
-                                                                        <p className="text-sm font-medium text-slate-700">
-                                                                            {
-                                                                                image.full_text
-                                                                            }
-                                                                        </p>
-                                                                        <p className="text-xs text-slate-500">
-                                                                            Lettre
-                                                                            masquée:{' '}
-                                                                            {
-                                                                                image.correct_letter
-                                                                            }{' '}
-                                                                            (position{' '}
-                                                                            {
-                                                                                image.masked_position
-                                                                            }
-                                                                            )
-                                                                        </p>
+                                                                                :
+                                                                            </span>
+                                                                            <span className="ml-2 text-lg font-bold text-slate-800">
+                                                                                (
+                                                                                {sequence.model_word ||
+                                                                                    'N/A'}
+
+                                                                                )
+                                                                            </span>
+                                                                        </div>
+                                                                        <div className="flex flex-wrap gap-2">
+                                                                            {sequence.other_words?.map(
+                                                                                (
+                                                                                    word,
+                                                                                    wordIndex,
+                                                                                ) => (
+                                                                                    <span
+                                                                                        key={
+                                                                                            wordIndex
+                                                                                        }
+                                                                                        className={`inline-flex items-center rounded-lg px-3 py-1 text-sm font-medium ${
+                                                                                            word.is_valid
+                                                                                                ? 'bg-green-100 text-green-800'
+                                                                                                : 'bg-slate-200 text-slate-700'
+                                                                                        }`}
+                                                                                    >
+                                                                                        {word.is_valid && (
+                                                                                            <CheckCircle2 className="mr-1 h-3 w-3" />
+                                                                                        )}
+                                                                                        {
+                                                                                            word.word
+                                                                                        }
+                                                                                    </span>
+                                                                                ),
+                                                                            )}
+                                                                        </div>
                                                                     </div>
-                                                                )}
-                                                                <Button
-                                                                    variant="destructive"
-                                                                    size="sm"
-                                                                    className="mt-3 w-full opacity-0 transition-opacity group-hover:opacity-100"
-                                                                    onClick={() =>
-                                                                        deleteImage(
-                                                                            exercise,
-                                                                            image,
-                                                                        )
-                                                                    }
-                                                                >
-                                                                    <Trash2 className="mr-2 h-3 w-3" />
-                                                                    Supprimer
-                                                                </Button>
-                                                            </div>
-                                                        ),
+                                                                ),
+                                                            )}
+                                                        </div>
                                                     )}
                                                 </div>
-                                            )}
-                                        </>
-                                    )}
-                                </CardContent>
-                            </Card>
-                        ))}
+                                            </>
+                                        )}
+                                    </CardContent>
+                                </Card>
+                            );
+                        })}
                     </div>
                 )}
 
@@ -1946,15 +2403,15 @@ export default function ManageExercises({
                         }
                     }}
                 >
-                    <DialogContent>
+                    <DialogContent className="flex max-h-[90vh] flex-col">
                         <DialogHeader>
                             <DialogTitle>Modifier l'exercice</DialogTitle>
                             <DialogDescription>
-                                Modifiez le titre et la description de
-                                l'exercice
+                                Modifiez le titre, la description et le contenu
+                                de l'exercice
                             </DialogDescription>
                         </DialogHeader>
-                        <div className="space-y-4">
+                        <div className="flex-1 space-y-4 overflow-y-auto pr-2">
                             <div>
                                 <Label htmlFor="edit-title">Titre</Label>
                                 <Input
@@ -1986,6 +2443,231 @@ export default function ManageExercises({
                                     rows={4}
                                 />
                             </div>
+                            {selectedExercise?.type === 'circle_identical' && (
+                                <div className="space-y-4">
+                                    <Label>Séquences de mots</Label>
+                                    <div className="space-y-4">
+                                        {editExerciseData.word_sequences.map(
+                                            (sequence, seqIndex) => (
+                                                <div
+                                                    key={seqIndex}
+                                                    className="space-y-3 rounded-lg border-2 border-slate-200 p-4"
+                                                >
+                                                    <div className="flex items-center justify-between">
+                                                        <Label className="text-sm font-semibold text-purple-600">
+                                                            Séquence{' '}
+                                                            {seqIndex + 1}
+                                                        </Label>
+                                                        <Button
+                                                            variant="outline"
+                                                            size="sm"
+                                                            onClick={() => {
+                                                                const newSequences =
+                                                                    editExerciseData.word_sequences.filter(
+                                                                        (
+                                                                            _,
+                                                                            i,
+                                                                        ) =>
+                                                                            i !==
+                                                                            seqIndex,
+                                                                    );
+                                                                setEditExerciseData(
+                                                                    'word_sequences',
+                                                                    newSequences,
+                                                                );
+                                                            }}
+                                                        >
+                                                            Supprimer séquence
+                                                        </Button>
+                                                    </div>
+                                                    <div className="space-y-2">
+                                                        <Label
+                                                            htmlFor={`edit_model_word_${seqIndex}`}
+                                                        >
+                                                            Mot modèle
+                                                        </Label>
+                                                        <Input
+                                                            id={`edit_model_word_${seqIndex}`}
+                                                            placeholder="Ex: lama"
+                                                            value={
+                                                                sequence.model_word
+                                                            }
+                                                            onChange={(e) => {
+                                                                const newSequences =
+                                                                    [
+                                                                        ...editExerciseData.word_sequences,
+                                                                    ];
+                                                                newSequences[
+                                                                    seqIndex
+                                                                ].model_word =
+                                                                    e.target.value;
+                                                                newSequences[
+                                                                    seqIndex
+                                                                ].other_words =
+                                                                    newSequences[
+                                                                        seqIndex
+                                                                    ].other_words.map(
+                                                                        (
+                                                                            w,
+                                                                        ) => ({
+                                                                            ...w,
+                                                                            is_valid:
+                                                                                w.word
+                                                                                    .trim()
+                                                                                    .toLowerCase() ===
+                                                                                e.target.value
+                                                                                    .trim()
+                                                                                    .toLowerCase(),
+                                                                        }),
+                                                                    );
+                                                                setEditExerciseData(
+                                                                    'word_sequences',
+                                                                    newSequences,
+                                                                );
+                                                            }}
+                                                        />
+                                                    </div>
+                                                    <div className="space-y-2">
+                                                        <Label>
+                                                            Autres mots
+                                                        </Label>
+                                                        <div className="space-y-2">
+                                                            {sequence.other_words.map(
+                                                                (
+                                                                    wordItem,
+                                                                    wordIndex,
+                                                                ) => (
+                                                                    <div
+                                                                        key={
+                                                                            wordIndex
+                                                                        }
+                                                                        className="flex items-center gap-2"
+                                                                    >
+                                                                        <Input
+                                                                            placeholder="Mot"
+                                                                            value={
+                                                                                wordItem.word
+                                                                            }
+                                                                            onChange={(
+                                                                                e,
+                                                                            ) => {
+                                                                                const newSequences =
+                                                                                    [
+                                                                                        ...editExerciseData.word_sequences,
+                                                                                    ];
+                                                                                newSequences[
+                                                                                    seqIndex
+                                                                                ].other_words[
+                                                                                    wordIndex
+                                                                                ].word =
+                                                                                    e.target.value;
+                                                                                newSequences[
+                                                                                    seqIndex
+                                                                                ].other_words[
+                                                                                    wordIndex
+                                                                                ].is_valid =
+                                                                                    e.target.value
+                                                                                        .trim()
+                                                                                        .toLowerCase() ===
+                                                                                    sequence.model_word
+                                                                                        .trim()
+                                                                                        .toLowerCase();
+                                                                                setEditExerciseData(
+                                                                                    'word_sequences',
+                                                                                    newSequences,
+                                                                                );
+                                                                            }}
+                                                                        />
+                                                                        <span
+                                                                            className={`text-sm font-medium whitespace-nowrap ${wordItem.is_valid ? 'text-green-600' : 'text-slate-500'}`}
+                                                                        >
+                                                                            {wordItem.is_valid
+                                                                                ? '✓ Correct'
+                                                                                : '○ Décoy'}
+                                                                        </span>
+                                                                        <Button
+                                                                            variant="outline"
+                                                                            size="sm"
+                                                                            onClick={() => {
+                                                                                const newSequences =
+                                                                                    [
+                                                                                        ...editExerciseData.word_sequences,
+                                                                                    ];
+                                                                                newSequences[
+                                                                                    seqIndex
+                                                                                ].other_words =
+                                                                                    newSequences[
+                                                                                        seqIndex
+                                                                                    ].other_words.filter(
+                                                                                        (
+                                                                                            _,
+                                                                                            i,
+                                                                                        ) =>
+                                                                                            i !==
+                                                                                            wordIndex,
+                                                                                    );
+                                                                                setEditExerciseData(
+                                                                                    'word_sequences',
+                                                                                    newSequences,
+                                                                                );
+                                                                            }}
+                                                                        >
+                                                                            X
+                                                                        </Button>
+                                                                    </div>
+                                                                ),
+                                                            )}
+                                                        </div>
+                                                        <Button
+                                                            variant="outline"
+                                                            size="sm"
+                                                            onClick={() => {
+                                                                const newSequences =
+                                                                    [
+                                                                        ...editExerciseData.word_sequences,
+                                                                    ];
+                                                                newSequences[
+                                                                    seqIndex
+                                                                ].other_words.push(
+                                                                    {
+                                                                        word: '',
+                                                                        is_valid: false,
+                                                                    },
+                                                                );
+                                                                setEditExerciseData(
+                                                                    'word_sequences',
+                                                                    newSequences,
+                                                                );
+                                                            }}
+                                                        >
+                                                            <Plus className="mr-2 h-4 w-4" />
+                                                            Ajouter un mot
+                                                        </Button>
+                                                    </div>
+                                                </div>
+                                            ),
+                                        )}
+                                    </div>
+                                    <Button
+                                        variant="outline"
+                                        onClick={() => {
+                                            setEditExerciseData(
+                                                'word_sequences',
+                                                [
+                                                    ...editExerciseData.word_sequences,
+                                                    {
+                                                        model_word: '',
+                                                        other_words: [],
+                                                    },
+                                                ],
+                                            );
+                                        }}
+                                    >
+                                        <Plus className="mr-2 h-4 w-4" />
+                                        Ajouter une séquence
+                                    </Button>
+                                </div>
+                            )}
                         </div>
                         <DialogFooter>
                             <Button

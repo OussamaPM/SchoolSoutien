@@ -393,6 +393,11 @@ class EducationalProgramController extends Controller
             'required_repetitions' => 'nullable|integer|min:1|max:20',
             'letter_options' => 'nullable|array',
             'letter_options.*' => 'string|max:5',
+            'word_sequences' => 'nullable|array',
+            'word_sequences.*.model_word' => 'required|string|max:255',
+            'word_sequences.*.other_words' => 'required|array',
+            'word_sequences.*.other_words.*.word' => 'required|string|max:255',
+            'word_sequences.*.other_words.*.is_valid' => 'required|boolean',
         ]);
 
         $position = $chapter->exercises()->max('position') + 1;
@@ -403,6 +408,7 @@ class EducationalProgramController extends Controller
             'description' => $validated['description'] ?? null,
             'required_repetitions' => $validated['required_repetitions'] ?? 1,
             'letter_options' => $validated['letter_options'] ?? null,
+            'word_sequences' => $validated['word_sequences'] ?? null,
             'position' => $position,
         ]);
 
@@ -417,6 +423,11 @@ class EducationalProgramController extends Controller
             'is_active' => 'boolean',
             'letter_options' => 'nullable|array',
             'letter_options.*' => 'string|max:5',
+            'word_sequences' => 'nullable|array',
+            'word_sequences.*.model_word' => 'required|string|max:255',
+            'word_sequences.*.other_words' => 'required|array',
+            'word_sequences.*.other_words.*.word' => 'required|string|max:255',
+            'word_sequences.*.other_words.*.is_valid' => 'required|boolean',
         ]);
 
         $exercise->update($validated);
