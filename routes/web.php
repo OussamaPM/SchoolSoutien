@@ -1,14 +1,14 @@
 <?php
 
-use Inertia\Inertia;
-use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\UserController;
-use App\Http\Controllers\OrdersController;
-use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\Admin\ForfaitController;
+use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\EducationalProgramController;
+use App\Http\Controllers\OrdersController;
 use App\Http\Controllers\Parent\ChildSessionController;
 use App\Http\Controllers\Parent\ForfaitStoreController;
+use App\Http\Controllers\UserController;
+use Illuminate\Support\Facades\Route;
+use Inertia\Inertia;
 
 Route::get('/', function () {
     return view('welcome');
@@ -25,7 +25,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::post('forfait-store/update-child-profile/{childProfile}', [ForfaitStoreController::class, 'updateChildProfile'])
             ->name('forfait-store.update-child-profile');
         Route::resource('forfait-store', ForfaitStoreController::class);
-        ##################################### Child Profiles Routes #####################################
+        // #################################### Child Profiles Routes #####################################
         Route::get('child-sessions/{child}/{subject}', [ChildSessionController::class, 'learnSubject'])->name('child-sessions.learn-subject');
         Route::get('child-sessions/{child}/{subject}/chapter/{chapter}', [ChildSessionController::class, 'viewChapter'])->name('child-sessions.view-chapter');
         Route::get('child-sessions/{child}/{subject}/chapter/{chapter}/quiz/{quiz}', [ChildSessionController::class, 'startQuiz'])->name('child-sessions.start-quiz');
@@ -89,5 +89,5 @@ Route::middleware(['auth', 'verified'])->group(function () {
     });
 });
 
-require __DIR__ . '/settings.php';
-require __DIR__ . '/auth.php';
+require __DIR__.'/settings.php';
+require __DIR__.'/auth.php';

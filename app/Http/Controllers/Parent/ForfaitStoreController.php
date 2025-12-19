@@ -68,6 +68,7 @@ class ForfaitStoreController extends Controller
 
         return back();
     }
+
     /**
      * Update child profile (name, avatar_icon, avatar_color only)
      */

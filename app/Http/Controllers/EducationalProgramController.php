@@ -2,18 +2,16 @@
 
 namespace App\Http\Controllers;
 
+use App\ExerciseTypeEnum;
 use App\Models\Chapter;
 use App\Models\EducationalSubject;
 use App\Models\EducationLevel;
 use App\Models\EducationLevelCategory;
-use App\Models\Quiz;
 use App\Models\Exercise;
 use App\Models\ExerciseImage;
 use App\Models\ExerciseWord;
-use App\Models\QuizQuestion;
-use App\Models\QuizAnswer;
+use App\Models\Quiz;
 use App\RoleEnum;
-use App\ExerciseTypeEnum;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
@@ -369,7 +367,7 @@ class EducationalProgramController extends Controller
     {
         $chapter->load(['exercises.images', 'exercises.words']);
 
-        $exerciseTypes = collect(ExerciseTypeEnum::cases())->map(fn($type) => [
+        $exerciseTypes = collect(ExerciseTypeEnum::cases())->map(fn ($type) => [
             'value' => $type->value,
             'label' => $type->label(),
             'description' => $type->description(),
@@ -457,7 +455,7 @@ class EducationalProgramController extends Controller
         ]);
 
         $imagePath = $request->file('image')->store('exercises/images', 'public');
-        $fullImagePath = storage_path('app/public/' . $imagePath);
+        $fullImagePath = storage_path('app/public/'.$imagePath);
 
         Image::load($fullImagePath)
             ->optimize()

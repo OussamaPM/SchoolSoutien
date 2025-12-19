@@ -2,14 +2,14 @@
 
 namespace App\Http\Controllers\Parent;
 
-use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
-use App\Models\ChildProfile;
 use App\Models\Chapter;
+use App\Models\ChildProfile;
 use App\Models\EducationalSubject;
+use App\Models\Exercise;
 use App\Models\Quiz;
 use App\Models\QuizAttempt;
-use App\Models\Exercise;
+use Illuminate\Http\Request;
 use Inertia\Inertia;
 
 class ChildSessionController extends Controller
@@ -19,7 +19,7 @@ class ChildSessionController extends Controller
         $child->load([
             'currentPlan.plan',
             'educationLevel.educationSubjects',
-            'educationLevel.category'
+            'educationLevel.category',
         ]);
 
         return Inertia::render('parent/child-sessions/index', [
@@ -29,14 +29,14 @@ class ChildSessionController extends Controller
 
     public function learnSubject(ChildProfile $child, EducationalSubject $subject)
     {
-        if (!$subject) {
+        if (! $subject) {
             return back()->withErrors(['message' => 'Matière non trouvée.']);
         }
 
         $child->load([
             'currentPlan.plan',
             'educationLevel.educationSubjects.chapters',
-            'educationLevel.category'
+            'educationLevel.category',
         ]);
 
         $subject->load([
@@ -44,7 +44,7 @@ class ChildSessionController extends Controller
                 $query->active()->orderByPosition();
             },
             'chapters.quiz',
-            'chapters.exercises'
+            'chapters.exercises',
         ]);
 
         return Inertia::render('parent/child-sessions/learn-subject', [
@@ -55,13 +55,13 @@ class ChildSessionController extends Controller
 
     public function viewChapter(ChildProfile $child, EducationalSubject $subject, Chapter $chapter)
     {
-        if ($chapter->educational_subject_id !== $subject->id || !$chapter->is_active) {
+        if ($chapter->educational_subject_id !== $subject->id || ! $chapter->is_active) {
             return back()->withErrors(['message' => 'Chapitre non disponible.']);
         }
 
         $child->load([
             'currentPlan.plan',
-            'educationLevel.category'
+            'educationLevel.category',
         ]);
 
         $chapter->load(['quiz.questions.answers', 'exercises.images', 'exercises.words']);
@@ -97,7 +97,7 @@ class ChildSessionController extends Controller
 
     public function startQuiz(ChildProfile $child, EducationalSubject $subject, Chapter $chapter, Quiz $quiz)
     {
-        if ($quiz->chapter_id !== $chapter->id || !$chapter->is_active) {
+        if ($quiz->chapter_id !== $chapter->id || ! $chapter->is_active) {
             return back()->withErrors(['message' => 'Quiz non disponible.']);
         }
 
@@ -215,7 +215,7 @@ class ChildSessionController extends Controller
 
     public function startExercise(ChildProfile $child, EducationalSubject $subject, Chapter $chapter, Exercise $exercise)
     {
-        if ($exercise->chapter_id !== $chapter->id || !$chapter->is_active) {
+        if ($exercise->chapter_id !== $chapter->id || ! $chapter->is_active) {
             return back()->withErrors(['message' => 'Exercice non disponible.']);
         }
 

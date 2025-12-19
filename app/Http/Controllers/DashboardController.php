@@ -46,7 +46,7 @@ class DashboardController extends Controller implements DashboardInterface
                     },
                     'chapters as draft_chapters_count' => function ($query) {
                         $query->where('is_active', false)->where('created_by', Auth::id());
-                    }
+                    },
                 ])
                 ->get(),
         ];

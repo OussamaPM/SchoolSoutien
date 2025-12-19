@@ -46,6 +46,7 @@ class QuizAttempt extends Model
         if ($this->total_questions === 0) {
             return 0;
         }
+
         return round(($this->correct_answers / $this->total_questions) * 100, 2);
     }
 
