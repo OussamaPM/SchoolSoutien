@@ -21,13 +21,16 @@ import {
     Award,
     BookOpen,
     CheckSquare,
+    CircleDot,
     Download,
     FileQuestion,
     GraduationCap,
     Headphones,
     History,
+    Link2,
     Loader2,
     Paperclip,
+    Pencil,
     Play,
     Sparkles,
     Target,
@@ -41,30 +44,18 @@ const getExerciseTypeStyle = (type: string) => {
         case 'choose_when_hear':
             return {
                 icon: Headphones,
-                borderColor: 'border-purple-100 dark:border-purple-900',
-                bgGradient:
-                    'from-purple-50 to-pink-50 dark:from-purple-950/30 dark:to-pink-950/30',
-                cardBg: 'bg-purple-50 dark:bg-purple-950/20',
-                cardBorder: 'border-purple-200 dark:border-purple-800',
-                iconBg: 'bg-purple-500',
-                textColor: 'text-purple-600 dark:text-purple-400',
-                buttonGradient: 'from-purple-500 to-pink-600',
-            };
-        case 'choose_when_read':
-            return {
-                icon: BookOpen,
                 borderColor: 'border-blue-100 dark:border-blue-900',
                 bgGradient:
-                    'from-blue-50 to-cyan-50 dark:from-blue-950/30 dark:to-cyan-950/30',
+                    'from-blue-50 to-indigo-50 dark:from-blue-950/30 dark:to-indigo-950/30',
                 cardBg: 'bg-blue-50 dark:bg-blue-950/20',
                 cardBorder: 'border-blue-200 dark:border-blue-800',
                 iconBg: 'bg-blue-500',
                 textColor: 'text-blue-600 dark:text-blue-400',
-                buttonGradient: 'from-blue-500 to-cyan-600',
+                buttonGradient: 'from-blue-500 to-indigo-600',
             };
-        case 'select_image':
+        case 'choose_when_read':
             return {
-                icon: CheckSquare,
+                icon: BookOpen,
                 borderColor: 'border-green-100 dark:border-green-900',
                 bgGradient:
                     'from-green-50 to-emerald-50 dark:from-green-950/30 dark:to-emerald-950/30',
@@ -74,17 +65,65 @@ const getExerciseTypeStyle = (type: string) => {
                 textColor: 'text-green-600 dark:text-green-400',
                 buttonGradient: 'from-green-500 to-emerald-600',
             };
-        default:
+        case 'select_image':
             return {
-                icon: Target,
+                icon: CheckSquare,
+                borderColor: 'border-purple-100 dark:border-purple-900',
+                bgGradient:
+                    'from-purple-50 to-fuchsia-50 dark:from-purple-950/30 dark:to-fuchsia-950/30',
+                cardBg: 'bg-purple-50 dark:bg-purple-950/20',
+                cardBorder: 'border-purple-200 dark:border-purple-800',
+                iconBg: 'bg-purple-500',
+                textColor: 'text-purple-600 dark:text-purple-400',
+                buttonGradient: 'from-purple-500 to-fuchsia-600',
+            };
+        case 'choose_letter':
+            return {
+                icon: Pencil,
                 borderColor: 'border-orange-100 dark:border-orange-900',
                 bgGradient:
-                    'from-orange-50 to-yellow-50 dark:from-orange-950/30 dark:to-yellow-950/30',
+                    'from-orange-50 to-amber-50 dark:from-orange-950/30 dark:to-amber-950/30',
                 cardBg: 'bg-orange-50 dark:bg-orange-950/20',
                 cardBorder: 'border-orange-200 dark:border-orange-800',
                 iconBg: 'bg-orange-500',
                 textColor: 'text-orange-600 dark:text-orange-400',
-                buttonGradient: 'from-orange-500 to-yellow-600',
+                buttonGradient: 'from-orange-500 to-amber-600',
+            };
+        case 'circle_identical':
+            return {
+                icon: CircleDot,
+                borderColor: 'border-pink-100 dark:border-pink-900',
+                bgGradient:
+                    'from-pink-50 to-rose-50 dark:from-pink-950/30 dark:to-rose-950/30',
+                cardBg: 'bg-pink-50 dark:bg-pink-950/20',
+                cardBorder: 'border-pink-200 dark:border-pink-800',
+                iconBg: 'bg-pink-500',
+                textColor: 'text-pink-600 dark:text-pink-400',
+                buttonGradient: 'from-pink-500 to-rose-600',
+            };
+        case 'connect_words':
+            return {
+                icon: Link2,
+                borderColor: 'border-cyan-100 dark:border-cyan-900',
+                bgGradient:
+                    'from-cyan-50 to-teal-50 dark:from-cyan-950/30 dark:to-teal-950/30',
+                cardBg: 'bg-cyan-50 dark:bg-cyan-950/20',
+                cardBorder: 'border-cyan-200 dark:border-cyan-800',
+                iconBg: 'bg-cyan-500',
+                textColor: 'text-cyan-600 dark:text-cyan-400',
+                buttonGradient: 'from-cyan-500 to-teal-600',
+            };
+        default:
+            return {
+                icon: Target,
+                borderColor: 'border-slate-100 dark:border-slate-900',
+                bgGradient:
+                    'from-slate-50 to-gray-50 dark:from-slate-950/30 dark:to-gray-950/30',
+                cardBg: 'bg-slate-50 dark:bg-slate-950/20',
+                cardBorder: 'border-slate-200 dark:border-slate-800',
+                iconBg: 'bg-slate-500',
+                textColor: 'text-slate-600 dark:text-slate-400',
+                buttonGradient: 'from-slate-500 to-gray-600',
             };
     }
 };

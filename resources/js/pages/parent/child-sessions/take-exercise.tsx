@@ -14,6 +14,14 @@ interface Exercise {
     title: string;
     description: string | null;
     images: ExerciseImage[];
+    word_sequences?: {
+        model_word: string;
+        other_words: { word: string; is_valid: boolean }[];
+    }[];
+    word_pairs?: {
+        left_text: string;
+        right_text: string;
+    }[];
 }
 
 interface ExerciseImage {

@@ -2,6 +2,7 @@ import ChooseLetterExercise from './ChooseLetterExercise';
 import ChooseWhenHearExercise from './ChooseWhenHearExercise';
 import ChooseWhenReadExercise from './ChooseWhenReadExercise';
 import CircleIdenticalExercise from './CircleIdenticalExercise';
+import ConnectWordsExercise from './ConnectWordsExercise';
 import SelectImageExercise from './SelectImageExercise';
 
 interface ExerciseImage {
@@ -34,6 +35,10 @@ interface Exercise {
     word_sequences?: {
         model_word: string;
         other_words: { word: string; is_valid: boolean }[];
+    }[];
+    word_pairs?: {
+        left_text: string;
+        right_text: string;
     }[];
 }
 
@@ -118,6 +123,18 @@ export default function ExerciseRenderer({
                     instruction={
                         exercise.description ||
                         "J'entoure les mots identiques au mot modèle"
+                    }
+                    onNext={onComplete}
+                    onSubmitScore={onSubmitScore}
+                />
+            );
+
+        case 'connect_words':
+            return (
+                <ConnectWordsExercise
+                    wordPairs={exercise.word_pairs || []}
+                    instruction={
+                        exercise.description || 'Je relie deux textes'
                     }
                     onNext={onComplete}
                     onSubmitScore={onSubmitScore}

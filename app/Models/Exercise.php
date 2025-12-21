@@ -19,6 +19,7 @@ class Exercise extends Model
         'required_repetitions',
         'letter_options',
         'word_sequences',
+        'word_pairs',
     ];
 
     protected $casts = [
@@ -26,6 +27,7 @@ class Exercise extends Model
         'type' => ExerciseTypeEnum::class,
         'letter_options' => 'array',
         'word_sequences' => 'array',
+        'word_pairs' => 'array',
     ];
 
     protected $appends = [

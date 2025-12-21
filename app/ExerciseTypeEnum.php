@@ -9,6 +9,7 @@ enum ExerciseTypeEnum: string
     case SELECT_IMAGE = 'select_image';
     case CHOOSE_LETTER = 'choose_letter';
     case CIRCLE_IDENTICAL = 'circle_identical';
+    case CONNECT_WORDS = 'connect_words';
 
     public function label(): string
     {
@@ -18,6 +19,7 @@ enum ExerciseTypeEnum: string
             self::SELECT_IMAGE => 'Je vois et je sélectionne',
             self::CHOOSE_LETTER => 'Je choisi la bonne lettre',
             self::CIRCLE_IDENTICAL => 'J\'entoure les mots identiques',
+            self::CONNECT_WORDS => 'Je relie deux textes',
         };
     }
 
@@ -29,6 +31,7 @@ enum ExerciseTypeEnum: string
             self::SELECT_IMAGE => 'L\'enfant sélectionne les images selon un critère (ex: contient la lettre "i")',
             self::CHOOSE_LETTER => 'L\'enfant complète les mots en choisissant la bonne lettre manquante',
             self::CIRCLE_IDENTICAL => 'L\'enfant sélectionne tous les mots identiques au mot modèle',
+            self::CONNECT_WORDS => 'L\'enfant relie les mots de gauche avec leurs correspondances à droite',
         };
     }
 }

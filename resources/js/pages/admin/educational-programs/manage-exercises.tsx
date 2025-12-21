@@ -17,10 +17,12 @@ import AppLayout from '@/layouts/app-layout';
 import programs from '@/routes/admin/educational-programs';
 import { BreadcrumbItem } from '@/types';
 import { Head, router, useForm } from '@inertiajs/react';
+import { Separator } from '@radix-ui/react-separator';
 import {
     Check,
     CheckCircle2,
     CircleDot,
+    Link2,
     Mic,
     Pencil,
     Plus,
@@ -51,6 +53,7 @@ interface Exercise {
               other_words: { word: string; is_valid: boolean }[];
           }[]
         | null;
+    word_pairs?: { left_text: string; right_text: string }[] | null;
     images?: ExerciseImage[];
 }
 
@@ -112,6 +115,8 @@ const getExerciseTypeIcon = (type: string) => {
             return Pencil;
         case 'circle_identical':
             return CircleDot;
+        case 'connect_words':
+            return Link2;
         default:
             return Target;
     }
@@ -129,6 +134,8 @@ const getExerciseTypeColor = (type: string) => {
             return 'text-orange-600';
         case 'circle_identical':
             return 'text-pink-600';
+        case 'connect_words':
+            return 'text-cyan-600';
         default:
             return 'text-slate-600';
     }
@@ -179,6 +186,7 @@ export default function ManageExercises({
             model_word: string;
             other_words: { word: string; is_valid: boolean }[];
         }[],
+        word_pairs: [] as { left_text: string; right_text: string }[],
     });
 
     const {
@@ -467,6 +475,7 @@ export default function ManageExercises({
             title: exercise.title,
             description: exercise.description,
             word_sequences: exercise.word_sequences || [],
+            word_pairs: exercise.word_pairs || [],
         });
         setIsEditDialogOpen(true);
     };
@@ -922,6 +931,138 @@ export default function ManageExercises({
                                                     d'autres mots (certains
                                                     identiques, d'autres
                                                     différents)
+                                                </p>
+                                            </div>
+                                        )}
+                                        {newExerciseData.type ===
+                                            'connect_words' && (
+                                            <div className="space-y-4">
+                                                <Label>Paires de mots</Label>
+                                                <div className="space-y-3">
+                                                    {newExerciseData.word_pairs.map(
+                                                        (pair, index) => (
+                                                            <div
+                                                                key={index}
+                                                                className="flex items-center gap-3 rounded-lg border-2 border-slate-200 p-4"
+                                                            >
+                                                                <div className="flex-1">
+                                                                    <Label
+                                                                        htmlFor={`left_${index}`}
+                                                                        className="text-xs text-slate-600"
+                                                                    >
+                                                                        Texte
+                                                                        gauche
+                                                                    </Label>
+                                                                    <Input
+                                                                        id={`left_${index}`}
+                                                                        placeholder="Ex: une dune"
+                                                                        value={
+                                                                            pair.left_text
+                                                                        }
+                                                                        onChange={(
+                                                                            e,
+                                                                        ) => {
+                                                                            const newPairs =
+                                                                                [
+                                                                                    ...newExerciseData.word_pairs,
+                                                                                ];
+                                                                            newPairs[
+                                                                                index
+                                                                            ].left_text =
+                                                                                e.target.value;
+                                                                            setNewExerciseData(
+                                                                                'word_pairs',
+                                                                                newPairs,
+                                                                            );
+                                                                        }}
+                                                                    />
+                                                                </div>
+                                                                <div className="mt-5 text-cyan-600">
+                                                                    <Link2 className="h-5 w-5" />
+                                                                </div>
+                                                                <div className="flex-1">
+                                                                    <Label
+                                                                        htmlFor={`right_${index}`}
+                                                                        className="text-xs text-slate-600"
+                                                                    >
+                                                                        Texte
+                                                                        droit
+                                                                    </Label>
+                                                                    <Input
+                                                                        id={`right_${index}`}
+                                                                        placeholder="Ex: d + u = du"
+                                                                        value={
+                                                                            pair.right_text
+                                                                        }
+                                                                        onChange={(
+                                                                            e,
+                                                                        ) => {
+                                                                            const newPairs =
+                                                                                [
+                                                                                    ...newExerciseData.word_pairs,
+                                                                                ];
+                                                                            newPairs[
+                                                                                index
+                                                                            ].right_text =
+                                                                                e.target.value;
+                                                                            setNewExerciseData(
+                                                                                'word_pairs',
+                                                                                newPairs,
+                                                                            );
+                                                                        }}
+                                                                    />
+                                                                </div>
+                                                                <Button
+                                                                    variant="outline"
+                                                                    size="sm"
+                                                                    className="mt-5"
+                                                                    onClick={() => {
+                                                                        const newPairs =
+                                                                            newExerciseData.word_pairs.filter(
+                                                                                (
+                                                                                    _,
+                                                                                    i,
+                                                                                ) =>
+                                                                                    i !==
+                                                                                    index,
+                                                                            );
+                                                                        setNewExerciseData(
+                                                                            'word_pairs',
+                                                                            newPairs,
+                                                                        );
+                                                                    }}
+                                                                >
+                                                                    <Trash2 className="h-4 w-4" />
+                                                                </Button>
+                                                            </div>
+                                                        ),
+                                                    )}
+                                                </div>
+                                                <Button
+                                                    variant="outline"
+                                                    onClick={() => {
+                                                        setNewExerciseData(
+                                                            'word_pairs',
+                                                            [
+                                                                ...newExerciseData.word_pairs,
+                                                                {
+                                                                    left_text:
+                                                                        '',
+                                                                    right_text:
+                                                                        '',
+                                                                },
+                                                            ],
+                                                        );
+                                                    }}
+                                                >
+                                                    <Plus className="mr-2 h-4 w-4" />
+                                                    Ajouter une paire
+                                                </Button>
+                                                <p className="text-xs text-slate-500">
+                                                    Les textes de gauche seront
+                                                    mélangés et l'enfant devra
+                                                    les relier aux bonnes
+                                                    réponses à droite
                                                 </p>
                                             </div>
                                         )}
@@ -2386,6 +2527,61 @@ export default function ManageExercises({
                                                 </div>
                                             </>
                                         )}
+                                        {exercise.type === 'connect_words' && (
+                                            <>
+                                                <Separator className="my-4" />
+                                                <div>
+                                                    <h4 className="mb-3 font-semibold text-slate-700 dark:text-slate-300">
+                                                        Paires de mots (
+                                                        {exercise.word_pairs
+                                                            ?.length || 0}
+                                                        )
+                                                    </h4>
+                                                    {!exercise.word_pairs ||
+                                                    exercise.word_pairs
+                                                        .length === 0 ? (
+                                                        <div className="rounded-lg border-2 border-dashed border-slate-200 p-8 text-center">
+                                                            <p className="text-sm text-slate-600">
+                                                                Aucune paire
+                                                                ajoutée
+                                                            </p>
+                                                        </div>
+                                                    ) : (
+                                                        <div className="space-y-3">
+                                                            {exercise.word_pairs.map(
+                                                                (
+                                                                    pair,
+                                                                    index,
+                                                                ) => (
+                                                                    <div
+                                                                        key={
+                                                                            index
+                                                                        }
+                                                                        className="flex items-center gap-3 rounded-lg border-2 border-slate-200 bg-slate-50 p-4"
+                                                                    >
+                                                                        <div className="flex-1 rounded-lg bg-white px-3 py-2">
+                                                                            <p className="text-sm font-medium text-slate-800">
+                                                                                {
+                                                                                    pair.left_text
+                                                                                }
+                                                                            </p>
+                                                                        </div>
+                                                                        <Link2 className="h-5 w-5 flex-shrink-0 text-cyan-600" />
+                                                                        <div className="flex-1 rounded-lg bg-white px-3 py-2">
+                                                                            <p className="text-sm font-medium text-slate-800">
+                                                                                {
+                                                                                    pair.right_text
+                                                                                }
+                                                                            </p>
+                                                                        </div>
+                                                                    </div>
+                                                                ),
+                                                            )}
+                                                        </div>
+                                                    )}
+                                                </div>
+                                            </>
+                                        )}
                                     </CardContent>
                                 </Card>
                             );
@@ -2665,6 +2861,117 @@ export default function ManageExercises({
                                     >
                                         <Plus className="mr-2 h-4 w-4" />
                                         Ajouter une séquence
+                                    </Button>
+                                </div>
+                            )}
+                            {selectedExercise?.type === 'connect_words' && (
+                                <div className="space-y-4">
+                                    <Label>Paires de mots</Label>
+                                    <div className="space-y-3">
+                                        {editExerciseData.word_pairs.map(
+                                            (pair, index) => (
+                                                <div
+                                                    key={index}
+                                                    className="flex items-center gap-3 rounded-lg border-2 border-slate-200 p-4"
+                                                >
+                                                    <div className="flex-1">
+                                                        <Label
+                                                            htmlFor={`edit_left_${index}`}
+                                                            className="text-xs text-slate-600"
+                                                        >
+                                                            Texte gauche
+                                                        </Label>
+                                                        <Input
+                                                            id={`edit_left_${index}`}
+                                                            placeholder="Ex: une dune"
+                                                            value={
+                                                                pair.left_text
+                                                            }
+                                                            onChange={(e) => {
+                                                                const newPairs =
+                                                                    [
+                                                                        ...editExerciseData.word_pairs,
+                                                                    ];
+                                                                newPairs[
+                                                                    index
+                                                                ].left_text =
+                                                                    e.target.value;
+                                                                setEditExerciseData(
+                                                                    'word_pairs',
+                                                                    newPairs,
+                                                                );
+                                                            }}
+                                                        />
+                                                    </div>
+                                                    <div className="mt-5 text-cyan-600">
+                                                        <Link2 className="h-5 w-5" />
+                                                    </div>
+                                                    <div className="flex-1">
+                                                        <Label
+                                                            htmlFor={`edit_right_${index}`}
+                                                            className="text-xs text-slate-600"
+                                                        >
+                                                            Texte droit
+                                                        </Label>
+                                                        <Input
+                                                            id={`edit_right_${index}`}
+                                                            placeholder="Ex: d + u = du"
+                                                            value={
+                                                                pair.right_text
+                                                            }
+                                                            onChange={(e) => {
+                                                                const newPairs =
+                                                                    [
+                                                                        ...editExerciseData.word_pairs,
+                                                                    ];
+                                                                newPairs[
+                                                                    index
+                                                                ].right_text =
+                                                                    e.target.value;
+                                                                setEditExerciseData(
+                                                                    'word_pairs',
+                                                                    newPairs,
+                                                                );
+                                                            }}
+                                                        />
+                                                    </div>
+                                                    <Button
+                                                        variant="outline"
+                                                        size="sm"
+                                                        className="mt-5"
+                                                        onClick={() => {
+                                                            const newPairs =
+                                                                editExerciseData.word_pairs.filter(
+                                                                    (_, i) =>
+                                                                        i !==
+                                                                        index,
+                                                                );
+                                                            setEditExerciseData(
+                                                                'word_pairs',
+                                                                newPairs,
+                                                            );
+                                                        }}
+                                                    >
+                                                        <Trash2 className="h-4 w-4" />
+                                                    </Button>
+                                                </div>
+                                            ),
+                                        )}
+                                    </div>
+                                    <Button
+                                        variant="outline"
+                                        onClick={() => {
+                                            setEditExerciseData('word_pairs', [
+                                                ...editExerciseData.word_pairs,
+                                                {
+                                                    left_text: '',
+                                                    right_text: '',
+                                                },
+                                            ]);
+                                        }}
+                                    >
+                                        <Plus className="mr-2 h-4 w-4" />
+                                        Ajouter une paire
                                     </Button>
                                 </div>
                             )}

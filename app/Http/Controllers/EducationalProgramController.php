@@ -367,7 +367,7 @@ class EducationalProgramController extends Controller
     {
         $chapter->load(['exercises.images', 'exercises.words']);
 
-        $exerciseTypes = collect(ExerciseTypeEnum::cases())->map(fn ($type) => [
+        $exerciseTypes = collect(ExerciseTypeEnum::cases())->map(fn($type) => [
             'value' => $type->value,
             'label' => $type->label(),
             'description' => $type->description(),
@@ -396,6 +396,9 @@ class EducationalProgramController extends Controller
             'word_sequences.*.other_words' => 'required|array',
             'word_sequences.*.other_words.*.word' => 'required|string|max:255',
             'word_sequences.*.other_words.*.is_valid' => 'required|boolean',
+            'word_pairs' => 'nullable|array',
+            'word_pairs.*.left_text' => 'required|string|max:255',
+            'word_pairs.*.right_text' => 'required|string|max:255',
         ]);
 
         $position = $chapter->exercises()->max('position') + 1;
@@ -407,6 +410,7 @@ class EducationalProgramController extends Controller
             'required_repetitions' => $validated['required_repetitions'] ?? 1,
             'letter_options' => $validated['letter_options'] ?? null,
             'word_sequences' => $validated['word_sequences'] ?? null,
+            'word_pairs' => $validated['word_pairs'] ?? null,
             'position' => $position,
         ]);
 
@@ -426,6 +430,9 @@ class EducationalProgramController extends Controller
             'word_sequences.*.other_words' => 'required|array',
             'word_sequences.*.other_words.*.word' => 'required|string|max:255',
             'word_sequences.*.other_words.*.is_valid' => 'required|boolean',
+            'word_pairs' => 'nullable|array',
+            'word_pairs.*.left_text' => 'required|string|max:255',
+            'word_pairs.*.right_text' => 'required|string|max:255',
         ]);
 
         $exercise->update($validated);
@@ -455,7 +462,7 @@ class EducationalProgramController extends Controller
         ]);
 
         $imagePath = $request->file('image')->store('exercises/images', 'public');
-        $fullImagePath = storage_path('app/public/'.$imagePath);
+        $fullImagePath = storage_path('app/public/' . $imagePath);
 
         Image::load($fullImagePath)
             ->optimize()
