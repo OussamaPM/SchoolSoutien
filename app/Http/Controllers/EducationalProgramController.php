@@ -14,9 +14,12 @@ use App\Models\Quiz;
 use App\RoleEnum;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Session;
 use Illuminate\Support\Facades\Storage;
 use Inertia\Inertia;
 use Spatie\Image\Image;
+
+use function Pest\Laravel\session;
 
 class EducationalProgramController extends Controller
 {
@@ -163,6 +166,7 @@ class EducationalProgramController extends Controller
             'level' => $level,
             'category' => $category,
             'chapter' => $chapter,
+            'imageUrl' => inertia()->getShared('imageUrl', null) ?? Session::get('imageUrl', null),
         ]);
     }
 
@@ -551,5 +555,28 @@ class EducationalProgramController extends Controller
         $word->delete();
 
         return back()->with('success', 'Mot supprimé avec succès');
+    }
+
+    public function uploadChapterImage(Request $request)
+    {
+        $validated = $request->validate([
+            'image' => 'required|image|max:5120', // 5MB max
+        ]);
+        $imagePath = $request->file('image')->store('chapters/images', 'public');
+        $fullImagePath = storage_path('app/public/' . $imagePath);
+
+        // Optimize and convert to WebP
+        Image::load($fullImagePath)
+            ->optimize()
+            ->format('webp')
+            ->save();
+
+        $webpPath = str_replace(['.jpg', '.jpeg', '.png'], '.webp', $imagePath);
+        if ($imagePath !== $webpPath) {
+            Storage::disk('public')->move($imagePath, $webpPath);
+            $imagePath = $webpPath;
+        }
+        inertia()->share('imageUrl', Storage::url($imagePath));
+        return back()->with('imageUrl', Storage::url($imagePath));
     }
 }

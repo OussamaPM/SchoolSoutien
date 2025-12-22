@@ -2,6 +2,7 @@ import { helperBlockGroup } from '@/lib/chapter-editor-blocks/helpers';
 import { listBlockGroup } from '@/lib/chapter-editor-blocks/list';
 import { typographyBlockGroup } from '@/lib/chapter-editor-blocks/typography';
 import { cn } from '@/lib/utils';
+import { router } from '@inertiajs/react';
 import type { FocusPosition, Editor as TiptapEditor } from '@tiptap/core';
 import { Loader2Icon } from 'lucide-react';
 import { lazy, Suspense, useRef, useState } from 'react';
@@ -34,6 +35,35 @@ export function ChapterEditor(props: EditorProps) {
     const [isLoading, setIsLoading] = useState(true);
     const debounceTimerRef = useRef<NodeJS.Timeout | null>(null);
 
+    const [isUploadingImage, setIsUploadingImage] = useState(false);
+
+    const uploadImage = async (file: File): Promise<string> => {
+        return new Promise((resolve, reject) => {
+            setIsUploadingImage(true);
+            router.post(
+                '/admin/educational-programs/upload-chapter-image',
+                { image: file },
+                {
+                    forceFormData: true,
+                    preserveScroll: true,
+                    onSuccess: (response) => {
+                        setIsUploadingImage(false);
+                        const url = response.props.imageUrl as string | null;
+                        if (url) {
+                            resolve(url);
+                        } else {
+                            reject(new Error('No imageUrl returned'));
+                        }
+                    },
+                    onError: (errors) => {
+                        setIsUploadingImage(false);
+                        reject(new Error(errors.image || 'Upload failed'));
+                    },
+                },
+            );
+        });
+    };
+
     return (
         <>
             {isLoading && (
@@ -59,7 +89,7 @@ export function ChapterEditor(props: EditorProps) {
                             title: 'Aide au formatage',
                             commands: typographyBlockGroup.concat(
                                 listBlockGroup,
-                                helperBlockGroup,
+                                helperBlockGroup(uploadImage),
                             ),
                         },
                     ]}

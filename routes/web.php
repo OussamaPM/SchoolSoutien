@@ -48,6 +48,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
             ->name('educational-programs.')
             ->group(function () {
                 Route::get('education-level-categories', 'getAllEducationLevelCategories')->name('level-categories');
+                // ####################################### Upload Routes ########################################
+                Route::post('upload-chapter-image', 'uploadChapterImage')->name('upload-chapter-image');
                 // ####################################### Levels Routes ########################################
                 Route::get('education-level-categories/{category}/levels', 'getEducationLevelsByCategory')->name('levels');
                 Route::post('education-level-categories/{category}/level', 'storeLevel')->name('store-level');
