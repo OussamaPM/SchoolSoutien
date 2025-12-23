@@ -63,6 +63,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
                 // ####################################### Chapters Routes ########################################
                 Route::get('education-level-categories/{category}/{level}/subjects/{subject}/chapters', 'getChaptersBySubject')->name('chapters');
                 Route::get('education-level-categories/{category}/{level}/subjects/{subject}/chapter-write/{chapter?}', 'chapterWriter')->name('chapter-writer');
+                // Intermediary chapter detail page (shows metadata, toolbox links)
+                Route::get('education-level-categories/{category}/{level}/subjects/{subject}/chapter/{chapter}', 'chapterDetail')->name('chapter.detail');
                 Route::patch('education-level-categories/{category}/{level}/subjects/{subject}/chapter/{chapter?}', 'updateChapter')->name('update-chapter');
                 Route::patch('education-level-categories/{category}/{level}/subjects/{subject}/chapter/{chapter}/status', 'updateChapterStatus')->name('update-chapter-status');
                 Route::patch('education-level-categories/{category}/{level}/subjects/{subject}/chapter/{chapter}/video', 'updateChapterVideo')->name('update-chapter-video');

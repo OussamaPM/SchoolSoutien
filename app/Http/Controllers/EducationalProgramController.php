@@ -170,6 +170,18 @@ class EducationalProgramController extends Controller
         ]);
     }
 
+    public function chapterDetail(EducationLevelCategory $category, EducationLevel $level, EducationalSubject $subject, Chapter $chapter)
+    {
+        $chapter->load(['quiz:id,chapter_id,title,description', 'exercises:id,chapter_id,type']);
+
+        return Inertia::render('admin/educational-programs/chapter-detail', [
+            'category' => $category,
+            'level' => $level,
+            'subject' => $subject,
+            'chapter' => $chapter,
+        ]);
+    }
+
     public function updateChapter(Request $request, EducationLevelCategory $category, EducationLevel $level, EducationalSubject $subject, ?Chapter $chapter = null)
     {
         $validated = $request->validate([

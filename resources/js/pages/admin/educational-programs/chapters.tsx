@@ -1,4 +1,6 @@
-import EducationalProgramController from '@/actions/App/Http/Controllers/EducationalProgramController';
+import EducationalProgramController, {
+    chapterDetail,
+} from '@/actions/App/Http/Controllers/EducationalProgramController';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import {
@@ -34,7 +36,6 @@ import {
 } from '@/components/ui/tooltip';
 import AppLayout from '@/layouts/app-layout';
 import programs, {
-    chapterWriter,
     moveChapterDown,
     moveChapterUp,
     updateChapterStatus,
@@ -255,7 +256,7 @@ export default function Index({
                                         tabIndex={0}
                                         onClick={() =>
                                             router.visit(
-                                                chapterWriter.url([
+                                                chapterDetail.url([
                                                     category.id,
                                                     level.id,
                                                     subject.id,
