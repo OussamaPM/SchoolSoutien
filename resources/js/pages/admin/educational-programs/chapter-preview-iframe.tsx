@@ -37,6 +37,18 @@ function renderHTMLToIFrame(
             table[role='presentation'] {
                 max-width: 800px !important;
             }
+            blockquote {
+                font-style: italic;
+                position: relative;
+            }
+            blockquote::before {
+                content: '"';
+                color: #6b7280;
+            }
+            blockquote::after {
+                content: '"';
+                color: #6b7280;
+            }
         </style>
       </head>
       <body>
