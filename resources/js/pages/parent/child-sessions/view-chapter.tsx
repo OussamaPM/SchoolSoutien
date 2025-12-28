@@ -114,10 +114,45 @@ const getExerciseTypeStyle = (type: string) => {
     }
 };
 
+interface ExerciseScore {
+    id: number;
+    score: number;
+    total: number;
+    percentage: number;
+    created_at: string;
+}
+
+interface Exercise {
+    id: number;
+    title: string;
+    description: string | null;
+    type: string;
+    latest_score?: ExerciseScore;
+    score_history?: ExerciseScore[];
+}
+
+interface QuizAttempt {
+    id: number;
+    score: number;
+    total_questions: number;
+    correct_answers: number;
+    completed_at: string;
+}
+
+interface Quiz {
+    id: number;
+    title: string;
+    description: string | null;
+    attempts_history?: QuizAttempt[];
+}
+
 interface Props {
     child: ChildProfile;
     subject: Subject;
-    chapter: Chapter;
+    chapter: Chapter & {
+        exercises: Exercise[];
+        quiz?: Quiz;
+    };
 }
 
 export default function ViewChapter({ child, subject, chapter }: Props) {
@@ -259,13 +294,15 @@ export default function ViewChapter({ child, subject, chapter }: Props) {
                                         <div
                                             className="h-2.5 rounded-full bg-orange-500"
                                             style={{
-                                                width: `${(chapter.exercisesDone / chapter.exercises?.length || 1) * 100}%`,
+                                                width: `${((chapter.exercises?.filter((ex: any) => ex.latest_score).length || 0) / (chapter.exercises?.length || 1)) * 100}%`,
                                             }}
                                         ></div>
                                     </div>
                                     <p className="text-xs text-slate-600 dark:text-slate-400">
-                                        {chapter.exercisesDone || 0} sur{' '}
-                                        {chapter.exercises?.length || 0}{' '}
+                                        {chapter.exercises?.filter(
+                                            (ex: any) => ex.latest_score,
+                                        ).length || 0}{' '}
+                                        sur {chapter.exercises?.length || 0}{' '}
                                         complétés
                                     </p>
                                 </div>
@@ -274,8 +311,30 @@ export default function ViewChapter({ child, subject, chapter }: Props) {
                                         Score moyen :
                                     </p>
                                     <p className="text-lg font-bold text-orange-600 dark:text-orange-400">
-                                        {chapter.averageExerciseScore || 0} /{' '}
-                                        {chapter.maxExerciseScore || 100}
+                                        {chapter.exercises?.filter(
+                                            (ex: any) => ex.latest_score,
+                                        ).length > 0
+                                            ? Math.round(
+                                                  chapter.exercises
+                                                      .filter(
+                                                          (ex: any) =>
+                                                              ex.latest_score,
+                                                      )
+                                                      .reduce(
+                                                          (sum, ex: any) =>
+                                                              sum +
+                                                              (ex.latest_score
+                                                                  ?.percentage ||
+                                                                  0),
+                                                          0,
+                                                      ) /
+                                                      chapter.exercises.filter(
+                                                          (ex: any) =>
+                                                              ex.latest_score,
+                                                      ).length,
+                                              )
+                                            : 0}{' '}
+                                        / 100
                                     </p>
                                 </div>
                                 <Link
@@ -315,13 +374,15 @@ export default function ViewChapter({ child, subject, chapter }: Props) {
                                             <div
                                                 className="h-2.5 rounded-full bg-purple-500"
                                                 style={{
-                                                    width: `${(chapter.quizDone / 1) * 100}%`,
+                                                    width: `${(chapter.quiz as any).attempts_history?.length > 0 ? 100 : 0}%`,
                                                 }}
                                             ></div>
                                         </div>
                                         <p className="text-xs text-slate-600 dark:text-slate-400">
-                                            {chapter.quizDone || 0} sur 1
-                                            complété
+                                            {(chapter.quiz as any)
+                                                .attempts_history?.length ||
+                                                0}{' '}
+                                            tentative(s) complétée(s)
                                         </p>
                                     </div>
                                 )}
@@ -331,8 +392,27 @@ export default function ViewChapter({ child, subject, chapter }: Props) {
                                             Score moyen :
                                         </p>
                                         <p className="text-lg font-bold text-purple-600 dark:text-purple-400">
-                                            {chapter.averageQuizScore || 0} /{' '}
-                                            {chapter.maxQuizScore || 100}
+                                            {(chapter.quiz as any)
+                                                .attempts_history?.length > 0
+                                                ? Math.round(
+                                                      (
+                                                          chapter.quiz as any
+                                                      ).attempts_history.reduce(
+                                                          (
+                                                              sum: number,
+                                                              attempt: any,
+                                                          ) =>
+                                                              sum +
+                                                              (attempt.score ||
+                                                                  0),
+                                                          0,
+                                                      ) /
+                                                          (chapter.quiz as any)
+                                                              .attempts_history
+                                                              .length,
+                                                  )
+                                                : 0}{' '}
+                                            / 100
                                         </p>
                                     </div>
                                 )}

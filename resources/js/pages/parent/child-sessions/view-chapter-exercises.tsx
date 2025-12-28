@@ -1,27 +1,27 @@
+import ExerciseRenderer from '@/components/exercises/ExerciseRenderer';
 import { Button } from '@/components/ui/button';
 import {
     Card,
     CardContent,
     CardDescription,
-    CardFooter,
     CardHeader,
     CardTitle,
 } from '@/components/ui/card';
 import AppLayout from '@/layouts/app-layout';
-import { Head, Link } from '@inertiajs/react';
+import { Head, Link, router } from '@inertiajs/react';
 import {
     ArrowLeft,
     CheckCircle2,
+    CheckCircle2 as CheckIcon,
+    Circle,
     CircleDot,
     Link2,
     Mic,
     Pencil,
-    Play,
     Target,
-    Trophy,
     Volume2,
 } from 'lucide-react';
-import React from 'react';
+import React, { useState } from 'react';
 
 interface ChildProfile {
     id: number;
@@ -48,11 +48,27 @@ interface ExerciseScore {
     created_at: string;
 }
 
+interface ExerciseImage {
+    id: number;
+    image_path: string;
+    audio_path: string;
+    is_correct: boolean;
+}
+
 interface Exercise {
     id: number;
     title: string;
     description: string | null;
     type: string;
+    images: ExerciseImage[];
+    word_sequences?: {
+        model_word: string;
+        other_words: { word: string; is_valid: boolean }[];
+    }[];
+    word_pairs?: {
+        left_text: string;
+        right_text: string;
+    }[];
     latest_score?: ExerciseScore;
 }
 
@@ -190,14 +206,45 @@ const getExerciseTypeStyle = (type: string) => {
 };
 
 const ViewChapterExercises: React.FC<Props> = ({ child, subject, chapter }) => {
+    const [selectedExercise, setSelectedExercise] = useState<Exercise>(
+        chapter.exercises[0] || null,
+    );
+
+    const handleExerciseSelect = (exercise: Exercise) => {
+        setSelectedExercise(exercise);
+    };
+
+    const handleComplete = () => {
+        // Could navigate back or show completion message
+        console.log('Exercise completed');
+    };
+
+    const handleRetry = () => {
+        // Reset exercise state if needed
+        console.log('Exercise retry');
+    };
+
+    const handleSubmitScore = (score: number, total: number) => {
+        router.post(
+            `/parent/child-sessions/${child.id}/${subject.id}/chapter/${chapter.id}/exercise/${selectedExercise.id}`,
+            { score, total },
+            {
+                preserveScroll: true,
+                onSuccess: () => {
+                    console.log('Score submitted successfully');
+                    // Could refresh the page or update local state
+                },
+            },
+        );
+    };
     return (
         <AppLayout>
             <Head title={`Exercices - ${chapter.title}`} />
 
             <div className="min-h-screen dark:from-gray-900 dark:to-gray-800">
                 <div className="mx-auto max-w-7xl px-4 py-6 sm:px-6">
-                    {/* Back Button */}
-                    <div className="mb-6">
+                    {/* Header with Back Button and Title */}
+                    <div className="mb-8 flex items-center justify-between">
                         <Button
                             variant="outline"
                             asChild
@@ -210,117 +257,176 @@ const ViewChapterExercises: React.FC<Props> = ({ child, subject, chapter }) => {
                                 Retour au chapitre
                             </Link>
                         </Button>
-                    </div>
 
-                    <div className="mb-8 text-center">
-                        <h1 className="text-4xl font-bold tracking-tight text-gray-900 dark:text-white">
-                            🎯 Exercices
-                        </h1>
-                        <p className="mt-2 text-lg text-gray-600 dark:text-gray-300">
-                            Chapitre :{' '}
-                            <span className="font-semibold text-blue-600 dark:text-blue-400">
-                                {chapter.title}
-                            </span>{' '}
-                            - Matière :{' '}
-                            <span className="font-semibold text-green-600 dark:text-green-400">
-                                {subject.name}
-                            </span>
-                        </p>
+                        <div className="text-right">
+                            <h1 className="text-3xl font-bold tracking-tight text-gray-900 dark:text-white">
+                                🎯 Exercices
+                            </h1>
+                            <p className="mt-1 text-sm text-gray-600 dark:text-gray-300">
+                                Chapitre :{' '}
+                                <span className="font-semibold text-blue-600 dark:text-blue-400">
+                                    {chapter.title}
+                                </span>{' '}
+                                - Matière :{' '}
+                                <span className="font-semibold text-green-600 dark:text-green-400">
+                                    {subject.name}
+                                </span>
+                            </p>
+                        </div>
                     </div>
 
                     {chapter.exercises.length > 0 ? (
-                        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-                            {chapter.exercises.map((exercise) => {
-                                const Icon = getExerciseTypeIcon(exercise.type);
-                                const style = getExerciseTypeStyle(
-                                    exercise.type,
-                                );
-                                const IconComponent = style.icon;
-
-                                return (
-                                    <Card
-                                        key={exercise.id}
-                                        className={`group relative overflow-hidden rounded-3xl border-2 ${style.cardBorder} ${style.cardBg} shadow-lg transition-all duration-300 hover:scale-[1.02] hover:shadow-xl`}
-                                    >
-                                        <div
-                                            className={`absolute inset-0 bg-gradient-to-br ${style.bgGradient} opacity-50`}
-                                        />
-                                        <CardHeader className="relative z-10">
-                                            <div className="flex items-center justify-between">
-                                                <CardTitle
-                                                    className={`text-xl font-bold ${style.textColor}`}
-                                                >
-                                                    {exercise.title}
-                                                </CardTitle>
-                                                <div
-                                                    className={`flex h-10 w-10 items-center justify-center rounded-xl ${style.iconBg}`}
-                                                >
-                                                    <IconComponent className="h-5 w-5 text-white" />
-                                                </div>
+                        <div className="grid grid-cols-1 gap-6 lg:grid-cols-10">
+                            {/* Left Column: Exercise Renderer (70%) */}
+                            <div className="lg:col-span-7">
+                                <Card className="overflow-hidden rounded-3xl border-2 border-blue-200 bg-white shadow-xl dark:border-blue-800 dark:bg-gray-800">
+                                    <CardHeader className="bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-950/30 dark:to-indigo-950/30">
+                                        <div className="flex items-center gap-4">
+                                            <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-blue-500">
+                                                <Target className="h-6 w-6 text-white" />
                                             </div>
-                                            <CardDescription className="text-gray-600 dark:text-gray-300">
-                                                {exercise.description}
-                                            </CardDescription>
-                                        </CardHeader>
-                                        <CardContent className="relative z-10 flex-1">
-                                            {exercise.latest_score ? (
-                                                <div className="flex items-center space-x-3 rounded-lg bg-white/80 p-3 backdrop-blur-sm dark:bg-gray-800/80">
-                                                    <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-yellow-500">
-                                                        <Trophy className="h-4 w-4 text-white" />
-                                                    </div>
-                                                    <div>
-                                                        <p className="text-sm font-semibold text-gray-900 dark:text-white">
-                                                            Dernier score
-                                                        </p>
-                                                        <p className="text-lg font-bold text-yellow-600 dark:text-yellow-400">
-                                                            {
-                                                                exercise
-                                                                    .latest_score
-                                                                    .score
-                                                            }
-                                                            /
-                                                            {
-                                                                exercise
-                                                                    .latest_score
-                                                                    .total
-                                                            }{' '}
-                                                            (
-                                                            {
-                                                                exercise
-                                                                    .latest_score
-                                                                    .percentage
-                                                            }
-                                                            %)
-                                                        </p>
-                                                    </div>
-                                                </div>
-                                            ) : (
-                                                <div className="flex items-center space-x-3 rounded-lg bg-gray-100/80 p-3 backdrop-blur-sm dark:bg-gray-700/80">
-                                                    <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-gray-400">
-                                                        <Target className="h-4 w-4 text-white" />
-                                                    </div>
-                                                    <p className="text-sm text-gray-600 dark:text-gray-300">
-                                                        Aucun score enregistré
+                                            <div>
+                                                <CardTitle className="text-xl font-bold text-blue-900 dark:text-blue-100">
+                                                    {selectedExercise?.title ||
+                                                        'Sélectionnez un exercice'}
+                                                </CardTitle>
+                                                <CardDescription className="text-blue-700 dark:text-blue-300">
+                                                    {
+                                                        selectedExercise?.description
+                                                    }
+                                                </CardDescription>
+                                            </div>
+                                        </div>
+                                    </CardHeader>
+                                    <CardContent className="p-6">
+                                        {selectedExercise ? (
+                                            <ExerciseRenderer
+                                                exercise={selectedExercise}
+                                                onComplete={handleComplete}
+                                                onRetry={handleRetry}
+                                                onSubmitScore={
+                                                    handleSubmitScore
+                                                }
+                                            />
+                                        ) : (
+                                            <div className="flex min-h-[400px] items-center justify-center">
+                                                <div className="text-center">
+                                                    <Target className="mx-auto h-16 w-16 text-gray-400" />
+                                                    <p className="mt-4 text-gray-600 dark:text-gray-400">
+                                                        Sélectionnez un exercice
+                                                        dans la liste à droite
                                                     </p>
                                                 </div>
+                                            </div>
+                                        )}
+                                    </CardContent>
+                                </Card>
+                            </div>
+
+                            {/* Right Column: Exercise List (30%) */}
+                            <div className="lg:col-span-3">
+                                <Card className="sticky top-6 overflow-hidden rounded-3xl border-2 border-indigo-200 bg-white shadow-xl dark:border-indigo-800 dark:bg-gray-800">
+                                    <CardHeader className="bg-gradient-to-r from-indigo-50 to-purple-50 dark:from-indigo-950/30 dark:to-purple-950/30">
+                                        <CardTitle className="flex items-center gap-2 text-lg font-bold text-indigo-900 dark:text-indigo-100">
+                                            <CheckCircle2 className="h-5 w-5" />
+                                            Liste des exercices
+                                        </CardTitle>
+                                        <CardDescription className="text-indigo-700 dark:text-indigo-300">
+                                            {
+                                                chapter.exercises.filter(
+                                                    (ex) => ex.latest_score,
+                                                ).length
+                                            }{' '}
+                                            sur {chapter.exercises.length}{' '}
+                                            complétés
+                                        </CardDescription>
+                                    </CardHeader>
+                                    <CardContent className="max-h-[600px] overflow-y-auto p-4">
+                                        <div className="space-y-3">
+                                            {chapter.exercises.map(
+                                                (exercise) => {
+                                                    const Icon =
+                                                        getExerciseTypeIcon(
+                                                            exercise.type,
+                                                        );
+                                                    const style =
+                                                        getExerciseTypeStyle(
+                                                            exercise.type,
+                                                        );
+                                                    const isSelected =
+                                                        selectedExercise?.id ===
+                                                        exercise.id;
+                                                    const isCompleted =
+                                                        !!exercise.latest_score;
+
+                                                    return (
+                                                        <div
+                                                            key={exercise.id}
+                                                            onClick={() =>
+                                                                handleExerciseSelect(
+                                                                    exercise,
+                                                                )
+                                                            }
+                                                            className={`cursor-pointer rounded-xl border-2 p-4 transition-all duration-200 hover:shadow-md ${
+                                                                isSelected
+                                                                    ? `${style.cardBorder} ${style.cardBg} shadow-lg`
+                                                                    : 'border-gray-200 bg-gray-50 hover:border-gray-300 dark:border-gray-700 dark:bg-gray-800/50'
+                                                            }`}
+                                                        >
+                                                            <div className="flex items-start gap-3">
+                                                                <div
+                                                                    className={`flex h-8 w-8 items-center justify-center rounded-lg ${
+                                                                        isCompleted
+                                                                            ? 'bg-green-500'
+                                                                            : 'bg-gray-300 dark:bg-gray-600'
+                                                                    }`}
+                                                                >
+                                                                    {isCompleted ? (
+                                                                        <CheckIcon className="h-4 w-4 text-white" />
+                                                                    ) : (
+                                                                        <Circle className="h-4 w-4 text-white" />
+                                                                    )}
+                                                                </div>
+                                                                <div className="min-w-0 flex-1">
+                                                                    <h4
+                                                                        className={`truncate font-semibold ${
+                                                                            isSelected
+                                                                                ? style.textColor
+                                                                                : 'text-gray-900 dark:text-white'
+                                                                        }`}
+                                                                    >
+                                                                        {
+                                                                            exercise.title
+                                                                        }
+                                                                    </h4>
+                                                                    <div className="mt-1 flex items-center gap-2">
+                                                                        <div
+                                                                            className={`flex h-5 w-5 items-center justify-center rounded ${style.iconBg}`}
+                                                                        >
+                                                                            <Icon className="h-3 w-3 text-white" />
+                                                                        </div>
+                                                                        {exercise.latest_score && (
+                                                                            <span className="text-xs font-medium text-green-600 dark:text-green-400">
+                                                                                {
+                                                                                    exercise
+                                                                                        .latest_score
+                                                                                        .percentage
+                                                                                }
+
+                                                                                %
+                                                                            </span>
+                                                                        )}
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    );
+                                                },
                                             )}
-                                        </CardContent>
-                                        <CardFooter className="relative z-10">
-                                            <Button
-                                                asChild
-                                                className={`w-full bg-gradient-to-r ${style.buttonGradient} text-white transition-all duration-300 hover:shadow-lg`}
-                                            >
-                                                <Link
-                                                    href={`/parent/child-sessions/${child.id}/${subject.id}/chapter/${chapter.id}/exercise/${exercise.id}`}
-                                                >
-                                                    <Play className="mr-2 h-4 w-4" />
-                                                    Commencer l'exercice
-                                                </Link>
-                                            </Button>
-                                        </CardFooter>
-                                    </Card>
-                                );
-                            })}
+                                        </div>
+                                    </CardContent>
+                                </Card>
+                            </div>
                         </div>
                     ) : (
                         <div className="flex min-h-[400px] items-center justify-center">

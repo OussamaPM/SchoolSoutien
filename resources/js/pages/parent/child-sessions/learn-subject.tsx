@@ -113,7 +113,8 @@ export default function LearnSubject({ child, subject }: Props) {
                                     const isLast =
                                         index === activeChapters.length - 1;
                                     const isCompleted = false;
-                                    const isLocked = index > 0 && !isCompleted;
+                                    // const isLocked = index > 0 && !isCompleted;
+                                    const isLocked = false;
 
                                     return (
                                         <div
