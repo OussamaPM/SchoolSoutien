@@ -23,19 +23,19 @@ import {
 } from 'lucide-react';
 import { ChildProfile } from './index';
 
-interface Answer {
+export interface Answer {
     id: number;
     answer: string;
     is_correct: boolean;
 }
 
-interface Question {
+export interface Question {
     id: number;
     question: string;
     answers: Answer[];
 }
 
-interface QuizAttempt {
+export interface QuizAttempt {
     id: number;
     score: number;
     correct_answers: number;
@@ -44,7 +44,7 @@ interface QuizAttempt {
     completed_at: string;
 }
 
-interface QuestionResult {
+export interface QuestionResult {
     question: Question;
     userAnswer: Answer | null;
     correctAnswer: Answer;

@@ -28,6 +28,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
         // #################################### Child Profiles Routes #####################################
         Route::get('child-sessions/{child}/{subject}', [ChildSessionController::class, 'learnSubject'])->name('child-sessions.learn-subject');
         Route::get('child-sessions/{child}/{subject}/chapter/{chapter}', [ChildSessionController::class, 'viewChapter'])->name('child-sessions.view-chapter');
+        Route::get('child-sessions/{child}/{subject}/chapter/{chapter}/exercises', [ChildSessionController::class, 'viewChapterExercises'])->name('child-sessions.view-chapter-exercises');
+        Route::get('child-sessions/{child}/{subject}/chapter/{chapter}/quizzes', [ChildSessionController::class, 'viewChapterQuizzes'])->name('child-sessions.view-chapter-quizzes');
         Route::get('child-sessions/{child}/{subject}/chapter/{chapter}/quiz/{quiz}', [ChildSessionController::class, 'startQuiz'])->name('child-sessions.start-quiz');
         Route::post('child-sessions/{child}/{subject}/chapter/{chapter}/quiz/{quiz}', [ChildSessionController::class, 'submitQuiz'])->name('child-sessions.submit-quiz');
         Route::get('child-sessions/{child}/{subject}/chapter/{chapter}/quiz/{quiz}/results/{attempt}', [ChildSessionController::class, 'quizResults'])->name('child-sessions.quiz-results');
@@ -93,5 +95,5 @@ Route::middleware(['auth', 'verified'])->group(function () {
     });
 });
 
-require __DIR__.'/settings.php';
-require __DIR__.'/auth.php';
+require __DIR__ . '/settings.php';
+require __DIR__ . '/auth.php';

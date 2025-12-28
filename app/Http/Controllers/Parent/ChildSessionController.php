@@ -254,4 +254,66 @@ class ChildSessionController extends Controller
 
         return back()->with('success', 'Score enregistré avec succès!');
     }
+
+    public function viewChapterExercises(ChildProfile $child, EducationalSubject $subject, Chapter $chapter)
+    {
+        if ($chapter->educational_subject_id !== $subject->id || ! $chapter->is_active) {
+            return back()->withErrors(['message' => 'Chapitre non disponible.']);
+        }
+
+        $child->load([
+            'currentPlan.plan',
+            'educationLevel.category',
+        ]);
+
+        $chapter->load(['exercises.images', 'exercises.words']);
+
+        $chapter->exercises->each(function ($exercise) use ($child) {
+            $exercise->latest_score = $exercise->scores()
+                ->where('child_profile_id', $child->id)
+                ->latest()
+                ->first();
+
+            $exercise->score_history = $exercise->scores()
+                ->where('child_profile_id', $child->id)
+                ->orderBy('created_at', 'desc')
+                ->limit(10)
+                ->get();
+        });
+
+        return Inertia::render('parent/child-sessions/view-chapter-exercises', [
+            'child' => $child,
+            'subject' => $subject,
+            'chapter' => $chapter,
+        ]);
+    }
+
+    public function viewChapterQuizzes(ChildProfile $child, EducationalSubject $subject, Chapter $chapter)
+    {
+        if ($chapter->educational_subject_id !== $subject->id || ! $chapter->is_active) {
+            return back()->withErrors(['message' => 'Chapitre non disponible.']);
+        }
+
+        $child->load([
+            'currentPlan.plan',
+            'educationLevel.category',
+        ]);
+
+        $chapter->load(['quiz.questions.answers']);
+
+        if ($chapter->quiz) {
+            $chapter->quiz->attempts_history = QuizAttempt::where('child_profile_id', $child->id)
+                ->where('quiz_id', $chapter->quiz->id)
+                ->whereNotNull('completed_at')
+                ->orderBy('completed_at', 'desc')
+                ->limit(10)
+                ->get();
+        }
+
+        return Inertia::render('parent/child-sessions/view-chapter-quizzes', [
+            'child' => $child,
+            'subject' => $subject,
+            'chapter' => $chapter,
+        ]);
+    }
 }

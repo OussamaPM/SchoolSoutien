@@ -4,13 +4,7 @@ import AppLayout from '@/layouts/app-layout';
 import programs, { chapterWriter } from '@/routes/admin/educational-programs';
 import { SharedData } from '@/types';
 import { Head, Link, usePage } from '@inertiajs/react';
-import {
-    ArrowRight,
-    FileQuestion,
-    Paperclip,
-    Target,
-    Video,
-} from 'lucide-react';
+import { ArrowRight, FileQuestion, Paperclip, Target } from 'lucide-react';
 
 interface Props {
     category: any;
@@ -26,6 +20,16 @@ export default function ChapterDetail({
     chapter,
 }: Props) {
     const role = usePage<SharedData>().props.auth.user.role;
+
+    const formatDate = (dateString: string) => {
+        const date = new Date(dateString);
+        return `${date.getDate().toString().padStart(2, '0')} ${date.toLocaleString(
+            'default',
+            {
+                month: 'short',
+            },
+        )} ${date.getFullYear()}`;
+    };
 
     return (
         <AppLayout
@@ -61,26 +65,31 @@ export default function ChapterDetail({
                         <p className="mt-1 text-sm text-muted-foreground">
                             Position: #{chapter?.position}
                         </p>
+                        <p className="mt-1 text-sm text-muted-foreground">
+                            Créé le:{' '}
+                            {chapter?.created_at
+                                ? formatDate(chapter.created_at)
+                                : 'N/A'}
+                        </p>
+                        <p className="mt-1 text-sm text-muted-foreground">
+                            Dernière mise à jour:{' '}
+                            {chapter?.updated_at
+                                ? formatDate(chapter.updated_at)
+                                : 'N/A'}
+                        </p>
                     </CardHeader>
                     <CardContent>
-                        <p className="mb-4 text-sm text-muted-foreground">
-                            {chapter?.preview_text}
-                        </p>
-                        <div className="space-y-2">
-                            <div className="flex items-center justify-between">
-                                <div>
-                                    <div className="text-sm font-medium">
-                                        Contenu
-                                    </div>
-                                    <div className="text-xs text-muted-foreground">
-                                        {chapter?.content
-                                            ? JSON.stringify(chapter.content)
-                                                  .length
-                                            : 0}{' '}
-                                        caractères
-                                    </div>
+                        <div className="space-y-4">
+                            <div>
+                                <div className="text-sm font-medium">
+                                    Contenu
                                 </div>
-                                <div>
+                                <div className="text-xs text-muted-foreground">
+                                    {chapter?.content
+                                        ? `${JSON.stringify(chapter.content).length} caractères`
+                                        : '0 caractères'}
+                                </div>
+                                <div className="mt-2">
                                     <Link
                                         as={Button}
                                         href={chapterWriter.url([
@@ -91,10 +100,31 @@ export default function ChapterDetail({
                                         ])}
                                     >
                                         <ArrowRight className="mr-2 h-4 w-4" />
-                                        Ouvrir l'éditeur
+                                        Modifier le contenu
                                     </Link>
                                 </div>
                             </div>
+
+                            {chapter?.video_url && (
+                                <div>
+                                    <div className="text-sm font-medium">
+                                        Vidéo
+                                    </div>
+                                    <video
+                                        className="mt-2 w-full rounded-md"
+                                        controls
+                                        preload="none"
+                                        style={{ height: '400px' }}
+                                    >
+                                        <source
+                                            src={chapter.video_url}
+                                            type="video/mp4"
+                                        />
+                                        Votre navigateur ne supporte pas la
+                                        lecture de vidéos.
+                                    </video>
+                                </div>
+                            )}
 
                             <div className="flex items-center justify-between">
                                 <div>
@@ -133,33 +163,6 @@ export default function ChapterDetail({
                                         href={`/admin/educational-programs/education-level-categories/${category.id}/${level.id}/subjects/${subject.id}/chapter/${chapter.id}/quiz`}
                                     >
                                         <FileQuestion className="mr-2 h-4 w-4" />
-                                        Gérer
-                                    </Link>
-                                </div>
-                            </div>
-
-                            <div className="flex items-center justify-between">
-                                <div>
-                                    <div className="text-sm font-medium">
-                                        Vidéo
-                                    </div>
-                                    <div className="text-xs text-muted-foreground">
-                                        {chapter?.video_url
-                                            ? 'Présente'
-                                            : 'Aucune'}
-                                    </div>
-                                </div>
-                                <div>
-                                    <Link
-                                        as={Button}
-                                        href={chapterWriter.url([
-                                            category.id,
-                                            level.id,
-                                            subject.id,
-                                            chapter.id,
-                                        ])}
-                                    >
-                                        <Video className="mr-2 h-4 w-4" />
                                         Gérer
                                     </Link>
                                 </div>
