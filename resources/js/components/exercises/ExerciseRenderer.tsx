@@ -3,6 +3,7 @@ import ChooseWhenHearExercise from './ChooseWhenHearExercise';
 import ChooseWhenReadExercise from './ChooseWhenReadExercise';
 import CircleIdenticalExercise from './CircleIdenticalExercise';
 import ConnectWordsExercise from './ConnectWordsExercise';
+import ObserveReadSyllableExercise from './ObserveReadSyllableExercise';
 import SelectImageExercise from './SelectImageExercise';
 
 interface ExerciseImage {
@@ -137,6 +138,19 @@ export default function ExerciseRenderer({
                         exercise.description || 'Je relie deux textes'
                     }
                     onNext={onComplete}
+                    onSubmitScore={onSubmitScore}
+                />
+            );
+
+        case 'observe_read_syllable':
+            return (
+                <ObserveReadSyllableExercise
+                    words={exercise.words || []}
+                    instruction={
+                        exercise.description || "J'observe et je lis syllabe"
+                    }
+                    onComplete={onComplete}
+                    onRetry={onRetry}
                     onSubmitScore={onSubmitScore}
                 />
             );

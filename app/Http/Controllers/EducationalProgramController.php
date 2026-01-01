@@ -544,6 +544,9 @@ class EducationalProgramController extends Controller
         $validated = $request->validate([
             'text' => 'required|string|max:255',
             'audio' => 'required|file|mimes:mp3,wav,ogg,webm|max:5120',
+            'first_letter' => 'nullable|string|max:10',
+            'second_letter' => 'nullable|string|max:10',
+            'syllable' => 'nullable|string|max:20',
         ]);
 
         $audioPath = $request->file('audio')->store('exercises/words/audio', 'public');
@@ -553,6 +556,9 @@ class EducationalProgramController extends Controller
         $exercise->words()->create([
             'text' => $validated['text'],
             'audio_path' => $audioPath,
+            'first_letter' => $validated['first_letter'] ?? null,
+            'second_letter' => $validated['second_letter'] ?? null,
+            'syllable' => $validated['syllable'] ?? null,
             'position' => $position,
         ]);
 

@@ -11,6 +11,7 @@ import AppLayout from '@/layouts/app-layout';
 import { Head, Link, router } from '@inertiajs/react';
 import {
     ArrowLeft,
+    BookOpen,
     CheckCircle2,
     CheckCircle2 as CheckIcon,
     Circle,
@@ -92,6 +93,8 @@ const getExerciseTypeIcon = (type: string) => {
             return CircleDot;
         case 'connect_words':
             return Link2;
+        case 'observe_read_syllable':
+            return BookOpen;
         default:
             return Target;
     }
@@ -111,6 +114,8 @@ const getExerciseTypeColor = (type: string) => {
             return 'text-pink-600';
         case 'connect_words':
             return 'text-cyan-600';
+        case 'observe_read_syllable':
+            return 'text-indigo-600';
         default:
             return 'text-slate-600';
     }
@@ -189,6 +194,18 @@ const getExerciseTypeStyle = (type: string) => {
                 iconBg: 'bg-cyan-500',
                 textColor: 'text-cyan-600 dark:text-cyan-400',
                 buttonGradient: 'from-cyan-500 to-teal-600',
+            };
+        case 'observe_read_syllable':
+            return {
+                icon: BookOpen,
+                borderColor: 'border-indigo-100 dark:border-indigo-900',
+                bgGradient:
+                    'from-indigo-50 to-violet-50 dark:from-indigo-950/30 dark:to-violet-950/30',
+                cardBg: 'bg-indigo-50 dark:bg-indigo-950/20',
+                cardBorder: 'border-indigo-200 dark:border-indigo-800',
+                iconBg: 'bg-indigo-500',
+                textColor: 'text-indigo-600 dark:text-indigo-400',
+                buttonGradient: 'from-indigo-500 to-violet-600',
             };
         default:
             return {

@@ -19,6 +19,7 @@ import { BreadcrumbItem } from '@/types';
 import { Head, router, useForm } from '@inertiajs/react';
 import { Separator } from '@radix-ui/react-separator';
 import {
+    BookOpen,
     Check,
     CheckCircle2,
     CircleDot,
@@ -55,6 +56,7 @@ interface Exercise {
         | null;
     word_pairs?: { left_text: string; right_text: string }[] | null;
     images?: ExerciseImage[];
+    words?: ExerciseWord[];
 }
 
 interface ExerciseImage {
@@ -68,6 +70,17 @@ interface ExerciseImage {
     correct_letter?: string | null;
     decoy_letters?: string[] | null;
     is_correct: boolean;
+    position: number;
+}
+
+interface ExerciseWord {
+    id: number;
+    exercise_id: number;
+    text: string;
+    audio_path: string;
+    first_letter?: string | null;
+    second_letter?: string | null;
+    syllable?: string | null;
     position: number;
 }
 
@@ -117,6 +130,8 @@ const getExerciseTypeIcon = (type: string) => {
             return CircleDot;
         case 'connect_words':
             return Link2;
+        case 'observe_read_syllable':
+            return BookOpen;
         default:
             return Target;
     }
@@ -136,6 +151,8 @@ const getExerciseTypeColor = (type: string) => {
             return 'text-pink-600';
         case 'connect_words':
             return 'text-cyan-600';
+        case 'observe_read_syllable':
+            return 'text-indigo-600';
         default:
             return 'text-slate-600';
     }
@@ -243,9 +260,15 @@ export default function ManageExercises({
     } = useForm<{
         text: string;
         audio: File | null;
+        first_letter: string;
+        second_letter: string;
+        syllable: string;
     }>({
         text: '',
         audio: null,
+        first_letter: '',
+        second_letter: '',
+        syllable: '',
     });
 
     const startRecording = async () => {
@@ -1628,6 +1651,75 @@ export default function ManageExercises({
                                                                         }
                                                                     />
                                                                 </div>
+                                                                
+                                                                {exercise.type === 'observe_read_syllable' && (
+                                                                    <>
+                                                                        <div>
+                                                                            <Label>
+                                                                                Première lettre
+                                                                            </Label>
+                                                                            <Input
+                                                                                placeholder="Ex: m"
+                                                                                value={
+                                                                                    wordData.first_letter
+                                                                                }
+                                                                                onChange={(
+                                                                                    e,
+                                                                                ) =>
+                                                                                    setWordData(
+                                                                                        'first_letter',
+                                                                                        e
+                                                                                            .target
+                                                                                            .value,
+                                                                                    )
+                                                                                }
+                                                                            />
+                                                                        </div>
+                                                                        <div>
+                                                                            <Label>
+                                                                                Deuxième lettre
+                                                                            </Label>
+                                                                            <Input
+                                                                                placeholder="Ex: a"
+                                                                                value={
+                                                                                    wordData.second_letter
+                                                                                }
+                                                                                onChange={(
+                                                                                    e,
+                                                                                ) =>
+                                                                                    setWordData(
+                                                                                        'second_letter',
+                                                                                        e
+                                                                                            .target
+                                                                                            .value,
+                                                                                    )
+                                                                                }
+                                                                            />
+                                                                        </div>
+                                                                        <div>
+                                                                            <Label>
+                                                                                Syllabe résultante
+                                                                            </Label>
+                                                                            <Input
+                                                                                placeholder="Ex: ma"
+                                                                                value={
+                                                                                    wordData.syllable
+                                                                                }
+                                                                                onChange={(
+                                                                                    e,
+                                                                                ) =>
+                                                                                    setWordData(
+                                                                                        'syllable',
+                                                                                        e
+                                                                                            .target
+                                                                                            .value,
+                                                                                    )
+                                                                                }
+                                                                            />
+                                                                        </div>
+                                                                    </>
+                                                                )}
+                                                                
                                                                 <div>
                                                                     <Label>
                                                                         Audio
@@ -1775,6 +1867,316 @@ export default function ManageExercises({
                                                                     >
                                                                         <Trash2 className="h-4 w-4" />
                                                                     </Button>
+                                                                </div>
+                                                            ),
+                                                        )}
+                                                    </div>
+                                                )}
+                                            </>
+                                        )}
+
+                                        {exercise.type === 'observe_read_syllable' && (
+                                            <>
+                                                <div className="flex items-center justify-between">
+                                                    <h4 className="font-semibold text-slate-700 dark:text-slate-300">
+                                                        Mots avec syllabes (
+                                                        {exercise.words
+                                                            ?.length || 0}
+                                                        )
+                                                    </h4>
+                                                    <Dialog
+                                                        open={
+                                                            isAddWordDialogOpen &&
+                                                            selectedExercise?.id ===
+                                                                exercise.id
+                                                        }
+                                                        onOpenChange={(
+                                                            open,
+                                                        ) => {
+                                                            setIsAddWordDialogOpen(
+                                                                open,
+                                                            );
+                                                            if (open) {
+                                                                setSelectedExercise(
+                                                                    exercise,
+                                                                );
+                                                            } else {
+                                                                setSelectedExercise(
+                                                                    null,
+                                                                );
+                                                                setSelectedWordAudio(
+                                                                    null,
+                                                                );
+                                                                setWordAudioBlob(
+                                                                    null,
+                                                                );
+                                                                setIsRecordingWord(
+                                                                    false,
+                                                                );
+                                                                resetWordForm();
+                                                            }
+                                                        }}
+                                                    >
+                                                        <DialogTrigger asChild>
+                                                            <Button
+                                                                size="sm"
+                                                                variant="outline"
+                                                            >
+                                                                <Plus className="mr-2 h-4 w-4" />
+                                                                Ajouter un mot
+                                                            </Button>
+                                                        </DialogTrigger>
+                                                        <DialogContent>
+                                                            <DialogHeader>
+                                                                <DialogTitle>
+                                                                    Ajouter un mot avec syllabe
+                                                                </DialogTitle>
+                                                                <DialogDescription>
+                                                                    Ajoutez les lettres, la syllabe et le mot exemple
+                                                                </DialogDescription>
+                                                            </DialogHeader>
+                                                            <div className="space-y-4">
+                                                                <div>
+                                                                    <Label>
+                                                                        Première lettre
+                                                                    </Label>
+                                                                    <Input
+                                                                        placeholder="Ex: m"
+                                                                        value={
+                                                                            wordData.first_letter
+                                                                        }
+                                                                        onChange={(
+                                                                            e,
+                                                                        ) =>
+                                                                            setWordData(
+                                                                                'first_letter',
+                                                                                e
+                                                                                    .target
+                                                                                    .value,
+                                                                            )
+                                                                        }
+                                                                    />
+                                                                </div>
+                                                                <div>
+                                                                    <Label>
+                                                                        Deuxième lettre
+                                                                    </Label>
+                                                                    <Input
+                                                                        placeholder="Ex: a"
+                                                                        value={
+                                                                            wordData.second_letter
+                                                                        }
+                                                                        onChange={(
+                                                                            e,
+                                                                        ) =>
+                                                                            setWordData(
+                                                                                'second_letter',
+                                                                                e
+                                                                                    .target
+                                                                                    .value,
+                                                                            )
+                                                                        }
+                                                                    />
+                                                                </div>
+                                                                <div>
+                                                                    <Label>
+                                                                        Syllabe résultante
+                                                                    </Label>
+                                                                    <Input
+                                                                        placeholder="Ex: ma"
+                                                                        value={
+                                                                            wordData.syllable
+                                                                        }
+                                                                        onChange={(
+                                                                            e,
+                                                                        ) =>
+                                                                            setWordData(
+                                                                                'syllable',
+                                                                                e
+                                                                                    .target
+                                                                                    .value,
+                                                                            )
+                                                                        }
+                                                                    />
+                                                                </div>
+                                                                <div>
+                                                                    <Label>
+                                                                        Mot exemple
+                                                                    </Label>
+                                                                    <Input
+                                                                        placeholder="Ex: maison"
+                                                                        value={
+                                                                            wordData.text
+                                                                        }
+                                                                        onChange={(
+                                                                            e,
+                                                                        ) =>
+                                                                            setWordData(
+                                                                                'text',
+                                                                                e
+                                                                                    .target
+                                                                                    .value,
+                                                                            )
+                                                                        }
+                                                                    />
+                                                                </div>
+                                                                <div>
+                                                                    <Label>
+                                                                        Audio
+                                                                    </Label>
+                                                                    <div className="flex gap-2">
+                                                                        <Button
+                                                                            type="button"
+                                                                            variant={
+                                                                                isRecordingWord
+                                                                                    ? 'destructive'
+                                                                                    : 'outline'
+                                                                            }
+                                                                            className="flex-1"
+                                                                            onClick={
+                                                                                isRecordingWord
+                                                                                    ? stopWordRecording
+                                                                                    : startWordRecording
+                                                                            }
+                                                                        >
+                                                                            <Mic className="mr-2 h-4 w-4" />
+                                                                            {isRecordingWord
+                                                                                ? "Arrêter l'enregistrement"
+                                                                                : 'Enregistrer'}
+                                                                        </Button>
+                                                                    </div>
+                                                                    {wordAudioBlob && (
+                                                                        <div className="flex items-center gap-2 rounded-md border border-green-200 bg-green-50 p-2">
+                                                                            <Volume2 className="h-4 w-4 text-green-700" />
+                                                                            <span className="text-sm text-green-700">
+                                                                                Audio
+                                                                                enregistré
+                                                                            </span>
+                                                                        </div>
+                                                                    )}
+                                                                    <div className="text-center text-sm text-slate-600">
+                                                                        ou
+                                                                    </div>
+                                                                    <Input
+                                                                        type="file"
+                                                                        accept="audio/*"
+                                                                        onChange={(
+                                                                            e,
+                                                                        ) => {
+                                                                            const file =
+                                                                                e
+                                                                                    .target
+                                                                                    .files?.[0] ||
+                                                                                null;
+                                                                            if (
+                                                                                file
+                                                                            ) {
+                                                                                setWordData(
+                                                                                    'audio',
+                                                                                    file,
+                                                                                );
+                                                                                setSelectedWordAudio(
+                                                                                    file,
+                                                                                );
+                                                                                setWordAudioBlob(
+                                                                                    null,
+                                                                                );
+                                                                            }
+                                                                        }}
+                                                                    />
+                                                                    {selectedWordAudio &&
+                                                                        !wordAudioBlob && (
+                                                                            <p className="mt-2 text-sm text-green-600">
+                                                                                {
+                                                                                    selectedWordAudio.name
+                                                                                }
+                                                                            </p>
+                                                                        )}
+                                                                    {wordErrors.audio && (
+                                                                        <p className="text-sm text-red-600">
+                                                                            {
+                                                                                wordErrors.audio
+                                                                            }
+                                                                        </p>
+                                                                    )}
+                                                                </div>
+                                                            </div>
+                                                            <DialogFooter>
+                                                                <Button
+                                                                    onClick={() =>
+                                                                        handleAddWord(
+                                                                            exercise,
+                                                                        )
+                                                                    }
+                                                                    disabled={
+                                                                        isAddingWord
+                                                                    }
+                                                                >
+                                                                    Ajouter
+                                                                </Button>
+                                                            </DialogFooter>
+                                                        </DialogContent>
+                                                    </Dialog>
+                                                </div>
+
+                                                {!exercise.words ||
+                                                exercise.words.length === 0 ? (
+                                                    <div className="rounded-lg border-2 border-dashed border-slate-200 p-12 text-center">
+                                                        <Upload className="mx-auto mb-3 h-12 w-12 text-slate-400" />
+                                                        <p className="text-sm text-slate-600">
+                                                            Aucun mot ajouté
+                                                        </p>
+                                                        <p className="mt-1 text-xs text-slate-400">
+                                                            Cliquez sur "Ajouter
+                                                            un mot" pour
+                                                            commencer
+                                                        </p>
+                                                    </div>
+                                                ) : (
+                                                    <div className="space-y-2">
+                                                        {exercise.words.map(
+                                                            (word: ExerciseWord) => (
+                                                                <div
+                                                                    key={
+                                                                        word.id
+                                                                    }
+                                                                    className="group rounded-lg border-2 border-slate-200 bg-white p-4 transition-all hover:shadow-md"
+                                                                >
+                                                                    <div className="flex items-start justify-between gap-4">
+                                                                        <div className="flex-1 space-y-2">
+                                                                            <div className="flex items-center gap-2">
+                                                                                <span className="text-2xl font-bold text-blue-600">
+                                                                                    {word.first_letter}
+                                                                                </span>
+                                                                                <span className="text-2xl font-bold text-green-600">
+                                                                                    {word.second_letter}
+                                                                                </span>
+                                                                                <span className="text-xl text-slate-600">
+                                                                                    = {word.syllable}
+                                                                                </span>
+                                                                            </div>
+                                                                            <p className="text-lg font-semibold text-slate-900">
+                                                                                Mot: {word.text}
+                                                                            </p>
+                                                                            <audio
+                                                                                controls
+                                                                                className="h-8 w-full"
+                                                                                src={`/storage/${word.audio_path}`}
+                                                                            />
+                                                                        </div>
+                                                                        <Button
+                                                                            variant="destructive"
+                                                                            size="sm"
+                                                                            onClick={() =>
+                                                                                deleteWord(
+                                                                                    exercise,
+                                                                                    word,
+                                                                                )
+                                                                            }
+                                                                        >
+                                                                            <Trash2 className="h-4 w-4" />
+                                                                        </Button>
+                                                                    </div>
                                                                 </div>
                                                             ),
                                                         )}

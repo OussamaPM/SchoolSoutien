@@ -10,6 +10,7 @@ enum ExerciseTypeEnum: string
     case CHOOSE_LETTER = 'choose_letter';
     case CIRCLE_IDENTICAL = 'circle_identical';
     case CONNECT_WORDS = 'connect_words';
+    case OBSERVE_READ_SYLLABLE = 'observe_read_syllable';
 
     public function label(): string
     {
@@ -20,6 +21,7 @@ enum ExerciseTypeEnum: string
             self::CHOOSE_LETTER => 'Je choisi la bonne lettre',
             self::CIRCLE_IDENTICAL => 'J\'entoure les mots identiques',
             self::CONNECT_WORDS => 'Je relie deux textes',
+            self::OBSERVE_READ_SYLLABLE => 'J\'observe et je lis syllabe',
         };
     }
 
@@ -32,6 +34,7 @@ enum ExerciseTypeEnum: string
             self::CHOOSE_LETTER => 'L\'enfant complète les mots en choisissant la bonne lettre manquante',
             self::CIRCLE_IDENTICAL => 'L\'enfant sélectionne tous les mots identiques au mot modèle',
             self::CONNECT_WORDS => 'L\'enfant relie les mots de gauche avec leurs correspondances à droite',
+            self::OBSERVE_READ_SYLLABLE => 'L\'enfant observe et lit les syllabes en combinant les lettres',
         };
     }
 }

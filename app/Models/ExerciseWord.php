@@ -11,6 +11,9 @@ class ExerciseWord extends Model
         'exercise_id',
         'text',
         'audio_path',
+        'first_letter',
+        'second_letter',
+        'syllable',
         'position',
     ];
 
