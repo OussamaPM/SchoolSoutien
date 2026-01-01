@@ -16,9 +16,6 @@ return new class extends Migration
             $table->foreignId('exercise_id')->constrained()->cascadeOnDelete();
             $table->string('text');
             $table->string('audio_path');
-            $table->string('first_letter')->nullable();
-            $table->string('second_letter')->nullable();
-            $table->string('syllable')->nullable();
             $table->integer('position')->default(0);
             $table->timestamps();
         });

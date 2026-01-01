@@ -29,6 +29,7 @@ class User extends Authenticatable
         'city',
         'phone',
         'is_active',
+        'affiliated_by',
     ];
 
     /**
@@ -139,6 +140,35 @@ class User extends Authenticatable
     public function isTeacher(): bool
     {
         return $this->role === RoleEnum::TEACHER;
+    }
+
+    public function isAffiliate(): bool
+    {
+        return $this->role === RoleEnum::AFFILIATE;
+    }
+
+    /**
+     * Get the affiliate profile for this user.
+     */
+    public function affiliate()
+    {
+        return $this->hasOne(Affiliate::class);
+    }
+
+    /**
+     * Get the affiliate who referred this user.
+     */
+    public function affiliatedBy()
+    {
+        return $this->belongsTo(User::class, 'affiliated_by');
+    }
+
+    /**
+     * Get users referred by this user (if they are an affiliate).
+     */
+    public function referredUsers(): HasMany
+    {
+        return $this->hasMany(User::class, 'affiliated_by');
     }
 
     /**

@@ -8,9 +8,10 @@ import {
     viewChapterExercises,
     viewChapterQuizzes,
 } from '@/routes/parent/child-sessions';
-import { Head, Link } from '@inertiajs/react';
+import { Head, Link, router } from '@inertiajs/react';
 import { render } from '@maily-to/render';
 import {
+    ArrowLeft,
     BookOpen,
     CheckSquare,
     CircleDot,
@@ -209,13 +210,28 @@ export default function ViewChapter({ child, subject, chapter }: Props) {
             />
 
             <div className="min-h-screen bg-gradient-to-br dark:from-gray-900 dark:to-gray-800">
-                <div className="mx-auto grid max-w-5xl grid-cols-10 gap-6 px-4 py-6 sm:px-6">
+                <div className="mx-auto max-w-5xl px-4 py-3 sm:px-6 sm:py-6">
+                    <Button
+                        variant="ghost"
+                        onClick={() =>
+                            router.visit(
+                                window.history.state?.url ||
+                                    `/parent/child-sessions/${child.id}`,
+                            )
+                        }
+                        className="mb-2 gap-2 sm:mb-4"
+                    >
+                        <ArrowLeft className="h-4 w-4" />
+                        Retour
+                    </Button>
+                </div>
+                <div className="mx-auto grid max-w-5xl grid-cols-1 gap-4 px-4 pb-6 sm:gap-6 sm:px-6 lg:grid-cols-10">
                     {/* Left Column: Video and Chapter Content */}
-                    <div className="col-span-7 space-y-6">
+                    <div className="space-y-4 sm:space-y-6 lg:col-span-7">
                         {videoEmbedUrl && (
-                            <Card className="overflow-hidden rounded-3xl border-2 border-blue-100 shadow-lg">
-                                <CardHeader className="bg-gradient-to-r from-blue-50 to-purple-50 dark:from-blue-950/30 dark:to-purple-950/30">
-                                    <CardTitle className="flex items-center gap-2 text-lg">
+                            <Card className="overflow-hidden rounded-2xl border-2 border-blue-100 shadow-lg sm:rounded-3xl">
+                                <CardHeader>
+                                    <CardTitle className="flex items-center gap-2 text-base sm:text-lg">
                                         <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-blue-500">
                                             <Play className="h-4 w-4 text-white" />
                                         </div>
@@ -235,16 +251,16 @@ export default function ViewChapter({ child, subject, chapter }: Props) {
                             </Card>
                         )}
 
-                        <Card className="rounded-3xl border-2 border-slate-100 shadow-lg">
-                            <CardHeader className="bg-gradient-to-r from-slate-50 to-blue-50 dark:from-slate-900 dark:to-slate-800">
-                                <CardTitle className="flex items-center gap-2 text-lg">
+                        <Card className="rounded-2xl border-2 border-slate-100 shadow-lg sm:rounded-3xl">
+                            <CardHeader>
+                                <CardTitle className="flex items-center gap-2 text-base sm:text-lg">
                                     <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-slate-700">
                                         <BookOpen className="h-4 w-4 text-white" />
                                     </div>
                                     Contenu du chapitre
                                 </CardTitle>
                             </CardHeader>
-                            <CardContent className="p-6">
+                            <CardContent className="p-4 sm:p-6">
                                 {isLoadingContent ? (
                                     <div className="flex min-h-[300px] items-center justify-center">
                                         <div className="text-center">
@@ -270,18 +286,18 @@ export default function ViewChapter({ child, subject, chapter }: Props) {
                     </div>
 
                     {/* Right Column: Exercises and Quizzes */}
-                    <div className="col-span-3 space-y-6">
+                    <div className="space-y-4 sm:space-y-6 lg:col-span-3">
                         {/* Exercises Card */}
-                        <Card className="rounded-3xl border-2 border-orange-100 shadow-lg">
-                            <CardHeader className="bg-gradient-to-r from-orange-50 to-yellow-50 dark:from-orange-950/30 dark:to-yellow-950/30">
-                                <CardTitle className="flex items-center gap-2 text-lg">
+                        <Card className="rounded-2xl border-2 border-orange-100 shadow-lg sm:rounded-3xl">
+                            <CardHeader>
+                                <CardTitle className="flex items-center gap-2 text-base sm:text-lg">
                                     <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-orange-500">
                                         <Target className="h-4 w-4 text-white" />
                                     </div>
                                     Exercices
                                 </CardTitle>
                             </CardHeader>
-                            <CardContent className="space-y-4 p-6">
+                            <CardContent className="space-y-4 p-4 sm:p-6">
                                 <p className="text-sm text-slate-600 dark:text-slate-400">
                                     Nombre d'exercices:{' '}
                                     {chapter.exercises?.length || 0}
@@ -352,16 +368,16 @@ export default function ViewChapter({ child, subject, chapter }: Props) {
                         </Card>
 
                         {/* Quizzes Card */}
-                        <Card className="rounded-3xl border-2 border-purple-100 shadow-lg">
-                            <CardHeader className="bg-gradient-to-r from-purple-50 to-pink-50 dark:from-purple-950/30 dark:to-pink-950/30">
-                                <CardTitle className="flex items-center gap-2 text-lg">
+                        <Card className="rounded-2xl border-2 border-purple-100 shadow-lg sm:rounded-3xl">
+                            <CardHeader>
+                                <CardTitle className="flex items-center gap-2 text-base sm:text-lg">
                                     <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-purple-500">
                                         <FileQuestion className="h-4 w-4 text-white" />
                                     </div>
                                     Quiz
                                 </CardTitle>
                             </CardHeader>
-                            <CardContent className="space-y-4 p-6">
+                            <CardContent className="space-y-4 p-4 sm:p-6">
                                 <p className="text-sm text-slate-600 dark:text-slate-400">
                                     Nombre de quiz: {chapter.quiz ? 1 : 0}
                                 </p>

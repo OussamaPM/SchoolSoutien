@@ -9,10 +9,11 @@ enum RoleEnum: string
     case ADMIN = 'admin';
     case PARENT = 'parent';
     case TEACHER = 'teacher';
+    case AFFILIATE = 'affiliate';
 
     public static function allRoles(): array
     {
-        return array_map(fn ($role) => $role->value, self::cases());
+        return array_map(fn($role) => $role->value, self::cases());
     }
 
     public function label(): string
@@ -21,6 +22,7 @@ enum RoleEnum: string
             self::ADMIN => 'Administrateur',
             self::PARENT => 'Parent',
             self::TEACHER => 'Enseignant',
+            self::AFFILIATE => 'Affilié',
         };
     }
 
@@ -30,6 +32,7 @@ enum RoleEnum: string
             self::ADMIN => 'red',
             self::PARENT => 'blue',
             self::TEACHER => 'green',
+            self::AFFILIATE => 'purple',
         };
     }
 
@@ -41,9 +44,10 @@ enum RoleEnum: string
     public function getCorrespondingFunction(): callable
     {
         return match ($this) {
-            self::ADMIN => fn (DashboardController $controller) => $controller->getAdminData(),
-            self::PARENT => fn (DashboardController $controller) => $controller->getParentData(),
-            self::TEACHER => fn (DashboardController $controller) => $controller->getTeacherData(),
+            self::ADMIN => fn(DashboardController $controller) => $controller->getAdminData(),
+            self::PARENT => fn(DashboardController $controller) => $controller->getParentData(),
+            self::TEACHER => fn(DashboardController $controller) => $controller->getTeacherData(),
+            self::AFFILIATE => fn(DashboardController $controller) => $controller->getAffiliateData(),
         };
     }
 }

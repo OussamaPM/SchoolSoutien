@@ -1,6 +1,9 @@
 <?php
 
 use App\Http\Controllers\Admin\ForfaitController;
+use App\Http\Controllers\AffiliateController;
+use App\Http\Controllers\AffiliateOnboardingController;
+use App\Http\Controllers\AffiliateSalesController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\EducationalProgramController;
 use App\Http\Controllers\OrdersController;
@@ -93,6 +96,42 @@ Route::middleware(['auth', 'verified'])->group(function () {
                 Route::delete('education-level-categories/{category}/{level}/subjects/{subject}/chapter/{chapter}/exercise/{exercise}/word/{word}', 'deleteExerciseWord')->name('chapter.exercise.word.delete');
             });
     });
+});
+
+// Public affiliate landing page (no auth required)
+Route::get('/sales/{code}', [AffiliateSalesController::class, 'landing'])->name('sales.affiliate-landing');
+Route::post('/sales/{code}/signup', [AffiliateSalesController::class, 'signup'])->name('sales.affiliate-signup');
+
+// Affiliate routes (authenticated)
+Route::middleware(['auth', 'verified'])->prefix('affiliate')->name('affiliate.')->group(function () {
+    // Onboarding routes
+    Route::get('/onboarding', [AffiliateOnboardingController::class, 'index'])->name('onboarding');
+    Route::post('/onboarding/bank-info', [AffiliateOnboardingController::class, 'updateBankInfo'])->name('onboarding.bank-info');
+    Route::post('/onboarding/company-info', [AffiliateOnboardingController::class, 'updateCompanyInfo'])->name('onboarding.company-info');
+    Route::get('/onboarding/contract', [AffiliateOnboardingController::class, 'contract'])->name('onboarding.contract');
+    Route::post('/onboarding/contract/sign', [AffiliateOnboardingController::class, 'signContract'])->name('onboarding.sign-contract');
+
+    // Main affiliate routes
+    Route::get('/dashboard', [AffiliateController::class, 'dashboard'])->name('dashboard');
+    Route::get('/profile', [AffiliateController::class, 'profile'])->name('profile');
+    Route::post('/profile', [AffiliateController::class, 'updateProfile'])->name('profile.update');
+    Route::get('/invoices', [AffiliateController::class, 'invoices'])->name('invoices');
+    Route::get('/invoices/{invoice}/download', [AffiliateController::class, 'downloadInvoice'])->name('invoices.download');
+    Route::get('/recommend', [AffiliateController::class, 'recommendForm'])->name('recommend');
+    Route::post('/recommend', [AffiliateController::class, 'submitRecommendation'])->name('recommend.submit');
+});
+
+// Admin affiliate management routes
+Route::middleware(['auth', 'verified'])->prefix('admin/affiliates')->name('admin.affiliates.')->group(function () {
+    Route::get('/', [App\Http\Controllers\Admin\AffiliateController::class, 'index'])->name('index');
+    Route::get('/create', [App\Http\Controllers\Admin\AffiliateController::class, 'create'])->name('create');
+    Route::post('/', [App\Http\Controllers\Admin\AffiliateController::class, 'store'])->name('store');
+    Route::get('/{affiliate}/edit', [App\Http\Controllers\Admin\AffiliateController::class, 'edit'])->name('edit');
+    Route::put('/{affiliate}', [App\Http\Controllers\Admin\AffiliateController::class, 'update'])->name('update');
+    Route::delete('/{affiliate}', [App\Http\Controllers\Admin\AffiliateController::class, 'destroy'])->name('destroy');
+    Route::get('/requests', [App\Http\Controllers\Admin\AffiliateController::class, 'requests'])->name('requests');
+    Route::post('/requests/{request}/approve', [App\Http\Controllers\Admin\AffiliateController::class, 'approveRequest'])->name('requests.approve');
+    Route::post('/requests/{request}/reject', [App\Http\Controllers\Admin\AffiliateController::class, 'rejectRequest'])->name('requests.reject');
 });
 
 require __DIR__ . '/settings.php';

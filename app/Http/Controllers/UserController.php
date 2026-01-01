@@ -32,7 +32,7 @@ class UserController extends Controller
     {
         $validated = $request->validate([
             'name' => ['required', 'string', 'max:255'],
-            'email' => ['required', 'string', 'lowercase', 'email', 'max:255', 'unique:'.User::class],
+            'email' => ['required', 'string', 'lowercase', 'email', 'max:255', 'unique:' . User::class],
             'role' => ['required', 'string', Rule::in(RoleEnum::allRoles())],
             'city' => ['nullable', 'string', 'max:255'],
             'phone' => ['nullable', 'string', 'max:20'],
@@ -53,6 +53,14 @@ class UserController extends Controller
 
         if ($validated['role'] === RoleEnum::TEACHER->value && ! empty($validated['teacher_subject_ids'])) {
             $user->teacherSubjects()->sync($validated['teacher_subject_ids']);
+        }
+
+        if ($validated['role'] === RoleEnum::AFFILIATE->value) {
+            $user->affiliate()->create([
+                'commission_rate' => config('affiliate.default_commission_rate', 10.00),
+                'referral_bonus_rate' => config('affiliate.default_referral_bonus_rate', 5.00),
+                'is_active' => false, // Inactive until they complete onboarding
+            ]);
         }
 
         return back();

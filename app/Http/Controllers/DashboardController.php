@@ -56,4 +56,9 @@ class DashboardController extends Controller implements DashboardInterface
     {
         return [];
     }
+
+    public function getAffiliateData()
+    {
+        return redirect()->route('affiliate.dashboard')->send();
+    }
 }
