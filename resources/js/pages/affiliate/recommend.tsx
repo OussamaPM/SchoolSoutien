@@ -9,11 +9,9 @@ import { Head, useForm } from '@inertiajs/react';
 import { Loader2, UserPlus } from 'lucide-react';
 import { toast } from 'sonner';
 
-interface Props {
-    can_recommend: boolean;
-}
+export default function AffiliateRecommend({ auth }: any) {
+    const { can_recommend } = auth.user.affiliate;
 
-export default function AffiliateRecommend({ can_recommend }: Props) {
     const { data, setData, post, processing, errors, reset } = useForm({
         candidate_name: '',
         candidate_email: '',

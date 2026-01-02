@@ -12,6 +12,7 @@ import {
 } from '@/components/ui/sidebar';
 import { dashboard } from '@/routes';
 import { orders } from '@/routes/admin';
+import affiliates from '@/routes/admin/affiliates';
 import { levelCategories } from '@/routes/admin/educational-programs';
 import forfaits from '@/routes/admin/forfaits';
 import users from '@/routes/admin/users';
@@ -25,6 +26,7 @@ import {
     LayoutGrid,
     ShoppingCart,
     UserCog,
+    Users,
 } from 'lucide-react';
 import AppLogo from './app-logo';
 
@@ -51,6 +53,11 @@ const adminMainNavItems: NavItem[] = [
         title: 'Utilisateurs',
         href: users.index(),
         icon: UserCog,
+    },
+    {
+        title: 'Affiliés',
+        href: affiliates.index(),
+        icon: Users,
     },
     {
         title: 'Programme',

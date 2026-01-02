@@ -252,7 +252,7 @@ class AffiliateController extends Controller
                 'name' => $request->first_name . ' ' . $request->last_name,
                 'email' => $request->email,
                 'phone' => $request->phone,
-                'password' => Hash::make(Str::random(16)),
+                'password' => Hash::make('password'),
                 'role' => RoleEnum::AFFILIATE,
                 'is_active' => true,
             ]);

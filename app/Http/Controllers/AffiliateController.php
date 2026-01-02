@@ -105,7 +105,7 @@ class AffiliateController extends Controller
             ->selectRaw('DISTINCT YEAR(created_at) as year')
             ->pluck('year')
             ->toArray();
-        
+
         // Add current year if not present
         if (!in_array((int) $year, $years)) {
             $years[] = (int) $year;
@@ -290,19 +290,18 @@ class AffiliateController extends Controller
         }
 
         $validated = $request->validate([
-            'first_name' => 'required|string|max:255',
-            'last_name' => 'required|string|max:255',
-            'email' => 'required|email|unique:users,email|unique:affiliate_requests,email',
-            'phone' => 'nullable|string|max:20',
+            'candidate_name' => 'required|string|max:255',
+            'candidate_email' => 'required|email|unique:users,email|unique:affiliate_requests,email',
+            'candidate_phone' => 'nullable|string|max:20',
             'message' => 'nullable|string|max:1000',
         ]);
 
         AffiliateRequest::create([
             'recommended_by' => $affiliate->id,
-            'first_name' => $validated['first_name'],
-            'last_name' => $validated['last_name'],
-            'email' => $validated['email'],
-            'phone' => $validated['phone'],
+            'first_name' => str($validated['candidate_name'])->before(' ')->toString(),
+            'last_name' => str($validated['candidate_name'])->after(' ')->toString(),
+            'email' => $validated['candidate_email'],
+            'phone' => $validated['candidate_phone'],
             'message' => $validated['message'],
         ]);
 
