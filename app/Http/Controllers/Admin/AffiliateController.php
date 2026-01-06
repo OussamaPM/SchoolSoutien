@@ -107,7 +107,7 @@ class AffiliateController extends Controller
                 'name' => $validated['first_name'] . ' ' . $validated['last_name'],
                 'email' => $validated['email'],
                 'phone' => $validated['phone'] ?? null,
-                'password' => Hash::make(Str::random(16)), // Random password, they'll reset it
+                'password' => Hash::make('password'),
                 'role' => RoleEnum::AFFILIATE,
                 'is_active' => true,
             ]);
