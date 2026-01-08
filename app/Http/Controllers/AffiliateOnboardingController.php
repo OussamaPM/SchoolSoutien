@@ -3,7 +3,6 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
 use Inertia\Inertia;
 
 class AffiliateOnboardingController extends Controller
@@ -15,7 +14,7 @@ class AffiliateOnboardingController extends Controller
     {
         $affiliate = auth()->user()->affiliate;
 
-        if (!$affiliate) {
+        if (! $affiliate) {
             abort(403, 'Affiliate profile not found');
         }
 

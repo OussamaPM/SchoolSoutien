@@ -5,7 +5,20 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Head, useForm } from '@inertiajs/react';
-import { Check, Loader2, Star } from 'lucide-react';
+import {
+    BookOpen,
+    Check,
+    Crown,
+    Gift,
+    Heart,
+    Loader2,
+    Rocket,
+    Sparkles,
+    Star,
+    Target,
+    Trophy,
+    Zap,
+} from 'lucide-react';
 import { toast } from 'sonner';
 
 interface Plan {
@@ -63,42 +76,61 @@ export default function AffiliateLanding({
                 title={`Rejoignez-nous - Recommandé par ${affiliate.user_name}`}
             />
 
-            <div className="min-h-screen bg-gradient-to-b from-blue-50 to-purple-50 dark:from-slate-950 dark:to-slate-900">
+            <div className="min-h-screen bg-gradient-to-br from-blue-50 via-purple-50 to-pink-50 dark:from-slate-950 dark:via-slate-900 dark:to-slate-950">
                 {/* Header */}
-                <header className="border-b bg-white/80 backdrop-blur-sm dark:bg-slate-900/80">
-                    <div className="container mx-auto px-4 py-6">
-                        <div className="flex items-center justify-between">
-                            <h1 className="text-2xl font-bold text-slate-900 dark:text-slate-100">
-                                Soutien Scolaire
-                            </h1>
-                            <Badge variant="secondary" className="text-sm">
-                                Recommandé par {affiliate.user_name}
+                <header className="border-b border-purple-200/50 bg-white/50 backdrop-blur-sm dark:border-purple-900/50 dark:bg-slate-900/50">
+                    <div className="container mx-auto px-4 py-4 md:py-6">
+                        <div className="flex items-center justify-between gap-2">
+                            <div className="flex items-center gap-2 md:gap-3">
+                                <div className="flex h-10 w-10 items-center justify-center rounded-full bg-gradient-to-br from-blue-500 to-purple-600 shadow-lg md:h-12 md:w-12">
+                                    <BookOpen className="h-5 w-5 text-white md:h-6 md:w-6" />
+                                </div>
+                                <h1 className="bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600 bg-clip-text text-lg font-black text-transparent md:text-2xl">
+                                    Soutien Scolaire
+                                </h1>
+                            </div>
+                            <Badge className="rounded-2xl bg-gradient-to-r from-green-400 to-emerald-500 px-2 py-1.5 text-xs font-bold text-white shadow-lg md:px-4 md:py-2 md:text-sm">
+                                <Gift className="mr-1 h-3 w-3 md:mr-1.5 md:h-4 md:w-4" />
+                                <span className="hidden sm:inline">
+                                    Recommandé par{' '}
+                                </span>
+                                {affiliate.user_name}
                             </Badge>
                         </div>
                     </div>
                 </header>
 
                 {/* Hero Section */}
-                <section className="container mx-auto px-4 py-16 text-center">
-                    <div className="mx-auto max-w-3xl">
-                        <h2 className="text-4xl font-bold text-slate-900 sm:text-5xl dark:text-slate-100">
-                            Excellez dans vos études avec notre plateforme de
-                            soutien scolaire
-                        </h2>
-                        <p className="mt-6 text-xl text-slate-600 dark:text-slate-400">
+                <section className="container mx-auto px-4 py-20 text-center">
+                    <div className="mx-auto max-w-4xl space-y-8">
+                        <div className="flex items-center justify-center gap-3">
+                            <div className="animate-bounce">
+                                <Sparkles className="h-10 w-10 text-yellow-500" />
+                            </div>
+                            <h2 className="bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600 bg-clip-text text-5xl font-black tracking-tight text-transparent sm:text-6xl">
+                                Excellez dans vos études
+                            </h2>
+                            <div className="animate-bounce delay-150">
+                                <Trophy className="h-10 w-10 text-pink-500" />
+                            </div>
+                        </div>
+
+                        <p className="flex items-center justify-center gap-2 text-xl font-semibold text-slate-600 dark:text-slate-400">
+                            <Rocket className="h-6 w-6 text-purple-500" />
                             Des cours interactifs, des exercices personnalisés
                             et un suivi sur mesure pour réussir votre année
                             scolaire
                         </p>
-                        <div className="mt-8 flex items-center justify-center gap-2 text-yellow-500">
+
+                        <div className="mt-8 inline-flex items-center gap-2 rounded-3xl bg-gradient-to-r from-yellow-400 to-orange-400 px-8 py-4 shadow-2xl ring-4 ring-yellow-200 dark:ring-yellow-900/50">
                             {[...Array(5)].map((_, i) => (
                                 <Star
                                     key={i}
-                                    className="h-6 w-6 fill-current"
+                                    className="h-6 w-6 fill-white text-white"
                                 />
                             ))}
-                            <span className="ml-2 text-slate-600 dark:text-slate-400">
-                                Note moyenne : 4.9/5 (2,345 avis)
+                            <span className="ml-2 text-lg font-bold text-white">
+                                4.9/5 (2,345 avis)
                             </span>
                         </div>
                     </div>
@@ -106,68 +138,117 @@ export default function AffiliateLanding({
 
                 {/* Plans Section */}
                 <section className="container mx-auto px-4 py-16">
-                    <h3 className="mb-12 text-center text-3xl font-bold text-slate-900 dark:text-slate-100">
-                        Choisissez votre formule
-                    </h3>
+                    <div className="mb-12 flex items-center justify-center gap-3 text-center">
+                        <Crown className="h-8 w-8 text-yellow-500" />
+                        <h3 className="bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600 bg-clip-text text-4xl font-black text-transparent">
+                            Choisissez votre formule
+                        </h3>
+                        <Sparkles className="h-8 w-8 text-pink-500" />
+                    </div>
                     <div className="mx-auto grid max-w-6xl gap-8 md:grid-cols-3">
-                        {plans.map((plan) => (
-                            <Card
-                                key={plan.id}
-                                className={`relative ${
-                                    plan.duration_months === 12
-                                        ? 'border-purple-500 shadow-xl ring-2 ring-purple-500'
-                                        : ''
-                                }`}
-                            >
-                                {plan.duration_months === 12 && (
-                                    <div className="absolute -top-4 left-1/2 -translate-x-1/2">
-                                        <Badge className="bg-purple-500">
-                                            Le plus populaire
-                                        </Badge>
-                                    </div>
-                                )}
-                                <CardHeader className="text-center">
-                                    <CardTitle className="text-2xl">
-                                        {plan.name}
-                                    </CardTitle>
-                                    <div className="mt-4">
-                                        <span className="text-4xl font-bold text-slate-900 dark:text-slate-100">
-                                            {formatPrice(plan.price)}
-                                        </span>
-                                        <span className="text-slate-600 dark:text-slate-400">
-                                            / {plan.duration_months} mois
-                                        </span>
-                                    </div>
-                                </CardHeader>
-                                <CardContent>
-                                    <ul className="space-y-3">
-                                        {plan.features.map((feature, index) => (
-                                            <li
-                                                key={index}
-                                                className="flex items-start gap-2"
+                        {plans.map((plan, index) => {
+                            const isPremium = plan.duration_months === 12;
+                            const colors = [
+                                {
+                                    gradient: 'from-blue-400 to-blue-600',
+                                    ring: 'ring-blue-400/50',
+                                    badge: 'from-blue-500 to-blue-600',
+                                },
+                                {
+                                    gradient: 'from-purple-400 to-purple-600',
+                                    ring: 'ring-purple-400/50',
+                                    badge: 'from-purple-500 to-purple-600',
+                                },
+                                {
+                                    gradient: 'from-pink-400 to-pink-600',
+                                    ring: 'ring-pink-400/50',
+                                    badge: 'from-pink-500 to-pink-600',
+                                },
+                            ];
+                            const color = colors[index % colors.length];
+
+                            return (
+                                <div
+                                    key={plan.id}
+                                    className={`group relative transition-all duration-300 ${
+                                        isPremium ? 'scale-105' : ''
+                                    }`}
+                                >
+                                    {isPremium && (
+                                        <div className="absolute -top-4 left-1/2 z-10 -translate-x-1/2">
+                                            <Badge className="animate-bounce rounded-2xl bg-gradient-to-r from-yellow-400 to-orange-500 px-4 py-2 text-sm font-bold text-white shadow-xl ring-4 ring-yellow-200">
+                                                <Star className="mr-1 h-4 w-4 fill-current" />
+                                                Le plus populaire
+                                            </Badge>
+                                        </div>
+                                    )}
+                                    <Card
+                                        className={`h-full rounded-3xl border-2 bg-white shadow-xl transition-all duration-500 hover:scale-105 hover:shadow-2xl dark:bg-slate-900 ${
+                                            isPremium
+                                                ? 'border-purple-300 ring-4 ring-purple-200 dark:border-purple-700 dark:ring-purple-900/50'
+                                                : 'border-blue-200 hover:border-purple-300 dark:border-slate-800 dark:hover:border-purple-700'
+                                        }`}
+                                    >
+                                        <CardHeader className="space-y-4 text-center">
+                                            <div
+                                                className={`mx-auto flex h-20 w-20 items-center justify-center rounded-full bg-gradient-to-br ${color.gradient} shadow-2xl ring-4 ${color.ring}`}
                                             >
-                                                <Check className="mt-0.5 h-5 w-5 shrink-0 text-green-500" />
-                                                <span className="text-sm text-slate-600 dark:text-slate-400">
-                                                    {feature}
-                                                </span>
-                                            </li>
-                                        ))}
-                                    </ul>
-                                </CardContent>
-                            </Card>
-                        ))}
+                                                <Trophy className="h-10 w-10 text-white" />
+                                            </div>
+                                            <CardTitle className="text-2xl font-black text-slate-900 dark:text-slate-100">
+                                                {plan.name}
+                                            </CardTitle>
+                                            <div className="space-y-1">
+                                                <div
+                                                    className={`bg-gradient-to-r ${color.badge} bg-clip-text text-5xl font-black text-transparent`}
+                                                >
+                                                    {formatPrice(plan.price)}
+                                                </div>
+                                                <div className="text-sm font-semibold text-slate-500 dark:text-slate-400">
+                                                    pour {plan.duration_months}{' '}
+                                                    mois
+                                                </div>
+                                            </div>
+                                        </CardHeader>
+                                        <CardContent className="space-y-4">
+                                            <ul className="space-y-3">
+                                                {plan.features.map(
+                                                    (feature, idx) => (
+                                                        <li
+                                                            key={idx}
+                                                            className="flex items-start gap-3"
+                                                        >
+                                                            <div className="mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-green-400 to-emerald-500 shadow-md">
+                                                                <Check className="h-4 w-4 text-white" />
+                                                            </div>
+                                                            <span className="text-sm font-medium text-slate-700 dark:text-slate-300">
+                                                                {feature}
+                                                            </span>
+                                                        </li>
+                                                    ),
+                                                )}
+                                            </ul>
+                                        </CardContent>
+                                    </Card>
+                                </div>
+                            );
+                        })}
                     </div>
                 </section>
 
                 {/* Signup Form */}
                 <section className="container mx-auto px-4 py-16">
                     <div className="mx-auto max-w-2xl">
-                        <Card>
-                            <CardHeader>
-                                <CardTitle className="text-center text-2xl">
-                                    Créez votre compte gratuitement
-                                </CardTitle>
-                                <p className="text-center text-slate-600 dark:text-slate-400">
+                        <Card className="rounded-3xl border-2 border-purple-200 bg-white shadow-2xl dark:border-purple-900 dark:bg-slate-900">
+                            <CardHeader className="space-y-4">
+                                <div className="flex items-center justify-center gap-3">
+                                    <Rocket className="h-8 w-8 text-purple-500" />
+                                    <CardTitle className="bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600 bg-clip-text text-3xl font-black text-transparent">
+                                        Créez votre compte
+                                    </CardTitle>
+                                    <Sparkles className="h-8 w-8 text-pink-500" />
+                                </div>
+                                <p className="text-center text-lg font-semibold text-slate-600 dark:text-slate-400">
                                     Commencez votre voyage vers la réussite
                                     scolaire dès aujourd'hui
                                 </p>
@@ -179,7 +260,11 @@ export default function AffiliateLanding({
                                 >
                                     {/* Name */}
                                     <div className="space-y-2">
-                                        <Label htmlFor="name">
+                                        <Label
+                                            htmlFor="name"
+                                            className="flex items-center gap-2 text-sm font-bold"
+                                        >
+                                            <Heart className="h-4 w-4 text-pink-500" />
                                             Nom Complet{' '}
                                             <span className="text-red-500">
                                                 *
@@ -193,6 +278,7 @@ export default function AffiliateLanding({
                                                 setData('name', e.target.value)
                                             }
                                             placeholder="Jean Dupont"
+                                            className="h-11 rounded-xl border-2 border-blue-200 focus:border-purple-400 focus:ring-purple-400"
                                             required
                                         />
                                         <InputError message={errors.name} />
@@ -200,7 +286,11 @@ export default function AffiliateLanding({
 
                                     {/* Email */}
                                     <div className="space-y-2">
-                                        <Label htmlFor="email">
+                                        <Label
+                                            htmlFor="email"
+                                            className="flex items-center gap-2 text-sm font-bold"
+                                        >
+                                            <Zap className="h-4 w-4 text-yellow-500" />
                                             Email{' '}
                                             <span className="text-red-500">
                                                 *
@@ -214,6 +304,7 @@ export default function AffiliateLanding({
                                                 setData('email', e.target.value)
                                             }
                                             placeholder="jean.dupont@example.com"
+                                            className="h-11 rounded-xl border-2 border-blue-200 focus:border-purple-400 focus:ring-purple-400"
                                             required
                                         />
                                         <InputError message={errors.email} />
@@ -221,7 +312,11 @@ export default function AffiliateLanding({
 
                                     {/* Password */}
                                     <div className="space-y-2">
-                                        <Label htmlFor="password">
+                                        <Label
+                                            htmlFor="password"
+                                            className="flex items-center gap-2 text-sm font-bold"
+                                        >
+                                            <Crown className="h-4 w-4 text-purple-500" />
                                             Mot de Passe{' '}
                                             <span className="text-red-500">
                                                 *
@@ -238,6 +333,7 @@ export default function AffiliateLanding({
                                                 )
                                             }
                                             placeholder="••••••••"
+                                            className="h-11 rounded-xl border-2 border-blue-200 focus:border-purple-400 focus:ring-purple-400"
                                             required
                                         />
                                         <InputError message={errors.password} />
@@ -245,7 +341,11 @@ export default function AffiliateLanding({
 
                                     {/* Password Confirmation */}
                                     <div className="space-y-2">
-                                        <Label htmlFor="password_confirmation">
+                                        <Label
+                                            htmlFor="password_confirmation"
+                                            className="flex items-center gap-2 text-sm font-bold"
+                                        >
+                                            <Check className="h-4 w-4 text-green-500" />
                                             Confirmer le Mot de Passe{' '}
                                             <span className="text-red-500">
                                                 *
@@ -262,6 +362,7 @@ export default function AffiliateLanding({
                                                 )
                                             }
                                             placeholder="••••••••"
+                                            className="h-11 rounded-xl border-2 border-blue-200 focus:border-purple-400 focus:ring-purple-400"
                                             required
                                         />
                                         <InputError
@@ -273,7 +374,11 @@ export default function AffiliateLanding({
 
                                     {/* Plan Selection */}
                                     <div className="space-y-2">
-                                        <Label htmlFor="plan_id">
+                                        <Label
+                                            htmlFor="plan_id"
+                                            className="flex items-center gap-2 text-sm font-bold"
+                                        >
+                                            <Trophy className="h-4 w-4 text-blue-500" />
                                             Choisir une Formule{' '}
                                             <span className="text-red-500">
                                                 *
@@ -288,7 +393,7 @@ export default function AffiliateLanding({
                                                     parseInt(e.target.value),
                                                 )
                                             }
-                                            className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:outline-none disabled:cursor-not-allowed disabled:opacity-50"
+                                            className="flex h-11 w-full rounded-xl border-2 border-blue-200 bg-background px-3 py-2 text-sm font-semibold ring-offset-background focus-visible:border-purple-400 focus-visible:ring-2 focus-visible:ring-purple-400 focus-visible:ring-offset-2 focus-visible:outline-none disabled:cursor-not-allowed disabled:opacity-50"
                                             required
                                         >
                                             {plans.map((plan) => (
@@ -306,12 +411,15 @@ export default function AffiliateLanding({
                                     </div>
 
                                     {/* Info Box */}
-                                    <div className="rounded-lg border border-green-200 bg-green-50 p-4 dark:border-green-900 dark:bg-green-950/20">
-                                        <p className="text-sm text-green-800 dark:text-green-200">
+                                    <div className="flex items-start gap-3 rounded-2xl border-2 border-green-300 bg-gradient-to-br from-green-50 to-emerald-50 p-5 shadow-lg dark:border-green-700 dark:from-green-950/20 dark:to-emerald-950/20">
+                                        <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-green-400 to-emerald-500 shadow-md">
+                                            <Gift className="h-5 w-5 text-white" />
+                                        </div>
+                                        <p className="text-sm font-semibold text-green-800 dark:text-green-200">
                                             ✨ Offre spéciale : En vous
                                             inscrivant via ce lien, vous
                                             soutenez{' '}
-                                            <strong>
+                                            <strong className="font-black">
                                                 {affiliate.user_name}
                                             </strong>{' '}
                                             qui vous a recommandé notre
@@ -322,12 +430,15 @@ export default function AffiliateLanding({
                                     {/* Submit Button */}
                                     <Button
                                         type="submit"
-                                        className="w-full"
+                                        className="w-full rounded-2xl bg-gradient-to-r from-blue-500 to-purple-600 py-6 text-lg font-bold shadow-xl shadow-purple-200 transition-all hover:scale-105 hover:shadow-2xl hover:shadow-purple-300 dark:shadow-purple-900/30"
                                         size="lg"
                                         disabled={processing}
                                     >
                                         {processing && (
-                                            <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                                            <Loader2 className="mr-2 h-5 w-5 animate-spin" />
+                                        )}
+                                        {!processing && (
+                                            <Rocket className="mr-2 h-5 w-5" />
                                         )}
                                         Créer mon Compte et Continuer
                                     </Button>
@@ -345,61 +456,73 @@ export default function AffiliateLanding({
 
                 {/* Features Section */}
                 <section className="container mx-auto px-4 py-16">
-                    <h3 className="mb-12 text-center text-3xl font-bold text-slate-900 dark:text-slate-100">
-                        Pourquoi nous choisir ?
-                    </h3>
+                    <div className="mb-12 flex items-center justify-center gap-3">
+                        <Target className="h-8 w-8 text-blue-500" />
+                        <h3 className="bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600 bg-clip-text text-4xl font-black text-transparent">
+                            Pourquoi nous choisir ?
+                        </h3>
+                        <Sparkles className="h-8 w-8 text-pink-500" />
+                    </div>
                     <div className="mx-auto grid max-w-6xl gap-8 md:grid-cols-3">
-                        <Card>
-                            <CardContent className="p-6 text-center">
-                                <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-blue-100 dark:bg-blue-900/20">
-                                    <span className="text-3xl">📚</span>
-                                </div>
-                                <h4 className="mb-2 text-xl font-semibold text-slate-900 dark:text-slate-100">
-                                    Contenu de Qualité
-                                </h4>
-                                <p className="text-slate-600 dark:text-slate-400">
-                                    Des cours créés par des enseignants
-                                    certifiés et adaptés au programme officiel
-                                </p>
-                            </CardContent>
-                        </Card>
+                        <div className="group transition-all duration-300 hover:scale-105">
+                            <Card className="h-full rounded-3xl border-2 border-blue-200 bg-white shadow-xl transition-all duration-500 hover:border-blue-300 hover:shadow-2xl dark:border-slate-800 dark:bg-slate-900 dark:hover:border-blue-700">
+                                <CardContent className="space-y-4 p-8 text-center">
+                                    <div className="mx-auto flex h-20 w-20 items-center justify-center rounded-full bg-gradient-to-br from-blue-400 to-blue-600 shadow-2xl ring-4 ring-blue-400/50">
+                                        <BookOpen className="h-10 w-10 text-white" />
+                                    </div>
+                                    <h4 className="text-2xl font-black text-slate-900 dark:text-slate-100">
+                                        Contenu de Qualité
+                                    </h4>
+                                    <p className="text-base font-medium text-slate-600 dark:text-slate-400">
+                                        Des cours créés par des enseignants
+                                        certifiés et adaptés au programme
+                                        officiel
+                                    </p>
+                                </CardContent>
+                            </Card>
+                        </div>
 
-                        <Card>
-                            <CardContent className="p-6 text-center">
-                                <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-purple-100 dark:bg-purple-900/20">
-                                    <span className="text-3xl">🎯</span>
-                                </div>
-                                <h4 className="mb-2 text-xl font-semibold text-slate-900 dark:text-slate-100">
-                                    Apprentissage Personnalisé
-                                </h4>
-                                <p className="text-slate-600 dark:text-slate-400">
-                                    Des exercices adaptés au niveau de chaque
-                                    élève avec un suivi de progression
-                                </p>
-                            </CardContent>
-                        </Card>
+                        <div className="group transition-all duration-300 hover:scale-105">
+                            <Card className="h-full rounded-3xl border-2 border-purple-200 bg-white shadow-xl transition-all duration-500 hover:border-purple-300 hover:shadow-2xl dark:border-slate-800 dark:bg-slate-900 dark:hover:border-purple-700">
+                                <CardContent className="space-y-4 p-8 text-center">
+                                    <div className="mx-auto flex h-20 w-20 items-center justify-center rounded-full bg-gradient-to-br from-purple-400 to-purple-600 shadow-2xl ring-4 ring-purple-400/50">
+                                        <Target className="h-10 w-10 text-white" />
+                                    </div>
+                                    <h4 className="text-2xl font-black text-slate-900 dark:text-slate-100">
+                                        Apprentissage Personnalisé
+                                    </h4>
+                                    <p className="text-base font-medium text-slate-600 dark:text-slate-400">
+                                        Des exercices adaptés au niveau de
+                                        chaque élève avec un suivi de
+                                        progression
+                                    </p>
+                                </CardContent>
+                            </Card>
+                        </div>
 
-                        <Card>
-                            <CardContent className="p-6 text-center">
-                                <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-green-100 dark:bg-green-900/20">
-                                    <span className="text-3xl">💪</span>
-                                </div>
-                                <h4 className="mb-2 text-xl font-semibold text-slate-900 dark:text-slate-100">
-                                    Résultats Garantis
-                                </h4>
-                                <p className="text-slate-600 dark:text-slate-400">
-                                    95% de nos élèves constatent une
-                                    amélioration de leurs notes en 3 mois
-                                </p>
-                            </CardContent>
-                        </Card>
+                        <div className="group transition-all duration-300 hover:scale-105">
+                            <Card className="h-full rounded-3xl border-2 border-green-200 bg-white shadow-xl transition-all duration-500 hover:border-green-300 hover:shadow-2xl dark:border-slate-800 dark:bg-slate-900 dark:hover:border-green-700">
+                                <CardContent className="space-y-4 p-8 text-center">
+                                    <div className="mx-auto flex h-20 w-20 items-center justify-center rounded-full bg-gradient-to-br from-green-400 to-emerald-600 shadow-2xl ring-4 ring-green-400/50">
+                                        <Trophy className="h-10 w-10 text-white" />
+                                    </div>
+                                    <h4 className="text-2xl font-black text-slate-900 dark:text-slate-100">
+                                        Résultats Garantis
+                                    </h4>
+                                    <p className="text-base font-medium text-slate-600 dark:text-slate-400">
+                                        95% de nos élèves constatent une
+                                        amélioration de leurs notes en 3 mois
+                                    </p>
+                                </CardContent>
+                            </Card>
+                        </div>
                     </div>
                 </section>
 
                 {/* Footer */}
-                <footer className="border-t bg-white dark:bg-slate-900">
-                    <div className="container mx-auto px-4 py-8 text-center text-sm text-slate-600 dark:text-slate-400">
-                        <p>
+                <footer className="border-t border-purple-200/50 bg-white/50 backdrop-blur-sm dark:border-purple-900/50 dark:bg-slate-900/50">
+                    <div className="container mx-auto px-4 py-8 text-center">
+                        <p className="text-sm font-semibold text-slate-600 dark:text-slate-400">
                             &copy; 2024 Soutien Scolaire. Tous droits réservés.
                         </p>
                     </div>

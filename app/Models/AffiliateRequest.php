@@ -66,7 +66,7 @@ class AffiliateRequest extends Model
     /**
      * Reject the request
      */
-    public function reject(User $reviewer, string $reason = null): void
+    public function reject(User $reviewer, ?string $reason = null): void
     {
         $this->update([
             'status' => 'rejected',

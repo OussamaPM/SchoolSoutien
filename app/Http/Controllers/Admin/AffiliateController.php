@@ -2,17 +2,16 @@
 
 namespace App\Http\Controllers\Admin;
 
-use App\RoleEnum;
-use App\Models\User;
-use Inertia\Inertia;
-use App\Models\Affiliate;
-use Illuminate\Support\Str;
-use Illuminate\Http\Request;
-use Illuminate\Validation\Rule;
-use App\Models\AffiliateRequest;
-use Illuminate\Support\Facades\DB;
 use App\Http\Controllers\Controller;
+use App\Models\Affiliate;
+use App\Models\AffiliateRequest;
+use App\Models\User;
+use App\RoleEnum;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Validation\Rule;
+use Inertia\Inertia;
 
 class AffiliateController extends Controller
 {
@@ -104,7 +103,7 @@ class AffiliateController extends Controller
         try {
             // Create user account
             $user = User::create([
-                'name' => $validated['first_name'] . ' ' . $validated['last_name'],
+                'name' => $validated['first_name'].' '.$validated['last_name'],
                 'email' => $validated['email'],
                 'phone' => $validated['phone'] ?? null,
                 'password' => Hash::make('password'),
@@ -128,6 +127,7 @@ class AffiliateController extends Controller
                 ->with('success', 'Affilié créé avec succès. Un email a été envoyé avec les instructions de connexion.');
         } catch (\Exception $e) {
             DB::rollBack();
+
             return back()->withErrors(['error' => 'Une erreur s\'est produite lors de la création de l\'affilié.']);
         }
     }
@@ -191,6 +191,7 @@ class AffiliateController extends Controller
                 ->with('success', 'Affilié mis à jour avec succès.');
         } catch (\Exception $e) {
             DB::rollBack();
+
             return back()->withErrors(['error' => 'Une erreur s\'est produite lors de la mise à jour.']);
         }
     }
@@ -202,6 +203,7 @@ class AffiliateController extends Controller
     {
         try {
             $affiliate->user->delete(); // This will cascade delete the affiliate
+
             return redirect()->route('admin.affiliates.index')
                 ->with('success', 'Affilié supprimé avec succès.');
         } catch (\Exception $e) {
@@ -249,7 +251,7 @@ class AffiliateController extends Controller
         try {
             // Create user account
             $user = User::create([
-                'name' => $request->first_name . ' ' . $request->last_name,
+                'name' => $request->first_name.' '.$request->last_name,
                 'email' => $request->email,
                 'phone' => $request->phone,
                 'password' => Hash::make('password'),
@@ -278,6 +280,7 @@ class AffiliateController extends Controller
                 ->with('success', 'Demande approuvée et affilié créé avec succès.');
         } catch (\Exception $e) {
             DB::rollBack();
+
             return back()->withErrors(['error' => 'Une erreur s\'est produite lors de l\'approbation.']);
         }
     }

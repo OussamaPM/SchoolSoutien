@@ -26,6 +26,7 @@ import {
     LayoutGrid,
     ShoppingCart,
     UserCog,
+    UserPlus,
     Users,
 } from 'lucide-react';
 import AppLogo from './app-logo';
@@ -74,6 +75,14 @@ const parentMainNavItems: NavItem[] = [
     },
 ];
 
+const affiliateMainNavItems: NavItem[] = [
+    {
+        title: 'Affiliés Recommandés',
+        href: '/affiliate/sub-affiliates',
+        icon: UserPlus,
+    },
+];
+
 const teacherMainNavItems: NavItem[] = [];
 
 const footerNavItems: NavItem[] = [
@@ -84,12 +93,16 @@ const footerNavItems: NavItem[] = [
     },
 ];
 
-const getNavItemsByRole = (role: 'admin' | 'parent' | 'teacher') => {
+const getNavItemsByRole = (
+    role: 'admin' | 'parent' | 'teacher' | 'affiliate',
+) => {
     switch (role) {
         case 'admin':
             return mainNavItems.concat(adminMainNavItems);
         case 'parent':
             return mainNavItems.concat(parentMainNavItems);
+        case 'affiliate':
+            return mainNavItems.concat(affiliateMainNavItems);
         case 'teacher':
             return mainNavItems.concat(teacherMainNavItems);
         default:

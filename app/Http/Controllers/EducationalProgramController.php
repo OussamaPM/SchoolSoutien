@@ -19,8 +19,6 @@ use Illuminate\Support\Facades\Storage;
 use Inertia\Inertia;
 use Spatie\Image\Image;
 
-use function Pest\Laravel\session;
-
 class EducationalProgramController extends Controller
 {
     /**
@@ -383,7 +381,7 @@ class EducationalProgramController extends Controller
     {
         $chapter->load(['exercises.images', 'exercises.words']);
 
-        $exerciseTypes = collect(ExerciseTypeEnum::cases())->map(fn($type) => [
+        $exerciseTypes = collect(ExerciseTypeEnum::cases())->map(fn ($type) => [
             'value' => $type->value,
             'label' => $type->label(),
             'description' => $type->description(),
@@ -478,7 +476,7 @@ class EducationalProgramController extends Controller
         ]);
 
         $imagePath = $request->file('image')->store('exercises/images', 'public');
-        $fullImagePath = storage_path('app/public/' . $imagePath);
+        $fullImagePath = storage_path('app/public/'.$imagePath);
 
         Image::load($fullImagePath)
             ->optimize()
@@ -581,7 +579,7 @@ class EducationalProgramController extends Controller
             'image' => 'required|image|max:5120', // 5MB max
         ]);
         $imagePath = $request->file('image')->store('chapters/images', 'public');
-        $fullImagePath = storage_path('app/public/' . $imagePath);
+        $fullImagePath = storage_path('app/public/'.$imagePath);
 
         // Optimize and convert to WebP
         Image::load($fullImagePath)
@@ -595,6 +593,7 @@ class EducationalProgramController extends Controller
             $imagePath = $webpPath;
         }
         inertia()->share('imageUrl', Storage::url($imagePath));
+
         return back()->with('imageUrl', Storage::url($imagePath));
     }
 }

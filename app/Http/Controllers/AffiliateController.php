@@ -26,7 +26,7 @@ class AffiliateController extends Controller
         $affiliate = $this->getAffiliate();
 
         // Check if onboarding is complete
-        if (!$affiliate->isOnboardingComplete()) {
+        if (! $affiliate->isOnboardingComplete()) {
             return redirect()->route('affiliate.onboarding');
         }
 
@@ -45,13 +45,13 @@ class AffiliateController extends Controller
         // Calculate stats
         $totalClicks = $affiliate->clicks()
             ->whereYear('created_at', $year)
-            ->when($month, fn($q) => $q->whereMonth('created_at', $month))
+            ->when($month, fn ($q) => $q->whereMonth('created_at', $month))
             ->count();
 
         $totalConversions = $affiliate->clicks()
             ->whereNotNull('converted_user_id')
             ->whereYear('created_at', $year)
-            ->when($month, fn($q) => $q->whereMonth('created_at', $month))
+            ->when($month, fn ($q) => $q->whereMonth('created_at', $month))
             ->count();
 
         $totalCommissions = $commissionsQuery->sum('amount');
@@ -91,6 +91,7 @@ class AffiliateController extends Controller
         // Fill missing months with zeros
         $filledMonthlyData = collect(range(1, 12))->map(function ($month) use ($monthlyData, $year) {
             $existing = $monthlyData->firstWhere('month', $month);
+
             return $existing ?? [
                 'month' => $month,
                 'year' => $year,
@@ -107,7 +108,7 @@ class AffiliateController extends Controller
             ->toArray();
 
         // Add current year if not present
-        if (!in_array((int) $year, $years)) {
+        if (! in_array((int) $year, $years)) {
             $years[] = (int) $year;
         }
         sort($years);
@@ -178,7 +179,7 @@ class AffiliateController extends Controller
 
         $validated = $request->validate([
             'name' => 'required|string|max:255',
-            'email' => 'required|email|unique:users,email,' . $affiliate->user_id,
+            'email' => 'required|email|unique:users,email,'.$affiliate->user_id,
             'phone' => 'nullable|string|max:20',
             'bank_name' => 'required|string|max:255',
             'account_holder_name' => 'required|string|max:255',
@@ -216,6 +217,7 @@ class AffiliateController extends Controller
             return back()->with('success', 'Informations mises à jour avec succès.');
         } catch (\Exception $e) {
             DB::rollBack();
+
             return back()->withErrors(['error' => 'Une erreur s\'est produite.']);
         }
     }
@@ -271,7 +273,7 @@ class AffiliateController extends Controller
     {
         $affiliate = $this->getAffiliate();
 
-        if (!$affiliate->can_recommend) {
+        if (! $affiliate->can_recommend) {
             abort(403, 'Vous n\'avez pas la permission de recommander d\'autres affiliés.');
         }
 
@@ -285,7 +287,7 @@ class AffiliateController extends Controller
     {
         $affiliate = $this->getAffiliate();
 
-        if (!$affiliate->can_recommend) {
+        if (! $affiliate->can_recommend) {
             abort(403, 'Vous n\'avez pas la permission de recommander d\'autres affiliés.');
         }
 
@@ -306,5 +308,113 @@ class AffiliateController extends Controller
         ]);
 
         return back()->with('success', 'Demande de recommandation soumise avec succès.');
+    }
+
+    /**
+     * Show sub-affiliates (affiliates you recommended).
+     */
+    public function subAffiliates(Request $request)
+    {
+        $affiliate = $this->getAffiliate();
+
+        if (! $affiliate->can_recommend) {
+            abort(403, 'Vous n\'avez pas la permission de voir les affiliés recommandés.');
+        }
+
+        $year = $request->input('year', date('Y'));
+        $status = $request->input('status', 'all'); // all, active, inactive
+
+        $subAffiliatesQuery = $affiliate->referredAffiliates()
+            ->with('user');
+
+        if ($status === 'active') {
+            $subAffiliatesQuery->where('is_active', true);
+        } elseif ($status === 'inactive') {
+            $subAffiliatesQuery->where('is_active', false);
+        }
+
+        $subAffiliates = $subAffiliatesQuery->get()->map(function ($subAffiliate) use ($year, $affiliate) {
+            $subAffiliateCommissions = $subAffiliate->commissions()
+                ->whereYear('created_at', $year)
+                ->where('status', '!=', 'cancelled')
+                ->sum('amount');
+
+            $subAffiliateConversions = $subAffiliate->clicks()
+                ->whereNotNull('converted_user_id')
+                ->whereYear('created_at', $year)
+                ->count();
+
+            // Calculate your commission from this sub-affiliate (referral_bonus_rate % of their commissions)
+            $referralRate = $affiliate->referral_bonus_rate ?? 5;
+            $yourCommission = $subAffiliateCommissions * ($referralRate / 100);
+
+            return [
+                'id' => $subAffiliate->id,
+                'name' => $subAffiliate->user->name,
+                'email' => $subAffiliate->user->email,
+                'unique_code' => $subAffiliate->unique_code,
+                'is_active' => $subAffiliate->is_active,
+                'commission_rate' => $subAffiliate->commission_rate,
+                'joined_at' => $subAffiliate->created_at->format('Y-m-d'),
+                'your_commission' => $yourCommission,
+                'their_total_commission' => $subAffiliateCommissions,
+                'their_conversions' => $subAffiliateConversions,
+            ];
+        });
+
+        // Calculate summary stats
+        $totalSubAffiliates = $affiliate->referredAffiliates()->count();
+        $activeSubAffiliates = $affiliate->referredAffiliates()->where('is_active', true)->count();
+
+        // Calculate total referral commissions (sum of all sub-affiliates' commissions * referral rate)
+        $referralRate = $affiliate->referral_bonus_rate ?? 5;
+        $totalReferralCommissions = $subAffiliates->sum('your_commission');
+
+        // Get monthly referral commission data for chart
+        $monthlyReferralData = collect(range(1, 12))->mapWithKeys(function ($month) use ($affiliate, $year, $referralRate) {
+            $monthlyTotal = 0;
+
+            // For each sub-affiliate, calculate their commissions for this month
+            foreach ($affiliate->referredAffiliates as $subAffiliate) {
+                $subCommissions = $subAffiliate->commissions()
+                    ->whereYear('created_at', $year)
+                    ->whereMonth('created_at', $month)
+                    ->where('status', '!=', 'cancelled')
+                    ->sum('amount');
+
+                $monthlyTotal += $subCommissions * ($referralRate / 100);
+            }
+
+            return [$month => $monthlyTotal];
+        });
+
+        $filledMonthlyData = collect(range(1, 12))->map(function ($month) use ($monthlyReferralData) {
+            return [
+                'month' => date('M', mktime(0, 0, 0, $month, 1)),
+                'commissions' => (float) ($monthlyReferralData->get($month, 0)),
+            ];
+        });
+
+        $years = $affiliate->referredAffiliates()
+            ->selectRaw('DISTINCT YEAR(created_at) as year')
+            ->pluck('year')
+            ->toArray();
+
+        if (! in_array((int) $year, $years)) {
+            $years[] = (int) $year;
+        }
+        sort($years);
+
+        return Inertia::render('affiliate/sub-affiliates', [
+            'subAffiliates' => $subAffiliates,
+            'stats' => [
+                'total_sub_affiliates' => $totalSubAffiliates,
+                'active_sub_affiliates' => $activeSubAffiliates,
+                'total_referral_commissions' => $totalReferralCommissions,
+                'referral_bonus_rate' => $affiliate->referral_bonus_rate ?? 5,
+            ],
+            'chartData' => $filledMonthlyData,
+            'years' => $years,
+        ]);
     }
 }

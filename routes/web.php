@@ -119,6 +119,7 @@ Route::middleware(['auth', 'verified'])->prefix('affiliate')->name('affiliate.')
     Route::get('/invoices/{invoice}/download', [AffiliateController::class, 'downloadInvoice'])->name('invoices.download');
     Route::get('/recommend', [AffiliateController::class, 'recommendForm'])->name('recommend');
     Route::post('/recommend', [AffiliateController::class, 'submitRecommendation'])->name('recommend.submit');
+    Route::get('/sub-affiliates', [AffiliateController::class, 'subAffiliates'])->name('sub-affiliates');
 });
 
 // Admin affiliate management routes
@@ -134,5 +135,5 @@ Route::middleware(['auth', 'verified'])->prefix('admin/affiliates')->name('admin
     Route::post('/requests/{request}/reject', [App\Http\Controllers\Admin\AffiliateController::class, 'rejectRequest'])->name('requests.reject');
 });
 
-require __DIR__ . '/settings.php';
-require __DIR__ . '/auth.php';
+require __DIR__.'/settings.php';
+require __DIR__.'/auth.php';

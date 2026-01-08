@@ -74,7 +74,7 @@ class AffiliateInvoice extends Model
     /**
      * Mark invoice as paid
      */
-    public function markAsPaid(string $paymentMethod = null, string $notes = null): void
+    public function markAsPaid(?string $paymentMethod = null, ?string $notes = null): void
     {
         $this->update([
             'status' => 'paid',
@@ -98,6 +98,7 @@ class AffiliateInvoice extends Model
     public function getPeriod(): string
     {
         $monthName = date('F', mktime(0, 0, 0, $this->month, 1));
+
         return "{$monthName} {$this->year}";
     }
 }

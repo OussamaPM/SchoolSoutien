@@ -2,13 +2,11 @@
 
 namespace App\Models;
 
-use Illuminate\Support\Str;
-use App\Models\AffiliateClick;
-use App\Models\AffiliateCommission;
-use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\HasMany;
-use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Support\Str;
 
 class Affiliate extends Model
 {
@@ -144,9 +142,9 @@ class Affiliate extends Model
      */
     public function hasBankInfo(): bool
     {
-        return !empty($this->bank_name) &&
-            !empty($this->account_holder_name) &&
-            !empty($this->iban);
+        return ! empty($this->bank_name) &&
+            ! empty($this->account_holder_name) &&
+            ! empty($this->iban);
     }
 
     /**
@@ -154,8 +152,8 @@ class Affiliate extends Model
      */
     public function hasCompanyInfo(): bool
     {
-        return !empty($this->company_name) &&
-            !empty($this->company_address);
+        return ! empty($this->company_name) &&
+            ! empty($this->company_address);
     }
 
     /**
@@ -177,6 +175,7 @@ class Affiliate extends Model
         }
 
         $convertedClicks = $this->clicks()->whereNotNull('converted_user_id')->count();
+
         return round(($convertedClicks / $totalClicks) * 100, 2);
     }
 }

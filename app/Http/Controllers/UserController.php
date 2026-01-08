@@ -32,7 +32,7 @@ class UserController extends Controller
     {
         $validated = $request->validate([
             'name' => ['required', 'string', 'max:255'],
-            'email' => ['required', 'string', 'lowercase', 'email', 'max:255', 'unique:' . User::class],
+            'email' => ['required', 'string', 'lowercase', 'email', 'max:255', 'unique:'.User::class],
             'role' => ['required', 'string', Rule::in(RoleEnum::allRoles())],
             'city' => ['nullable', 'string', 'max:255'],
             'phone' => ['nullable', 'string', 'max:20'],

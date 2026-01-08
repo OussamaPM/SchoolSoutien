@@ -84,7 +84,7 @@ class AffiliateSalesController extends Controller
         // Get affiliate tracking from cookie
         $tracking = json_decode(request()->cookie('affiliate_tracking'), true);
 
-        if (!$tracking || !isset($tracking['affiliate_id'])) {
+        if (! $tracking || ! isset($tracking['affiliate_id'])) {
             return back()->withErrors(['error' => 'Lien d\'affiliation invalide ou expiré.']);
         }
 
@@ -141,6 +141,7 @@ class AffiliateSalesController extends Controller
                 ->with('success', 'Compte créé avec succès! Bienvenue.');
         } catch (\Exception $e) {
             DB::rollBack();
+
             return back()->withErrors(['error' => 'Une erreur s\'est produite lors de la création du compte.']);
         }
     }

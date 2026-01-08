@@ -13,7 +13,7 @@ enum RoleEnum: string
 
     public static function allRoles(): array
     {
-        return array_map(fn($role) => $role->value, self::cases());
+        return array_map(fn ($role) => $role->value, self::cases());
     }
 
     public function label(): string
@@ -44,10 +44,10 @@ enum RoleEnum: string
     public function getCorrespondingFunction(): callable
     {
         return match ($this) {
-            self::ADMIN => fn(DashboardController $controller) => $controller->getAdminData(),
-            self::PARENT => fn(DashboardController $controller) => $controller->getParentData(),
-            self::TEACHER => fn(DashboardController $controller) => $controller->getTeacherData(),
-            self::AFFILIATE => fn(DashboardController $controller) => $controller->getAffiliateData(),
+            self::ADMIN => fn (DashboardController $controller) => $controller->getAdminData(),
+            self::PARENT => fn (DashboardController $controller) => $controller->getParentData(),
+            self::TEACHER => fn (DashboardController $controller) => $controller->getTeacherData(),
+            self::AFFILIATE => fn (DashboardController $controller) => $controller->getAffiliateData(),
         };
     }
 }
